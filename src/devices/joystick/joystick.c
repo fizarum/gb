@@ -65,13 +65,12 @@ static void onUpdate(void) {
   }
 }
 
-static void* getData(void) { return &deviceData; }
-
 DeviceSpecification_t* JoystickSpecification() {
+  specs.data = &deviceData;
+
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;
   specs.onUpdate = &onUpdate;
-  specs.getData = &getData;
 
   return &specs;
 }

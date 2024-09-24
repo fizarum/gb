@@ -15,124 +15,72 @@
 #include "esp_psram.h"
 #include "soc/rtc.h"
 
+char _settingsBuff[20];
+const _u16 kbSize = 1024;
+const _u32 mbSize = 1024 * 1024;
+
 static AppSpecification_t specs = {
     .name = "Settings",
 };
 
-DeviceSpecification_t* batterySpecification;
-BatteryDeviceData_t* batteryData;
-
-DeviceSpecification_t* storageSpecification;
-StorageDeviceData_t* storageData;
+static BatteryDeviceData_t* batteryData;
+static StorageDeviceData_t* storageData;
 
 esp_chip_info_t chipInfo;
 rtc_cpu_freq_config_t conf;
+_u16 flashSizeInMb = 0;
+_u16 allRamInKb = 0;
 
-char _settingsBuff[20];
-
-const _u16 kbSize = 1024;
+_u32 sdSizeInMB = 0;
+_u32 sdUsedSizeInMB = 0;
 
 void GetChipModel(const esp_chip_model_t model);
+static void DrawScreen();
 
 static void handleKey(const void* keyData) {}
-static void onAppLoading(void) {
-  ESP_LOGI(specs.name, "on app loading...");
 
-  batterySpecification = BatterySpecification();
-  batteryData = batterySpecification->getData();
+static void onAppStart(void) {
+  ESP_LOGI(specs.name, "on app start...");
+  DeviceManager_t* deviceManger = DeviceManagerGetInstance();
+  Device_t* powerDevice = DeviceManagerGetByType(deviceManger, TypePower);
+  batteryData = (BatteryDeviceData_t*)DeviceGetData(powerDevice);
 
-  storageSpecification = StorageSpecification();
-  storageData = storageSpecification->getData();
-}
-
-static void onAppUpdate(void) {}
-static void onAppPause(void) { ESP_LOGI(specs.name, "on app pause..."); }
-
-static void onAppResume(void) {
-  ESP_LOGI(specs.name, "on app resume...");
-  GFXFillScreen(COLOR_DARKGREEN);
-  GFXDrawString(specs.name, 30, 7);
+  Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
+  storageData = (StorageDeviceData_t*)DeviceGetData(storageDevice);
 
   esp_chip_info(&chipInfo);
   rtc_clk_cpu_freq_get_config(&conf);
 
   uint32_t flashChipSize;
   esp_flash_get_size(NULL, &flashChipSize);
-  uint16_t flashSizeInMb = flashChipSize / (1024 * 1024);
+  flashSizeInMb = flashChipSize / mbSize;
 
-  _u16 allRam = esp_get_free_heap_size() / kbSize;
+  allRamInKb = esp_get_free_heap_size() / kbSize;
 
-  _u32 sdSizeInMB = StorageGetTotalSizeInMBs(storageData->mountPoint);
-  _u32 sdUsedSizeInMB = StorageGetUsedSizeInMBs(storageData->mountPoint);
-
-  uint8_t yPos = 40;
-  uint8_t firstColumnXPos = 30;
-  uint8_t secondColumnXPos = 160;
-  uint8_t itemHeight = 18;
-
-  // model
-  GFXDrawString("model:", firstColumnXPos, yPos);
-  GetChipModel(chipInfo.model);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  // rev
-  yPos += itemHeight;
-  GFXDrawString("revision:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%u", chipInfo.revision);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  // cores
-  yPos += itemHeight;
-  GFXDrawString("cores:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%d", chipInfo.cores);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  // cpu
-  yPos += itemHeight;
-  GFXDrawString("cpu speed:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%d Mhz", (_u16)conf.freq_mhz);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  // flash
-  yPos += itemHeight;
-  GFXDrawString("flash:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%u MB", flashSizeInMb);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  // ram
-  yPos += itemHeight;
-  GFXDrawString("free ram:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%d KB", allRam);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  // sd
-  yPos += itemHeight;
-  GFXDrawString("sd size:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%lu MB", sdSizeInMB);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  yPos += itemHeight;
-  GFXDrawString("sd used:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%lu MB", sdUsedSizeInMB);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
-
-  // battery
-  yPos += itemHeight;
-  GFXDrawString("battery:", firstColumnXPos, yPos);
-  sprintf(_settingsBuff, "%d %%", batteryData->chargeLevelPercents);
-  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+  sdSizeInMB = StorageGetTotalSizeInMBs(storageData->mountPoint);
+  sdUsedSizeInMB = StorageGetUsedSizeInMBs(storageData->mountPoint);
 }
 
+static void onAppUpdate(void) {}
+static void onAppRedraw(RedrawType_t redrawType) {
+  if (redrawType == RedrawFull) {
+    DrawScreen();
+  }
+}
+
+static void onAppPause(void) { ESP_LOGI(specs.name, "on app pause..."); }
+static void onAppResume(void) { ESP_LOGI(specs.name, "on app resume..."); }
 static void onAppStop(void) { ESP_LOGI(specs.name, "on app stop..."); }
 
 AppSpecification_t* SettingsAppSpecification(const _u16 appId) {
   specs.id = appId;
   specs.handleInput = &handleKey;
-  specs.onInit = &onAppLoading;
-  specs.onStart = &onAppResume;
+  specs.onStart = &onAppStart;
   specs.onPause = &onAppPause;
   specs.onResume = &onAppResume;
   specs.onUpdate = &onAppUpdate;
+  specs.onRedraw = &onAppRedraw;
+
   specs.onStop = &onAppStop;
 
   return &specs;
@@ -176,4 +124,66 @@ void GetChipModel(const esp_chip_model_t model) {
       sprintf(_settingsBuff, "%s", "N/A");
       break;
   }
+}
+
+static void DrawScreen() {
+  uint8_t yPos = 40;
+  uint8_t firstColumnXPos = 30;
+  uint8_t secondColumnXPos = 160;
+  uint8_t itemHeight = 18;
+
+  GFXFillScreen(COLOR_DARKGREEN);
+  GFXDrawString(specs.name, 30, 7);
+
+  // model
+  GFXDrawString("model:", firstColumnXPos, yPos);
+  GetChipModel(chipInfo.model);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  // rev
+  yPos += itemHeight;
+  GFXDrawString("revision:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%u", chipInfo.revision);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  // cores
+  yPos += itemHeight;
+  GFXDrawString("cores:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%d", chipInfo.cores);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  // cpu
+  yPos += itemHeight;
+  GFXDrawString("cpu speed:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%d Mhz", (_u16)conf.freq_mhz);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  // flash
+  yPos += itemHeight;
+  GFXDrawString("flash:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%u MB", flashSizeInMb);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  // ram
+  yPos += itemHeight;
+  GFXDrawString("free ram:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%d KB", allRamInKb);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  // sd
+  yPos += itemHeight;
+  GFXDrawString("sd size:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%lu MB", sdSizeInMB);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  yPos += itemHeight;
+  GFXDrawString("sd used:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%lu MB", sdUsedSizeInMB);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
+
+  // battery
+  yPos += itemHeight;
+  GFXDrawString("battery:", firstColumnXPos, yPos);
+  sprintf(_settingsBuff, "%d %%", batteryData->chargeLevelPercents);
+  GFXDrawString(_settingsBuff, secondColumnXPos, yPos);
 }
