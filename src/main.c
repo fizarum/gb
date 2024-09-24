@@ -90,7 +90,7 @@ void systemTask(void* arg) {
 }
 
 void driverTask(void* arg) {
-  deviceManager = DeviceManagerCreate();
+  deviceManager = DeviceManagerGetInstance();
 
   _u16 joystickId = DeviceManagerNextDeviceId(deviceManager);
   Device_t* joystick = DeviceCreate(joystickId, JoystickSpecification());

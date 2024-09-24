@@ -36,7 +36,7 @@ static DeviceSpecification_t specs = {
     .type = TypePower,
 };
 
-static BatteryDeviceData_t batteryDeviceData;
+static BatteryDeviceData_t deviceData;
 
 bool isCalibrated = false;
 
@@ -62,8 +62,8 @@ static void onUpdate(void) {
 
   if (lastUpdatedTimeAt + delayBetweenUpdatesInMicroSeconds < now) {
     lastUpdatedTimeAt = now;
-    batteryDeviceData.charging = gpio_get_level(CHG_MONITOR_PIN);
-    ESP_LOGI(specs.name, "charging: %d", batteryDeviceData.charging);
+    deviceData.charging = gpio_get_level(CHG_MONITOR_PIN);
+    // ESP_LOGI(specs.name, "charging: %d", deviceData.charging);
 
     // voltage = BatteryADCRead(unit, channel, isCalibrated);
     // if (voltage >= BATTERY_LEVEL_MAX) {
@@ -78,12 +78,11 @@ static void onUpdate(void) {
   }
 }
 
-static BatteryDeviceData_t* getData(void) { return &batteryDeviceData; }
-
 DeviceSpecification_t* BatterySpecification() {
+  specs.data = &deviceData;
+
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;
   specs.onUpdate = &onUpdate;
-  specs.getData = &getData;
   return &specs;
 }

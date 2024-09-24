@@ -2,3 +2,5 @@
 .vscode
 build
 *.code-workspace
+sdkconfig
+sdkconfig.*

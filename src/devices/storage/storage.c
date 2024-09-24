@@ -2,16 +2,18 @@
 
 #include <specifications/storage_data.h>
 #include <stddef.h>
+#include <string.h>
 
+#include "esp_vfs.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
-// temp
-#include "storage_utils.h"
 
 #define SD_CS 16
 #define SD_CLK 7
 #define SD_MOSI 15
 #define SD_MISO 6
+
+#define MOUNT_POINT "/sdcard"
 
 static DeviceSpecification_t specs = {
     .name = "SD Card",
@@ -19,7 +21,8 @@ static DeviceSpecification_t specs = {
 };
 
 static StorageDeviceData_t deviceData = {
-    .mountPoint = "/sdcard",
+    .mountPoint = MOUNT_POINT,
+    .card = NULL,
 };
 
 static bool onInit(void) {
@@ -54,9 +57,15 @@ static bool onInit(void) {
   // This initializes the slot without card detect (CD) and write protect (WP)
   // signals. Modify slot_config.gpio_cd and slot_config.gpio_wp if your board
   // has these signals.
-  sdspi_device_config_t slotConfig = SDSPI_DEVICE_CONFIG_DEFAULT();
-  slotConfig.gpio_cs = SD_CS;
-  slotConfig.host_id = host.slot;
+  sdspi_device_config_t slotConfig = {
+      .host_id = host.slot,
+      .gpio_cs = SD_CS,
+      .gpio_cd = GPIO_NUM_NC,
+      .gpio_wp = GPIO_NUM_NC,
+      .gpio_int = GPIO_NUM_NC,
+      .gpio_wp_polarity = SDSPI_IO_ACTIVE_LOW,
+
+  };
 
   ESP_LOGI(specs.name, "Mounting filesystem");
   ret = esp_vfs_fat_sdspi_mount(deviceData.mountPoint, &host, &slotConfig,
@@ -76,24 +85,22 @@ static bool onInit(void) {
     }
     return false;
   }
+  ESP_LOGI(specs.name, "Filesystem mounted to SD: %s",
+           deviceData.card->cid.name);
 
   return true;
 }
 
-static void onEnable(bool enable) {
-  //..
-}
+static void onEnable(bool enable) {}
 
-static void onUpdate(void) {
-  //..
-}
-
-static void* getData(void) { return &deviceData; }
+static void onUpdate(void) {}
 
 DeviceSpecification_t* StorageSpecification() {
+  specs.data = &deviceData;
+
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;
   specs.onUpdate = &onUpdate;
-  specs.getData = &getData;
+
   return &specs;
 }

@@ -89,12 +89,12 @@ static void onEnable(bool enable) {
 
 static void onUpdate(void) {}
 
-static void* getData(void) { return &deviceData; }
-
 DeviceSpecification_t* DislplaySpecification() {
+  specs.data = &deviceData;
+
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;
   specs.onUpdate = &onUpdate;
-  specs.getData = &getData;
+
   return &specs;
 }

@@ -14,6 +14,7 @@
 
 void SelectNextApp();
 void SelectPreviousApp();
+void DrawScreen();
 
 AppsManager_t* _appsManager = NULL;
 App_t* selectedApp = NULL;
@@ -21,15 +22,22 @@ App_t* selectedApp = NULL;
 _u8 selectedAppIndex = UINT8_MAX;
 Array_t* allApps = NULL;
 
-static bool redraw = false;
-volatile bool paused = false;
-
 static AppSpecification_t specs = {
     .name = "Menu",
 };
 
+static void onAppStart() {
+  ESP_LOGI(specs.name, "on app started...");
+  if (_appsManager != NULL) {
+    allApps = AppsManagerGetAllApps(_appsManager);
+  }
+  SelectNextApp();
+}
+
 static void handleKey(const void* keyData) {
-  if (paused == true) return;
+  if (keyData == NULL) {
+    ESP_LOGW(specs.name, "can't handle keyData, its null!");
+  }
 
   InputDeviceData_t* data = (InputDeviceData_t*)keyData;
   ESP_LOGI(specs.name, "[specs] handle input: %d", data->keymap);
@@ -43,33 +51,85 @@ static void handleKey(const void* keyData) {
   }
 }
 
-static void onAppLoading(void) { ESP_LOGI(specs.name, "on app loading..."); }
+static void onAppUpdate(void) {}
 
-static void onAppUpdate(void) {
-  if (redraw == false) {
-    return;
+static void onAppRedraw(RedrawType_t redrawType) {
+  if (redrawType == RedrawFull) {
+    DrawScreen();
   }
-  redraw = false;
 
   const char* appName = AppGetName(selectedApp);
 
   GFXDrawFilledRect(40, 190, 120, 130, BACKGROUND_COLOR);
   GFXDrawString(appName, 40, 120);
+
   ESP_LOGI(specs.name, "selected app: %s", appName);
 }
 
-static void onAppPause(void) {
-  paused = true;
-  ESP_LOGI(specs.name, "on app pause...");
-}
+static void onAppPause(void) { ESP_LOGI(specs.name, "on app pause..."); }
 
 int64_t start, period;
 static void onAppResume(void) {
   ESP_LOGI(specs.name, "on app resume...");
-  if (_appsManager != NULL) {
-    allApps = AppsManagerGetAllApps(_appsManager);
+
+  if (selectedAppIndex == UINT8_MAX) {
+    SelectNextApp();
+  } else {
+    specs.redrawNeeded = RedrawPartial;
+  }
+}
+
+static void onAppStop(void) { ESP_LOGI(specs.name, "on app stop..."); }
+
+AppSpecification_t* MenuAppSpecification(const _u16 appId,
+                                         AppsManager_t* appsManager) {
+  specs.id = appId;
+  specs.handleInput = &handleKey;
+  specs.onStart = &onAppStart;
+  specs.onPause = &onAppPause;
+  specs.onResume = &onAppResume;
+  specs.onUpdate = &onAppUpdate;
+  specs.onRedraw = &onAppRedraw;
+
+  specs.onStop = &onAppStop;
+
+  _appsManager = appsManager;
+  return &specs;
+}
+
+//
+void NormalizeSelectedAppIndex() {
+  if (selectedAppIndex == UINT8_MAX) {
+    selectedAppIndex = ArrayLastIndex(allApps);
+    return;
   }
 
+  if (selectedAppIndex >= ArraySize(allApps)) {
+    selectedAppIndex = 0;
+  }
+}
+
+void SelectNextApp() {
+  if (allApps == NULL) return;
+  selectedAppIndex++;
+
+  NormalizeSelectedAppIndex();
+
+  selectedApp = ArrayValueAt(allApps, selectedAppIndex);
+  specs.redrawNeeded = RedrawPartial;
+}
+
+void SelectPreviousApp() {
+  if (allApps == NULL) return;
+  selectedAppIndex--;
+
+  NormalizeSelectedAppIndex();
+
+  selectedApp = ArrayValueAt(allApps, selectedAppIndex);
+  specs.redrawNeeded = RedrawPartial;
+}
+
+void DrawScreen() {
   GFXFillScreen(BACKGROUND_COLOR);
 
   // time placeholder
@@ -81,7 +141,7 @@ static void onAppResume(void) {
   // top status line
   GFXDrawFilledRect(20, 300, 20, 21, ACCENT_COLOR);
 
-  // content
+  // test content
   // GFXDrawString("Hello world", 40, 120);
   // start = esp_timer_get_time();
   // GFXDrawString("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 30);
@@ -102,51 +162,4 @@ static void onAppResume(void) {
 
   // bottom status line
   GFXDrawFilledRect(20, 300, 220, 221, ACCENT_COLOR);
-
-  if (selectedAppIndex == UINT8_MAX) {
-    SelectNextApp();
-  } else {
-    redraw = true;
-  }
-
-  paused = false;
-}
-
-static void onAppStop(void) { ESP_LOGI(specs.name, "on app stop..."); }
-
-AppSpecification_t* MenuAppSpecification(const _u16 appId,
-                                         AppsManager_t* appsManager) {
-  specs.id = appId;
-  specs.handleInput = &handleKey;
-  specs.onInit = &onAppLoading;
-  specs.onStart = &onAppResume;
-  specs.onPause = &onAppPause;
-  specs.onResume = &onAppResume;
-  specs.onUpdate = &onAppUpdate;
-
-  specs.onStop = &onAppStop;
-
-  _appsManager = appsManager;
-  return &specs;
-}
-
-void SelectNextApp() {
-  selectedAppIndex++;
-
-  if (selectedAppIndex >= ArraySize(allApps)) {
-    selectedAppIndex = 0;
-  }
-
-  selectedApp = ArrayValueAt(allApps, selectedAppIndex);
-  redraw = true;
-}
-
-void SelectPreviousApp() {
-  selectedAppIndex--;
-
-  if (selectedAppIndex == UINT8_MAX) {
-    selectedAppIndex = ArrayLastIndex(allApps);
-  }
-  selectedApp = ArrayValueAt(allApps, selectedAppIndex);
-  redraw = true;
 }
