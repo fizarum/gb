@@ -1,19 +1,20 @@
 #include "settings_app.h"
 
 #include <device_manager.h>
-#include <gfx/gfx.h>
-#include <palette.h>
 #include <specifications/battery_data.h>
 #include <specifications/storage_data.h>
 
 #include "../../devices/battery/battery.h"
 #include "../../devices/storage/storage.h"
 #include "../../devices/storage/storage_utils.h"
+#include "../apps_utils.h"
 #include "esp_chip_info.h"
 #include "esp_flash.h"
 #include "esp_log.h"
 #include "esp_psram.h"
 #include "soc/rtc.h"
+
+#define BACKGROUND_COLOR COLOR_DARKGREEN
 
 char _settingsBuff[20];
 const _u16 kbSize = 1024;
@@ -132,8 +133,7 @@ static void DrawScreen() {
   uint8_t secondColumnXPos = 160;
   uint8_t itemHeight = 18;
 
-  GFXFillScreen(COLOR_DARKGREEN);
-  GFXDrawString(specs.name, 30, 7);
+  AppDrawBackgroundAndTitle(specs.name, BACKGROUND_COLOR);
 
   // model
   GFXDrawString("model:", firstColumnXPos, yPos);
