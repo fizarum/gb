@@ -38,6 +38,7 @@ ILI9341_t dev = {
     .fontRotaion = Angle0,
     .colorMode = ModeBGR,
     .dc = DISPLAY_DC,
+    .res = DISPLAY_RESET,
 };
 
 Font_t font = {
@@ -77,7 +78,7 @@ static bool onInit(void) {
 
   dev.handle = spiHandle;
 
-  Ili9341Init(&dev, DISPLAY_RESET);
+  Ili9341Init(&dev);
 
   deviceData.width = dev.width;
   deviceData.height = dev.height;
