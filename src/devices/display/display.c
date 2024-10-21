@@ -47,8 +47,24 @@ Font_t font = {
     .scale = 2,
 };
 
+typedef struct UpdateTransaction_t {
+  _u16 left;
+  _u16 top;
+  _u16 right;
+  _u16 bottom;
+  _u16 color;
+} UpdateTransaction_t;
+
+TaskHandle_t displayTaskHandle = NULL;
+QueueHandle_t displayDataQueue;
+UpdateTransaction_t updateTransaction;
+
 static DisplayDeviceData_t deviceData;
 static _u8 brightness = 30;
+
+void drawingTask(void* arg);
+static void drawCallback(const _u16 left, const _u16 top, const _u16 right,
+                         const _u16 bottom, _u16 color);
 
 static bool onInit(void) {
   spi_device_handle_t spiHandle;
@@ -63,12 +79,14 @@ static bool onInit(void) {
 
   Ili9341Init(&dev, DISPLAY_RESET);
 
-  GFXInit(&dev);
-
-  deviceData.width = DISPLAY_WIDTH;
-  deviceData.height = DISPLAY_HEIGHT;
+  deviceData.width = dev.width;
+  deviceData.height = dev.height;
 
   ESP_LOGI(specs.name, "on init: 1");
+
+  displayDataQueue = xQueueCreate(4000, sizeof(UpdateTransaction_t));
+
+  GFXInit(deviceData.width, deviceData.height, &drawCallback);
 
   return true;
 }
@@ -79,8 +97,14 @@ static void onEnable(bool enable) {
 
   if (enable == true) {
     BacklightSetValue(DISPLAY_BL, brightness);
+
+    xTaskCreate(&drawingTask, "drawingTask", 8096, NULL, 12,
+                &displayTaskHandle);
   } else {
     BacklightSetValue(DISPLAY_BL, 0);
+    if (displayTaskHandle != NULL) {
+      vTaskDelete(displayTaskHandle);
+    }
     return;
   }
 
@@ -97,4 +121,27 @@ DeviceSpecification_t* DislplaySpecification() {
   specs.onUpdate = &onUpdate;
 
   return &specs;
+}
+
+void drawingTask(void* arg) {
+  while (1) {
+    if (xQueueReceive(displayDataQueue, &updateTransaction, 0) == pdPASS) {
+      Ili9341DrawPixelTimes(&dev, updateTransaction.left,
+                            updateTransaction.right, updateTransaction.top,
+                            updateTransaction.bottom, updateTransaction.color);
+    } else {
+      vTaskDelay(1);
+    }
+  }
+}
+
+static void drawCallback(const _u16 left, const _u16 top, const _u16 right,
+                         const _u16 bottom, _u16 color) {
+  updateTransaction.left = left;
+  updateTransaction.top = top;
+  updateTransaction.right = right;
+  updateTransaction.bottom = bottom;
+  updateTransaction.color = color;
+
+  xQueueSend(displayDataQueue, &updateTransaction, 0);
 }
