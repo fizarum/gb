@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "../gpio/gpio_hal.h"
-// #include "../spi/spi_hal.h"
+#include "../spi/spi_hal.h"
 #include "backlight.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
@@ -86,15 +86,8 @@ static void drawCallback(const _u16 left, const _u16 top, const _u16 right,
                          const _u16 bottom, _u16 color);
 
 static bool onInit(void) {
-  // bool result =
-  //     SPI_Init(&spiHandle, SPI2_HOST, DISPLAY_MOSI, DISPLAY_SCLK,
-  //     DISPLAY_CS);
-  // if (result == false) {
-  //   return false;
-  // }
-
-  esp_err_t result =
-      SPIInit(&spiHandle, SPI2_HOST, DISPLAY_MOSI, DISPLAY_SCLK, DISPLAY_CS);
+  bool result =
+      SPI_Init(&spiHandle, SPI2_HOST, DISPLAY_MOSI, DISPLAY_SCLK, DISPLAY_CS);
   if (result != ESP_OK) {
     return false;
   }
@@ -128,12 +121,12 @@ static void onEnable(bool enable) {
   Ili9341PowerOn(&dev, enable);
 
   if (enable == true) {
-    BacklightSetValue(DISPLAY_BL, brightness);
+    Backlight_SetValue(DISPLAY_BL, brightness);
 
     xTaskCreate(&drawingTask, "drawingTask", 8096, NULL, 12,
                 &displayTaskHandle);
   } else {
-    BacklightSetValue(DISPLAY_BL, 0);
+    Backlight_SetValue(DISPLAY_BL, 0);
     if (displayTaskHandle != NULL) {
       vTaskDelete(displayTaskHandle);
     }

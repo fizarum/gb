@@ -1,7 +1,7 @@
 #include "spi_hal.h"
 
-bool SPI_Init(spi_device_handle_t *handle, spi_host_device_t host,
-              const uint8_t mosi, const uint8_t sclk, const uint8_t cs) {
+esp_err_t SPI_Init(spi_device_handle_t *handle, spi_host_device_t host,
+                   const uint8_t mosi, const uint8_t sclk, const uint8_t cs) {
   spi_bus_config_t busConfig = {
       .sclk_io_num = sclk,
       .mosi_io_num = mosi,
