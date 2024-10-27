@@ -48,9 +48,7 @@ static bool onInit(void) {
       .pull_up_en = GPIO_PULLUP_ENABLE,
       .pin_bit_mask = CHG_MONITOR_PIN,
   };
-  esp_err_t result = gpio_config(&ioConf);
-  ESP_LOGI(specs.name, "on init: %d", result == ESP_OK);
-  return result == ESP_OK;
+  return gpio_config(&ioConf) == ESP_OK;
 }
 
 static void onEnable(bool enable) {

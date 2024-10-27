@@ -45,7 +45,7 @@ static bool onInit(void) {
     initOk &= MCPWriteConfig(&mcp23017, MCP_REG_IPOLA, 0xff);
     initOk &= MCPWriteConfig(&mcp23017, MCP_REG_IPOLB, 0xff);
   }
-  ESP_LOGI(specs.name, "on init: %d", initOk);
+
   return initOk;
 }
 

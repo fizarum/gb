@@ -107,8 +107,6 @@ static bool onInit(void) {
   deviceData.width = dev.width;
   deviceData.height = dev.height;
 
-  ESP_LOGI(specs.name, "on init: 1");
-
   displayDataQueue = xQueueCreate(4000, sizeof(UpdateTransaction_t));
 
   GFXInit(deviceData.width, deviceData.height, &drawCallback);

@@ -37,6 +37,8 @@ const _u8 inputDataSize = 2;
 
 void systemTask(void* arg);
 void driverTask(void* arg);
+static _u16 RegisterDevice(DeviceManager_t* deviceManager,
+                           DeviceSpecification_t* deviceSpecification);
 
 void app_main() {
   vTaskDelay(_100);
@@ -92,38 +94,10 @@ void systemTask(void* arg) {
 void driverTask(void* arg) {
   deviceManager = DeviceManagerGetInstance();
 
-  _u16 joystickId = DeviceManagerNextDeviceId(deviceManager);
-  Device_t* joystick = DeviceCreate(joystickId, JoystickSpecification());
-  _u16 addedDeviceId = DeviceManagerAdd(deviceManager, joystick);
-
-  if (addedDeviceId != DEVICE_ID_NONE) {
-    ESP_LOGI(DEV_TAG, "added new device: %d [%s]\n", addedDeviceId,
-             DeviceGetName(joystick));
-  }
-
-  _u16 displayId = DeviceManagerNextDeviceId(deviceManager);
-  Device_t* display = DeviceCreate(displayId, DislplaySpecification());
-  addedDeviceId = DeviceManagerAdd(deviceManager, display);
-  if (addedDeviceId != DEVICE_ID_NONE) {
-    ESP_LOGI(DEV_TAG, "added new device: %d [%s]\n", addedDeviceId,
-             DeviceGetName(display));
-  }
-
-  _u16 batteryId = DeviceManagerNextDeviceId(deviceManager);
-  Device_t* battery = DeviceCreate(batteryId, BatterySpecification());
-  addedDeviceId = DeviceManagerAdd(deviceManager, battery);
-  if (addedDeviceId != DEVICE_ID_NONE) {
-    ESP_LOGI(DEV_TAG, "added new device: %d [%s]\n", addedDeviceId,
-             DeviceGetName(battery));
-  }
-
-  _u16 sdCardId = DeviceManagerNextDeviceId(deviceManager);
-  Device_t* sdCard = DeviceCreate(sdCardId, StorageSpecification());
-  addedDeviceId = DeviceManagerAdd(deviceManager, sdCard);
-  if (addedDeviceId != DEVICE_ID_NONE) {
-    ESP_LOGI(DEV_TAG, "added new device: %d [%s]\n", addedDeviceId,
-             DeviceGetName(sdCard));
-  }
+  _u16 joystickId = RegisterDevice(deviceManager, JoystickSpecification());
+  RegisterDevice(deviceManager, DislplaySpecification());
+  RegisterDevice(deviceManager, BatterySpecification());
+  RegisterDevice(deviceManager, StorageSpecification());
 
   while (1) {
     DeviceManagerUpdate(deviceManager);
@@ -137,4 +111,20 @@ void driverTask(void* arg) {
 
     vTaskDelay(_20);
   }
+}
+
+static _u16 RegisterDevice(DeviceManager_t* deviceManager,
+                           DeviceSpecification_t* deviceSpecification) {
+  _u16 id = DeviceManagerNextDeviceId(deviceManager);
+  Device_t* device = DeviceCreate(id, deviceSpecification);
+  _u16 addedDeviceId = DeviceManagerAdd(deviceManager, device);
+  const char* deviceName = DeviceGetName(device);
+
+  if (addedDeviceId != DEVICE_ID_NONE) {
+    ESP_LOGI(DEV_TAG, "added new device: %d [%s]\n", addedDeviceId, deviceName);
+  } else {
+    ESP_LOGE(DEV_TAG, "cannot add device: %d [%s]\n", addedDeviceId,
+             deviceName);
+  }
+  return addedDeviceId;
 }
