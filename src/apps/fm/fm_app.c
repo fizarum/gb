@@ -24,6 +24,9 @@ static StorageDeviceData_t* storageData;
 
 static AppSpecification_t specs = {
     .name = "File Manager",
+    .onPause = &App_StubFunction,
+    .onResume = &App_StubFunction,
+    .onUpdate = &App_StubFunction,
 };
 
 const _u8 startVPadding = 40;
@@ -92,6 +95,8 @@ static void handleKey(const void* keyData) {
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
+  GFX_SetBackground(BACKGROUND_COLOR);
+
   DeviceManager_t* deviceManger = DeviceManagerGetInstance();
   Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
   storageData = (StorageDeviceData_t*)DeviceGetData(storageDevice);
@@ -121,11 +126,9 @@ static void onAppStart(void) {
   }
 }
 
-static void onAppUpdate(void) {}
-
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    AppDrawBackgroundAndTitle(specs.name, BACKGROUND_COLOR);
+    App_DrawBackgroundAndTitle(specs.name, BACKGROUND_COLOR);
   }
   vPosOfText = startVPadding;
   _u16 vPosOfTextBox = vPosOfText + vSpacing;
@@ -152,18 +155,15 @@ static void onAppRedraw(RedrawType_t redrawType) {
   }
 
   // draw focus indicator
-  GFXDrawFilledRect(startHPaddingForFocusIndicator, 20, startVPadding,
-                    FS_DISPLAY_HEIGHT, BACKGROUND_COLOR);
-  GFXDrawChar('>', startHPaddingForFocusIndicator,
-              startVPadding + (vSpacing * focusedFileIndex));
+  App_DrawFocusIndicator(startHPaddingForFocusIndicator,                 // left
+                         startVPadding + (vSpacing * focusedFileIndex),  // top
+                         16);
 
   // draw scroll bar
   DrawScrollBar(currentPage, pages, FS_DISPLAY_WIDTH, FS_DISPLAY_HEIGHT,
                 GFXGetFontColor(), BACKGROUND_COLOR);
 }
 
-static void onAppPause(void) { ESP_LOGI(specs.name, "on app pause..."); }
-static void onAppResume(void) { ESP_LOGI(specs.name, "on app resume..."); }
 static void onAppStop(void) {
   ESP_LOGI(specs.name, "on app stop...");
   CleanupCache();
@@ -173,9 +173,6 @@ AppSpecification_t* FileMangerAppSpecification(const _u16 appId) {
   specs.id = appId;
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
-  specs.onPause = &onAppPause;
-  specs.onResume = &onAppResume;
-  specs.onUpdate = &onAppUpdate;
   specs.onRedraw = &onAppRedraw;
   specs.onStop = &onAppStop;
 

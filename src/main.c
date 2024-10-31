@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include "apps/fm/fm_app.h"
+#include "apps/info/info_app.h"
 #include "apps/menu/menu_app.h"
 #include "apps/settings/settings_app.h"
 #include "devices/battery/battery.h"
@@ -74,6 +75,12 @@ void systemTask(void* arg) {
   AppSpecification_t* settingsSpecification = SettingsAppSpecification(appId);
   App_t* settingsApp = AppCreate(settingsSpecification);
   AppsManagerAddApp(appsManager, settingsApp);
+
+  // info
+  appId = AppsManagerNextAppId(appsManager);
+  AppSpecification_t* infoSpecification = InfoAppSpecification(appId);
+  App_t* infoApp = AppCreate(infoSpecification);
+  AppsManagerAddApp(appsManager, infoApp);
 
   AppsManagerStart(appsManager, menuApp);
 

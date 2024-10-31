@@ -7,8 +7,8 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "../gpio/gpio_hal.h"
-#include "../spi/spi_hal.h"
+#include "../hal/gpio_hal.h"
+#include "../hal/spi_hal.h"
 #include "backlight.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"

@@ -1,0 +1,1 @@
+application showing system information, like: model, cpu speed, flash & ram & sd card sizes, etc.
