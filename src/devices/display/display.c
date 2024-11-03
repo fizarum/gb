@@ -8,8 +8,8 @@
 #include <string.h>
 
 #include "../hal/gpio_hal.h"
+#include "../hal/pwm_hal.h"
 #include "../hal/spi_hal.h"
-#include "backlight.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "esp_log.h"
@@ -37,6 +37,7 @@ static bool transmitCommand(const _u8 command);
 static bool transmitData(const _u8* data, const size_t length);
 static bool transmitDataTimes(const _u16 value, const _u16 times);
 static bool transmit(const _u8* data, const size_t length);
+static bool lighten(const uint8_t percents);
 
 static DeviceSpecification_t specs = {
     .name = "Display",
@@ -53,9 +54,11 @@ ILI9341_t dev = {
     .colorMode = ModeBGR,
     .dc = DISPLAY_DC,
     .res = DISPLAY_RESET,
+    .bl = DISPLAY_BL,
     .transmitCommand = &transmitCommand,
     .transmitData = &transmitData,
     .transmitDataTimes = &transmitDataTimes,
+    .lighten = &lighten,
 };
 
 Font_t font = {
@@ -119,12 +122,11 @@ static void onEnable(bool enable) {
   Ili9341PowerOn(&dev, enable);
 
   if (enable == true) {
-    Backlight_SetValue(DISPLAY_BL, brightness);
-
+    dev.lighten(brightness);
     xTaskCreate(&drawingTask, "drawingTask", 8096, NULL, 12,
                 &displayTaskHandle);
   } else {
-    Backlight_SetValue(DISPLAY_BL, 0);
+    dev.lighten(0);
     if (displayTaskHandle != NULL) {
       vTaskDelete(displayTaskHandle);
     }
@@ -213,4 +215,8 @@ static IRAM_ATTR bool transmit(const _u8* data, const size_t length) {
   transaction.tx_buffer = data;
 
   return spi_device_transmit(spiHandle, &transaction) == ESP_OK;
+}
+
+static bool lighten(const uint8_t percents) {
+  return PWM_SetValueInPercents(dev.bl, percents);
 }
