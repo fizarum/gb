@@ -15,7 +15,6 @@
 #include "esp_psram.h"
 #include "soc/rtc.h"
 
-#define BACKGROUND_COLOR COLOR_DARKGREEN
 #define kbSize 1024
 #define mbSize (1024 * 1024)
 
@@ -23,6 +22,7 @@ static char buff[20];
 
 static AppSpecification_t specs = {
     .name = "Info",
+    .background = COLOR_DARKGREEN,
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
@@ -45,7 +45,7 @@ static void ShowInfo();
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
-  GFX_SetBackground(BACKGROUND_COLOR);
+  GFX_SetBackground(specs.background);
 
   DeviceManager_t* deviceManger = DeviceManagerGetInstance();
   Device_t* powerDevice = DeviceManagerGetByType(deviceManger, TypePower);
@@ -90,7 +90,7 @@ static void ShowInfo() {
   uint8_t secondColumnXPos = 160;
   uint8_t itemHeight = 18;
 
-  App_DrawBackgroundAndTitle(specs.name, BACKGROUND_COLOR);
+  App_DrawBackgroundAndTitle(specs.name, specs.background);
 
   // model
   GFXDrawString("model:", firstColumnXPos, yPos);
