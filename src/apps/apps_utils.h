@@ -19,6 +19,8 @@ extern "C" {
 #define TITLE_Y_POS 7
 
 #define PROGRESS_BAR_MIN_HEIGH 14
+
+// focus
 #define FOCUS_AREA_WIDTH 20
 #define FOCUS_INDICATOR_WIDTH 6
 #define FOCUS_SMALL_PADDING 2

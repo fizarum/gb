@@ -6,10 +6,10 @@
 #include <stddef.h>
 
 #include "../../devices/joystick/joystick.h"
+#include "../apps_utils.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 
-#define BACKGROUND_COLOR COLOR_DARKCYAN
 #define ACCENT_COLOR COLOR_ORANGE
 
 void SelectNextApp();
@@ -24,10 +24,15 @@ Array_t* allApps = NULL;
 
 static AppSpecification_t specs = {
     .name = "Menu",
+    .background = COLOR_DARKCYAN,
+    .onPause = &App_StubFunction,
+    .onStop = &App_StubFunction,
+    .onUpdate = &App_StubFunction,
 };
 
 static void onAppStart() {
   ESP_LOGI(specs.name, "on app started...");
+
   if (_appsManager != NULL) {
     allApps = AppsManagerGetAllApps(_appsManager);
   }
@@ -51,8 +56,6 @@ static void handleKey(const void* keyData) {
   }
 }
 
-static void onAppUpdate(void) {}
-
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
     DrawScreen();
@@ -60,13 +63,11 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
   const char* appName = AppGetName(selectedApp);
 
-  GFXDrawFilledRect(40, 190, 120, 130, BACKGROUND_COLOR);
+  GFXDrawFilledRect(40, 190, 120, 130, specs.background);
   GFXDrawString(appName, 40, 120);
 
   ESP_LOGI(specs.name, "selected app: %s", appName);
 }
-
-static void onAppPause(void) { ESP_LOGI(specs.name, "on app pause..."); }
 
 int64_t start, period;
 static void onAppResume(void) {
@@ -79,19 +80,13 @@ static void onAppResume(void) {
   }
 }
 
-static void onAppStop(void) { ESP_LOGI(specs.name, "on app stop..."); }
-
 AppSpecification_t* MenuAppSpecification(const _u16 appId,
                                          AppsManager_t* appsManager) {
   specs.id = appId;
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
-  specs.onPause = &onAppPause;
   specs.onResume = &onAppResume;
-  specs.onUpdate = &onAppUpdate;
   specs.onRedraw = &onAppRedraw;
-
-  specs.onStop = &onAppStop;
 
   _appsManager = appsManager;
   return &specs;
@@ -130,8 +125,7 @@ void SelectPreviousApp() {
 }
 
 void DrawScreen() {
-  GFXFillScreen(BACKGROUND_COLOR);
-
+  GFXFillScreen(specs.background);
   // time placeholder
   GFXDrawString("23:59", 30, 7);
 

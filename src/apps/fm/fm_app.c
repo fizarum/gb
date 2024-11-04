@@ -14,16 +14,11 @@
 #include "esp_log.h"
 #include "scroll_bar.h"
 
-#define BACKGROUND_COLOR COLOR_DARK_CHARCOAL
-
-// todo: move to outer layer
-#define FS_DISPLAY_WIDTH 320
-#define FS_DISPLAY_HEIGHT 240
-
 static StorageDeviceData_t* storageData;
 
 static AppSpecification_t specs = {
     .name = "File Manager",
+    .background = COLOR_DARK_CHARCOAL,
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
@@ -95,7 +90,7 @@ static void handleKey(const void* keyData) {
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
-  GFX_SetBackground(BACKGROUND_COLOR);
+  GFX_SetBackground(specs.background);
 
   DeviceManager_t* deviceManger = DeviceManagerGetInstance();
   Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
@@ -128,7 +123,7 @@ static void onAppStart(void) {
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    App_DrawBackgroundAndTitle(specs.name, BACKGROUND_COLOR);
+    App_DrawBackgroundAndTitle(specs.name, specs.background);
   }
   vPosOfText = startVPadding;
   _u16 vPosOfTextBox = vPosOfText + vSpacing;
@@ -142,7 +137,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
     // redraw file item
     GFXDrawFilledRect(startHPadding, FS_DISPLAY_WIDTH, vPosOfText,
-                      vPosOfTextBox, BACKGROUND_COLOR);
+                      vPosOfTextBox, specs.background);
     if (fileItem->initialized == true) {
       GFXDrawString(fileItem->name, startHPadding, vPosOfText);
     }
@@ -161,7 +156,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
   // draw scroll bar
   DrawScrollBar(currentPage, pages, FS_DISPLAY_WIDTH, FS_DISPLAY_HEIGHT,
-                GFXGetFontColor(), BACKGROUND_COLOR);
+                GFXGetFontColor(), specs.background);
 }
 
 static void onAppStop(void) {
