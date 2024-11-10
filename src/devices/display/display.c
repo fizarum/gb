@@ -1,12 +1,12 @@
 #include "display.h"
 
-#include <gfx/gfx.h>
 #include <ili9341.h>
 #include <palette.h>
 #include <specifications/display_data.h>
 #include <stddef.h>
 #include <string.h>
 
+#include "../../ui/gfx/gfx.h"
 #include "../hal/gpio_hal.h"
 #include "../hal/pwm_hal.h"
 #include "../hal/spi_hal.h"
@@ -66,6 +66,7 @@ Font_t font = {
     .width = 8,
     .color = COLOR_ORANGE,
     .scale = 2,
+    .spacing = 2,
 };
 
 typedef struct UpdateTransaction_t {
