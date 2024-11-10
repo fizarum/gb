@@ -139,7 +139,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     GFXDrawFilledRect(startHPadding, FS_DISPLAY_WIDTH, vPosOfText,
                       vPosOfTextBox, specs.background);
     if (fileItem->initialized == true) {
-      GFXDrawString(fileItem->name, startHPadding, vPosOfText);
+      GFX_DrawString(fileItem->name, startHPadding, vPosOfText, GFX_GetFont());
     }
 
     vPosOfText += vSpacing;

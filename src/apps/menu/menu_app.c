@@ -1,11 +1,11 @@
 #include "menu_app.h"
 
-#include <gfx/gfx.h>
 #include <palette.h>
 #include <specifications/input_data.h>
 #include <stddef.h>
 
 #include "../../devices/joystick/joystick.h"
+#include "../../ui/gfx/gfx.h"
 #include "../apps_utils.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -64,7 +64,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
   const char* appName = AppGetName(selectedApp);
 
   GFXDrawFilledRect(40, 190, 120, 130, specs.background);
-  GFXDrawString(appName, 40, 120);
+  GFX_DrawString(appName, 40, 120, GFX_GetFont());
 
   ESP_LOGI(specs.name, "selected app: %s", appName);
 }
@@ -127,7 +127,7 @@ void SelectPreviousApp() {
 void DrawScreen() {
   GFXFillScreen(specs.background);
   // time placeholder
-  GFXDrawString("23:59", 30, 7);
+  GFX_DrawString("23:59", 30, 7, GFX_GetFont());
 
   // battery placeholder
   GFXDrawFilledRect(270, 290, 5, 15, ACCENT_COLOR);
@@ -136,12 +136,12 @@ void DrawScreen() {
   GFXDrawFilledRect(20, 300, 20, 21, ACCENT_COLOR);
 
   // test content
-  // GFXDrawString("Hello world", 40, 120);
+  // GFX_DrawString("Hello world", 40, 120);
   // start = esp_timer_get_time();
-  // GFXDrawString("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 30);
-  // GFXDrawString("0123456789", 2, 50);
-  // GFXDrawString("#!\"$\%&\\'()*+-./:;<=>?@[]^_", 2, 65);
-  // GFXDrawString("`{|}~", 2, 80);
+  // GFX_DrawString("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 2, 30);
+  // GFX_DrawString("0123456789", 2, 50);
+  // GFX_DrawString("#!\"$\%&\\'()*+-./:;<=>?@[]^_", 2, 65);
+  // GFX_DrawString("`{|}~", 2, 80);
 
   // period = esp_timer_get_time() - start;
   // ESP_LOGI(specs.name, "elapsed time: %lld uSeconds", period);

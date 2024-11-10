@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 
-#include <gfx/gfx.h>
 #include <palette.h>
 #include <types.h>
+
+#include "../../ui/gfx/gfx.h"
 
 #define INDICATOR_MINIMAL_HEIGHT 10
 #define INDICATOR_WIDTH 10
