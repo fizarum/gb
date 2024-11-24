@@ -145,4 +145,9 @@ static void ShowInfo() {
   GFX_DrawString("battery:", firstColumnXPos, yPos, font);
   sprintf(buff, "%d %%", batteryData->chargeLevelPercents);
   GFX_DrawString(buff, secondColumnXPos, yPos, font);
+
+  yPos += itemHeight;
+  GFX_DrawString("charging:", firstColumnXPos, yPos, font);
+  sprintf(buff, "%s", batteryData->charging ? "true" : "false");
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 }
