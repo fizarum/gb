@@ -11,10 +11,6 @@ extern "C" {
 #include "../ui/gfx/gfx.h"
 #include "esp_log.h"
 
-// todo: move to outer layer
-#define FS_DISPLAY_WIDTH 320
-#define FS_DISPLAY_HEIGHT 240
-
 #define TITLE_X_POS 30
 #define TITLE_Y_POS 7
 
@@ -72,7 +68,7 @@ static inline void App_DrawProgress(const _u16 left, const _u16 top,
 
 static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
                                           const _u8 focusHeight) {
-  GFXDrawFilledRect(left, left + FOCUS_AREA_WIDTH, 0, FS_DISPLAY_HEIGHT - 1,
+  GFXDrawFilledRect(left, left + FOCUS_AREA_WIDTH, 0, GFX_GetCanvasHeight() - 1,
                     GFX_GetBackgroundColor());
 
   _u16 leftPos = left + FOCUS_SMALL_PADDING;

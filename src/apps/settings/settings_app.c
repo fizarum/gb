@@ -3,6 +3,11 @@
 #include <string.h>
 
 #include "../../devices/joystick/joystick.h"
+#include "../../ui/composer.h"
+#include "../../ui/views/box.h"
+#include "../../ui/views/label.h"
+#include "../../ui/views/list_focus.h"
+#include "../../ui/views/toolbar.h"
 #include "../apps_utils.h"
 #include "esp_log.h"
 
@@ -15,42 +20,72 @@ static AppSpecification_t specs = {
     .onStop = &App_StubFunction,
 };
 
-static _u8 focusedFileIndex = 0;
+static _u8 focusedItemIndex = 0;
 static _u8 startVPadding = 40;
-static _u8 vSpacing = 50;
 
 const static _u8 maxItems = 4;
+
+static Composer_t* composer;
+static View_t* focusIndicator;
 
 static void ShowInfo();
 
 static void handleKey(const void* keyData) {
   InputDeviceData_t* data = (InputDeviceData_t*)keyData;
   if (IsButtonUpReleased(data) == true) {
-    focusedFileIndex--;
-    if (focusedFileIndex >= maxItems) {
-      focusedFileIndex = maxItems - 1;
+    focusedItemIndex--;
+    if (focusedItemIndex >= maxItems) {
+      focusedItemIndex = maxItems - 1;
     }
+    ListFocus_SelectItemIndex(focusIndicator, focusedItemIndex);
     specs.redrawNeeded = RedrawPartial;
   } else if (IsButtonDownReleased(data) == true) {
-    focusedFileIndex++;
-    if (focusedFileIndex >= maxItems) {
-      focusedFileIndex = 0;
+    focusedItemIndex++;
+    if (focusedItemIndex >= maxItems) {
+      focusedItemIndex = 0;
     }
     specs.redrawNeeded = RedrawPartial;
+    ListFocus_SelectItemIndex(focusIndicator, focusedItemIndex);
   }
 }
 
-static void onAppStart() { GFX_SetBackground(specs.background); }
+static void onAppStart() {
+  composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
+  GFX_SetBackground(specs.background);
+
+  _u16 rootId = Composer_GetRootId(composer);
+  if (rootId == TREE_INDEX_NONE) {
+    return;
+  }
+
+  // toolbar
+  View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
+  Composer_AddView(composer, rootId, toolbar);
+  _u16 topPadding = View_GetHeight(toolbar);
+
+  // content box
+  View_t* box = HBox_Create(0, topPadding);
+  _u16 boxId = Composer_AddBox(composer, rootId, box);
+  // ESP_LOGI(specs.name, "created box, id: %d", boxId);
+
+  focusIndicator = ListFocus_Create(4);
+  _u16 focusId = Composer_AddView(composer, boxId, focusIndicator);
+  // ESP_LOGI(specs.name, "created focus, id: %d", focusId);
+
+  View_t* label = Label_Create("Hi world,", GFX_GetFont());
+  _u16 viewId = Composer_AddView(composer, boxId, label);
+  // ESP_LOGI(specs.name, "created label, id: %d", viewId);
+
+  View_t* label2 = Label_Create("Its me", GFX_GetFont());
+  _u16 view2Id = Composer_AddView(composer, boxId, label2);
+  // ESP_LOGI(specs.name, "created label2, id: %d", view2Id);
+}
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    ShowInfo();
+    GFXFillScreen(specs.background);
   }
-
-  // draw focus indicator
-  App_DrawFocusIndicator(3,                                         // left
-                         vSpacing + (vSpacing * focusedFileIndex),  // top
-                         26);
+  Composer_Draw(composer);
 }
 
 AppSpecification_t* SettingsAppSpecification(const _u16 appId) {
@@ -68,8 +103,6 @@ static void ShowInfo() {
   uint8_t itemHeight = 34;
   _u8 padding = 20;
   _u8 progressBarHeight = 14;
-
-  App_DrawBackgroundAndTitle(specs.name, specs.background);
 
   GFX_DrawString("brightness:", xPos, yPos, GFX_GetFont());
   yPos += padding;

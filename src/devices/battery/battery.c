@@ -27,8 +27,8 @@ adc_channel_t channel = ADC_CHANNEL_3;
  * we can get 1.907V
  */
 #define BATTERY_LEVEL_MIN 1907
-
-const uint32_t delayBetweenUpdatesInMicroSeconds = 5000000;
+// 10 seconds
+const uint32_t delayBetweenUpdatesInMicroSeconds = 10 * 1000000;
 static int lastUpdatedTimeAt, now = 0;
 int voltage = 0;
 

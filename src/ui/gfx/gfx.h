@@ -20,6 +20,9 @@ void GFXSetFont(Font_t *font);
 Font_t *GFX_GetFont();
 void GFX_SetBackground(_u16 color);
 
+_u16 GFX_GetCanwasWidth();
+_u16 GFX_GetCanvasHeight();
+
 _u8 GFX_DrawSymbol(SymbolData_t *symbol, _u16 xPos, _u16 yPos,
                    const Font_t *font);
 _u8 GFX_DrawChar(_u8 asciiSymbol, _u16 xPos, _u16 yPos, const Font_t *font);

@@ -27,6 +27,9 @@ Font_t *GFX_GetFont() { return activeFont; }
 
 void GFX_SetBackground(_u16 color) { backgroundColor = color; }
 
+_u16 GFX_GetCanwasWidth() { return canvasWidth; }
+_u16 GFX_GetCanvasHeight() { return canvasHeight; }
+
 /**
  * @brief Draws symbol
  * @return pixels (by width) drawn for provided symbol
@@ -84,6 +87,9 @@ _u8 GFX_DrawChar(_u8 asciiSymbol, _u16 xPos, _u16 yPos, const Font_t *font) {
  */
 _u16 GFX_DrawString(const char *string, _u16 xPos, _u16 yPos,
                     const Font_t *font) {
+  if (string == NULL) {
+    return 0;
+  }
   _u16 x = xPos;
   _u16 length = strlen(string);
   _u8 letterInUpperCase;
