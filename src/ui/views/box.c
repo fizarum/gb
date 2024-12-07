@@ -40,6 +40,18 @@ _u16 Box_GetMaxWidth(Box_t *box) { return box->maxWidth; }
 
 _u16 Box_GetMaxHeight(Box_t *box) { return box->maxHeight; }
 
+_u16 Box_GetFreeWidthSpace(Box_t *box) {
+  _u16 width = View_GetWidth(box->view);
+  _u16 maxWidth = box->maxWidth;
+  return width < maxWidth ? maxWidth - width : 0;
+}
+
+_u16 Box_GetFreeHeightSpace(Box_t *box) {
+  _u16 height = View_GetHeight(box->view);
+  _u16 maxHeight = box->maxHeight;
+  return height < maxHeight ? maxHeight - height : 0;
+}
+
 void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
   _u16 childViewWidth = View_GetWidth(childView);
   _u16 childViewHeight = View_GetHeight(childView);
@@ -61,6 +73,53 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
     View_SetHeight(childView, childViewHeight);
   }
 
+  SizePolicyType_t widthPolicy = View_GetWidthPolicy(childView).type;
+  SizePolicyType_t heightPolicy = View_GetHeightPolicy(childView).type;
+
+  if (widthPolicy == MatchParent) {
+    childViewWidth =
+        box->maxWidth - boxViewWidth - 2;  // 2 x 1 px of line width
+    View_SetWidth(childView, childViewWidth);
+    View_SetWidth(boxView, box->maxWidth);
+  } else if (widthPolicy == WrapContent) {
+    _u16 freeWidthSpaceInBox = Box_GetFreeWidthSpace(box);
+
+    // if box's width with view is bigger that its max width
+    if (childViewWidth > freeWidthSpaceInBox) {
+      childViewWidth = freeWidthSpaceInBox - 2;  // 2 x 1 px of line width
+      // child view exceeds box max size, resize child
+      View_SetWidth(boxView, box->maxWidth);
+    } else {
+      // stretch box with new view
+      View_SetWidth(boxView, boxViewWidth + childViewWidth);
+    }
+    View_SetWidth(childView, childViewWidth);
+  } else {
+    // not handled yet
+  }
+
+  if (heightPolicy == MatchParent) {
+    childViewHeight =
+        box->maxHeight - boxViewHeight - 2;  // 2 x 1 px of line width
+    View_SetHeight(childView, childViewHeight);
+    View_SetHeight(boxView, box->maxHeight);
+  } else if (heightPolicy == WrapContent) {
+    _u16 freeHeightSpaceInBox = Box_GetFreeHeightSpace(box);
+
+    // if box's width with view is bigger that its max width
+    if (childViewHeight > freeHeightSpaceInBox) {
+      // child view exceeds box max size, resize child
+      childViewHeight = freeHeightSpaceInBox - 2;  // 2 x 1 px of line width
+      View_SetHeight(boxView, box->maxHeight);
+    } else {
+      // stretch box with new view
+      View_SetHeight(boxView, boxViewHeight + childViewHeight);
+    }
+    View_SetHeight(childView, childViewHeight);
+  } else {
+    // not handled yet
+  }
+
   if (box->direction == Horizontal) {
     // update view position to the end of box's width
     View_SetPosition(childView, boxViewWidth, boxViewTopPos);
@@ -69,16 +128,6 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
     if (boxViewHeight < childViewHeight) {
       View_SetHeight(boxView, childViewHeight);
     }
-    _u16 newBoxWidth = boxViewWidth + childViewWidth;
-
-    if (newBoxWidth > box->maxWidth) {
-      childViewWidth -= (newBoxWidth - box->maxWidth);
-      // child view exceeds box max size, resize child
-      View_SetWidth(childView, childViewWidth);
-    }
-
-    // and stretch box with new view
-    View_SetWidth(boxView, boxViewWidth + childViewWidth);
   } else {
     // update view position in box: left bottom
     View_SetPosition(childView, boxViewLeftPos, boxViewTopPos + boxViewHeight);
@@ -87,17 +136,6 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
     if (boxViewWidth < childViewWidth) {
       View_SetWidth(boxView, childViewWidth);
     }
-
-    _u16 newBoxHeight = boxViewHeight + childViewHeight;
-
-    if (newBoxHeight > box->maxHeight) {
-      childViewHeight = box->maxHeight - boxViewHeight;
-      // child view exceeds box max size, resize child
-      View_SetHeight(childView, childViewHeight);
-    }
-
-    // and stretch box with new view
-    View_SetHeight(boxView, boxViewHeight + childViewHeight);
   }
   ESP_LOGI("Box",
            "recalculated size for %s box [%d], width: %d | height: %d (max "
@@ -109,15 +147,6 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
 
 // private part
 
-static void Box_Draw(View_t *view, const _u16 left, const _u16 top,
-                     const _u16 right, const _u16 bottom) {
-  if (view == NULL) {
-    ESP_LOGW("Box", "box is empty, skip draw call");
-  } else {
-    ESP_LOGI("Box", "box draw called");
-  }
-}
-
 static View_t *Box_Create(_u16 x, _u16 y, const Direction_t direction) {
   Box_t *box = (Box_t *)malloc(sizeof(Box_t));
   if (box == NULL) {
@@ -125,7 +154,10 @@ static View_t *Box_Create(_u16 x, _u16 y, const Direction_t direction) {
   }
 
   box->direction = direction;
-  box->view = View_Create(box, &Box_Draw, &Box_Destroy, NULL);
+  SizePolicy_t sizePolicy = {.type = MatchParent, .weight = 0};
+
+  box->view =
+      View_Create(box, NULL, &Box_Destroy, NULL, sizePolicy, sizePolicy);
   View_SetPosition(box->view, x, y);
 
   return box->view;

@@ -7,6 +7,7 @@
 #include "../../ui/views/box.h"
 #include "../../ui/views/label.h"
 #include "../../ui/views/list_focus.h"
+#include "../../ui/views/progress.h"
 #include "../../ui/views/toolbar.h"
 #include "../apps_utils.h"
 #include "esp_log.h"
@@ -26,7 +27,7 @@ static _u8 startVPadding = 40;
 const static _u8 maxItems = 4;
 
 static Composer_t* composer;
-static View_t* focusIndicator;
+static View_t* listFocus;
 
 static void ShowInfo();
 
@@ -37,7 +38,7 @@ static void handleKey(const void* keyData) {
     if (focusedItemIndex >= maxItems) {
       focusedItemIndex = maxItems - 1;
     }
-    ListFocus_SelectItemIndex(focusIndicator, focusedItemIndex);
+    ListFocus_SelectItemIndex(listFocus, focusedItemIndex);
     specs.redrawNeeded = RedrawPartial;
   } else if (IsButtonDownReleased(data) == true) {
     focusedItemIndex++;
@@ -45,7 +46,7 @@ static void handleKey(const void* keyData) {
       focusedItemIndex = 0;
     }
     specs.redrawNeeded = RedrawPartial;
-    ListFocus_SelectItemIndex(focusIndicator, focusedItemIndex);
+    ListFocus_SelectItemIndex(listFocus, focusedItemIndex);
   }
 }
 
@@ -63,22 +64,31 @@ static void onAppStart() {
   Composer_AddView(composer, rootId, toolbar);
   _u16 topPadding = View_GetHeight(toolbar);
 
-  // content box
-  View_t* box = HBox_Create(0, topPadding);
-  _u16 boxId = Composer_AddBox(composer, rootId, box);
-  // ESP_LOGI(specs.name, "created box, id: %d", boxId);
+  // main box
+  View_t* mainBox = HBox_Create(0, topPadding);
+  _u16 mainBoxId = Composer_AddBox(composer, rootId, mainBox);
 
-  focusIndicator = ListFocus_Create(4);
-  _u16 focusId = Composer_AddView(composer, boxId, focusIndicator);
+  listFocus = ListFocus_Create(4);
+  Composer_AddView(composer, mainBoxId, listFocus);
+  _u16 leftPadding = View_GetWidth(listFocus);
   // ESP_LOGI(specs.name, "created focus, id: %d", focusId);
 
-  View_t* label = Label_Create("Hi world,", GFX_GetFont());
-  _u16 viewId = Composer_AddView(composer, boxId, label);
-  // ESP_LOGI(specs.name, "created label, id: %d", viewId);
+  // View_t* label = Label_Create("Hi world,", GFX_GetFont());
+  // _u16 viewId = Composer_AddView(composer, boxId, label);
+  // // ESP_LOGI(specs.name, "created label, id: %d", viewId);
 
-  View_t* label2 = Label_Create("Its me", GFX_GetFont());
-  _u16 view2Id = Composer_AddView(composer, boxId, label2);
+  // View_t* label2 = Label_Create("Its me", GFX_GetFont());
+  // _u16 view2Id = Composer_AddView(composer, boxId, label2);
   // ESP_LOGI(specs.name, "created label2, id: %d", view2Id);
+
+  View_t* settingsBox = VBox_Create(leftPadding, topPadding);
+  _u16 settingsBoxId = Composer_AddBox(composer, mainBoxId, settingsBox);
+
+  View_t* brightnessProgress = Progress_Create(30, 100);
+  Composer_AddView(composer, settingsBoxId, brightnessProgress);
+  // TODO: fix adding second view to same box
+  //  View_t* brightnessLabel = Label_Create("brightness:", GFX_GetFont());
+  //  Composer_AddView(composer, settingsBoxId, brightnessLabel);
 }
 
 static void onAppRedraw(RedrawType_t redrawType) {

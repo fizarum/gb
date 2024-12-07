@@ -5,6 +5,7 @@
 
 #include "../gfx/gfx.h"
 #include "esp_log.h"
+
 typedef struct ListFocus_t {
   _u8 items;
   _u8 selectedItem;
@@ -28,8 +29,11 @@ View_t *ListFocus_Create(_u8 items) {
   listFocus->items = items;
   listFocus->selectedItem = 0;
 
-  listFocus->view =
-      View_Create(listFocus, &ListFocus_Draw, &ListFocus_Destroy, &OnResize);
+  SizePolicy_t widthSizePolicy = {.type = WrapContent, .weight = 0};
+  SizePolicy_t heightSizePolicy = {.type = MatchParent, .weight = 0};
+
+  listFocus->view = View_Create(listFocus, &ListFocus_Draw, &ListFocus_Destroy,
+                                &OnResize, widthSizePolicy, heightSizePolicy);
 
   ListFocus_RecalculateSize(listFocus);
 
@@ -43,7 +47,7 @@ static const _u8 indicatorWidth = 6;
 
 static void ListFocus_RecalculateSize(ListFocus_t *listFocus) {
   View_SetWidth(listFocus->view, width);
-  View_SetHeight(listFocus->view, GFX_GetCanvasHeight());
+  View_SetHeight(listFocus->view, 1);
 }
 
 void ListFocus_SelectItemIndex(View_t *view, _u8 index) {
