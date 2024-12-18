@@ -12,6 +12,8 @@
 typedef struct View_t {
   _u16 id;
 
+  bool isBox;
+
   SizePolicy_t widthPolicy;
   SizePolicy_t heightPolicy;
   _u16 width;
@@ -30,7 +32,7 @@ typedef struct View_t {
   ViewSizeChangedCallback onSizeChangedCallback;
 } View_t;
 
-View_t* View_Create(void* customView, DrawCallback drawCallback,
+View_t* View_Create(void* customView, bool isBox, DrawCallback drawCallback,
                     ViewCallback onDestroyCallback,
                     ViewSizeChangedCallback onSizeChangedCallback,
                     const SizePolicy_t widthPolicy,
@@ -45,6 +47,7 @@ View_t* View_Create(void* customView, DrawCallback drawCallback,
   view->drawCallback = drawCallback;
   view->destroyCallback = onDestroyCallback;
   view->onSizeChangedCallback = onSizeChangedCallback;
+  view->isBox = isBox;
   view->x = 0;
   view->y = 0;
   view->width = 0;
@@ -89,6 +92,8 @@ void View_Draw(View_t* view) {
 _u16 View_GetId(View_t* view) { return view->id; }
 void View_SetId(View_t* view, _u16 id) { view->id = id; }
 
+bool View_IsBox(View_t* view) { return view->isBox; }
+
 void View_SetPosition(View_t* view, _u16 x, _u16 y) {
   view->x = x;
   view->y = y;
@@ -108,6 +113,10 @@ SizePolicy_t View_GetHeightPolicy(const View_t* view) {
 }
 
 void View_SetWidth(View_t* view, const _u16 width) {
+  if (view->width == width) {
+    return;
+  }
+
   view->width = width;
 
   if (view->onSizeChangedCallback != NULL) {
@@ -116,6 +125,10 @@ void View_SetWidth(View_t* view, const _u16 width) {
 }
 
 void View_SetHeight(View_t* view, const _u16 height) {
+  if (view->height == height) {
+    return;
+  }
+
   view->height = height;
 
   if (view->onSizeChangedCallback != NULL) {

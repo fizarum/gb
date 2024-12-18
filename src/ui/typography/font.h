@@ -37,7 +37,8 @@ static uint8_t Font_GetWidth(Font_t *font) {
 }
 
 static uint8_t Font_GetHeight(Font_t *font) {
-  return font->height * font->scale + font->spacing;
+  // we have to apply spacing * 2 for correct top and bottom spacing
+  return font->height * font->scale + font->spacing * 2;
 }
 
 #ifdef __cplusplus

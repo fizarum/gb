@@ -27,8 +27,8 @@ View_t *Progress_Create(_u8 value, _u8 maxValue) {
   progress->maxValue = maxValue;
   SizePolicy_t widthPolicy = {.type = MatchParent, .weight = 0};
   SizePolicy_t heightpolicy = {.type = WrapContent, .weight = 0};
-  progress->view =
-      View_Create(progress, &Draw, &Destroy, NULL, widthPolicy, heightpolicy);
+  progress->view = View_Create(progress, false, &Draw, &Destroy, NULL,
+                               widthPolicy, heightpolicy);
 
   RecalculateSize(progress);
 
@@ -48,24 +48,31 @@ static void Draw(View_t *view, const uint16_t left, const uint16_t top,
   if (progress->value > progress->maxValue) {
     return;
   }
-  _u16 width = right - left;
-  _u16 height = bottom - top;
+
+  // these values are shifted by line width (2 px)
+  _u16 leftWithPadding = left + 2;
+  _u16 rightWithPadding = right - 2;
+  _u16 topWithPadding = top + 2;
+  _u16 bottomWithPadding = bottom - 2;
+
+  _u16 width = rightWithPadding - leftWithPadding;
+  _u16 height = bottomWithPadding - topWithPadding;
 
   _u16 pixelsPerPercent = width / progress->maxValue;
   _u16 widthOfFilledPart = pixelsPerPercent * progress->value;
 
   if (progress->value < progress->maxValue) {
-    // top line
-    GFX_DrawHLine(left, top, width, 1, GFXGetFontColor());
-    // bottom line
-    GFX_DrawHLine(left, bottom, width, 1, GFXGetFontColor());
-    // right vertical line
-    GFX_DrawVLine(right, top, height, 1, GFXGetFontColor());
+    GFX_DrawRect(leftWithPadding, topWithPadding, rightWithPadding,
+                 bottomWithPadding, 1, GFXGetFontColor());
+    // progress
+    GFXDrawFilledRect(leftWithPadding + 2, leftWithPadding + widthOfFilledPart,
+                      topWithPadding + 2, bottomWithPadding - 2,
+                      GFXGetFontColor());
+  } else {
+    // progress
+    GFXDrawFilledRect(leftWithPadding, leftWithPadding + widthOfFilledPart,
+                      topWithPadding, bottomWithPadding, GFXGetFontColor());
   }
-
-  // progress
-  GFXDrawFilledRect(left, left + widthOfFilledPart, top, bottom,
-                    GFXGetFontColor());
 }
 
 static void Destroy(void *progressArg) {

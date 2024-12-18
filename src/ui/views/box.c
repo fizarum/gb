@@ -15,12 +15,11 @@ typedef struct Box_t {
   View_t *view;
 } Box_t;
 
-static View_t *Box_Create(_u16 x, _u16 y, const Direction_t direction);
+static View_t *Box_Create(const Direction_t direction);
 static void Box_Destroy(void *boxArg);
 
-View_t *HBox_Create(_u16 x, _u16 y) { return Box_Create(x, y, Horizontal); }
-
-View_t *VBox_Create(_u16 x, _u16 y) { return Box_Create(x, y, Vertical); }
+View_t *HBox_Create() { return Box_Create(Horizontal); }
+View_t *VBox_Create() { return Box_Create(Vertical); }
 
 View_t *Box_GetView(Box_t *box) {
   if (box == NULL) {
@@ -30,6 +29,10 @@ View_t *Box_GetView(Box_t *box) {
 }
 
 Direction_t Box_GetDirection(const Box_t *box) { return box->direction; }
+
+bool Box_IsDirectionVertical(const Box_t *box) {
+  return box->direction == Vertical;
+}
 
 void Box_SetMaxSize(Box_t *box, const _u16 width, const _u16 height) {
   box->maxWidth = width;
@@ -147,7 +150,7 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
 
 // private part
 
-static View_t *Box_Create(_u16 x, _u16 y, const Direction_t direction) {
+static View_t *Box_Create(const Direction_t direction) {
   Box_t *box = (Box_t *)malloc(sizeof(Box_t));
   if (box == NULL) {
     return NULL;
@@ -157,8 +160,7 @@ static View_t *Box_Create(_u16 x, _u16 y, const Direction_t direction) {
   SizePolicy_t sizePolicy = {.type = MatchParent, .weight = 0};
 
   box->view =
-      View_Create(box, NULL, &Box_Destroy, NULL, sizePolicy, sizePolicy);
-  View_SetPosition(box->view, x, y);
+      View_Create(box, true, NULL, &Box_Destroy, NULL, sizePolicy, sizePolicy);
 
   return box->view;
 }

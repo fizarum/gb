@@ -26,7 +26,7 @@ View_t* Label_Create(char* text, Font_t* font) {
   label->text = text;
   label->font = font;
   SizePolicy_t sizePolicy = {.type = WrapContent, .weight = 0};
-  label->view = View_Create(label, &Label_Draw, &Label_Destroy, NULL,
+  label->view = View_Create(label, false, &Label_Draw, &Label_Destroy, NULL,
                             sizePolicy, sizePolicy);
 
   Label_RecalculateSize(label);
@@ -39,7 +39,8 @@ View_t* Label_Create(char* text, Font_t* font) {
 static void Label_Draw(View_t* view, const uint16_t left, const uint16_t top,
                        const uint16_t right, const uint16_t bottom) {
   Label_t* label = (Label_t*)View_GetCustomView(view);
-  GFX_DrawString(label->text, left, top, GFX_GetFont());
+  Font_t* font = GFX_GetFont();
+  GFX_DrawString(label->text, left, top + font->spacing, font);
 }
 
 static void Label_Destroy(void* labelArg) {
@@ -58,10 +59,9 @@ static void Label_RecalculateSize(Label_t* label) {
   uint16_t textLength = strlen(label->text);
 
   uint8_t symbolWidth = Font_GetWidth(label->font);
-  uint8_t symbolHeight = Font_GetHeight(label->font);
+  uint8_t height = Font_GetHeight(label->font);
 
   uint16_t width = textLength * symbolWidth;
-  uint8_t height = symbolHeight;
 
   View_SetWidth(label->view, width);
   View_SetHeight(label->view, height);

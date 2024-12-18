@@ -41,7 +41,7 @@ typedef void (*ViewCallback)(void* customView);
 typedef void (*ViewSizeChangedCallback)(View_t* view, const _u16 width,
                                         const _u16 height);
 
-View_t* View_Create(void* customView, DrawCallback drawCallback,
+View_t* View_Create(void* customView, bool isBox, DrawCallback drawCallback,
                     ViewCallback onDestroyCallback,
                     ViewSizeChangedCallback onSizeChangedCallback,
                     const SizePolicy_t widthPolicy,
@@ -52,6 +52,8 @@ void View_Draw(View_t* view);
 
 uint16_t View_GetId(View_t* view);
 void View_SetId(View_t* view, _u16 id);
+
+bool View_IsBox(View_t* view);
 
 void View_SetPosition(View_t* node, _u16 x, _u16 y);
 uint16_t View_GetXPosition(const View_t* node);

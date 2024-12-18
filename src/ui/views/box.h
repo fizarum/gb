@@ -7,20 +7,17 @@ extern "C" {
 
 #include <array.h>
 
+#include "../direction.h"
 #include "../view.h"
-
-typedef enum Direction_t {
-  Horizontal,
-  Vertical,
-} Direction_t;
 
 typedef struct Box_t Box_t;
 
-View_t *HBox_Create(_u16 x, _u16 y);
-View_t *VBox_Create(_u16 x, _u16 y);
+View_t *HBox_Create();
+View_t *VBox_Create();
 
 View_t *Box_GetView(Box_t *box);
 Direction_t Box_GetDirection(const Box_t *box);
+bool Box_IsDirectionVertical(const Box_t *box);
 
 void Box_SetMaxSize(Box_t *box, const _u16 width, const _u16 height);
 _u16 Box_GetMaxWidth(Box_t *box);

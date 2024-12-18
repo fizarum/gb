@@ -32,8 +32,9 @@ View_t *ListFocus_Create(_u8 items) {
   SizePolicy_t widthSizePolicy = {.type = WrapContent, .weight = 0};
   SizePolicy_t heightSizePolicy = {.type = MatchParent, .weight = 0};
 
-  listFocus->view = View_Create(listFocus, &ListFocus_Draw, &ListFocus_Destroy,
-                                &OnResize, widthSizePolicy, heightSizePolicy);
+  listFocus->view =
+      View_Create(listFocus, false, &ListFocus_Draw, &ListFocus_Destroy,
+                  &OnResize, widthSizePolicy, heightSizePolicy);
 
   ListFocus_RecalculateSize(listFocus);
 

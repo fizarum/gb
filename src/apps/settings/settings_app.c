@@ -7,6 +7,7 @@
 #include "../../ui/views/box.h"
 #include "../../ui/views/label.h"
 #include "../../ui/views/list_focus.h"
+#include "../../ui/views/list_item.h"
 #include "../../ui/views/progress.h"
 #include "../../ui/views/toolbar.h"
 #include "../apps_utils.h"
@@ -62,33 +63,34 @@ static void onAppStart() {
   // toolbar
   View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
   Composer_AddView(composer, rootId, toolbar);
-  _u16 topPadding = View_GetHeight(toolbar);
 
   // main box
-  View_t* mainBox = HBox_Create(0, topPadding);
-  _u16 mainBoxId = Composer_AddBox(composer, rootId, mainBox);
+  // View_t* contentBox = HBox_Create();
+  _u16 contentBoxId = Composer_AddHBox(composer, rootId);
 
   listFocus = ListFocus_Create(4);
-  Composer_AddView(composer, mainBoxId, listFocus);
-  _u16 leftPadding = View_GetWidth(listFocus);
-  // ESP_LOGI(specs.name, "created focus, id: %d", focusId);
+  Composer_AddView(composer, contentBoxId, listFocus);
 
-  // View_t* label = Label_Create("Hi world,", GFX_GetFont());
-  // _u16 viewId = Composer_AddView(composer, boxId, label);
-  // // ESP_LOGI(specs.name, "created label, id: %d", viewId);
+  _u16 settingsBoxId = Composer_AddVBox(composer, contentBoxId);
 
-  // View_t* label2 = Label_Create("Its me", GFX_GetFont());
-  // _u16 view2Id = Composer_AddView(composer, boxId, label2);
-  // ESP_LOGI(specs.name, "created label2, id: %d", view2Id);
+  _u16 brItemBoxId = Composer_AddVBox(composer, settingsBoxId);
+  View_t* brLabel = Label_Create("Brightness:", GFX_GetFont());
+  View_t* brProgress = Progress_Create(30, 100);
+  Composer_AddView(composer, brItemBoxId, brLabel);
+  Composer_AddView(composer, brItemBoxId, brProgress);
 
-  View_t* settingsBox = VBox_Create(leftPadding, topPadding);
-  _u16 settingsBoxId = Composer_AddBox(composer, mainBoxId, settingsBox);
+  _u16 testBoxId = Composer_AddVBox(composer, settingsBoxId);
+  View_t* label = Label_Create("Hi world,", GFX_GetFont());
+  _u16 viewId = Composer_AddView(composer, testBoxId, label);
 
-  View_t* brightnessProgress = Progress_Create(30, 100);
-  Composer_AddView(composer, settingsBoxId, brightnessProgress);
+  View_t* label2 = Label_Create("Its me", GFX_GetFont());
+  _u16 view2Id = Composer_AddView(composer, testBoxId, label2);
+
   // TODO: fix adding second view to same box
   //  View_t* brightnessLabel = Label_Create("brightness:", GFX_GetFont());
   //  Composer_AddView(composer, settingsBoxId, brightnessLabel);
+
+  Composer_Recompose(composer);
 }
 
 static void onAppRedraw(RedrawType_t redrawType) {
