@@ -7,7 +7,6 @@
 #include "../../ui/views/box.h"
 #include "../../ui/views/label.h"
 #include "../../ui/views/list_focus.h"
-#include "../../ui/views/list_item.h"
 #include "../../ui/views/progress.h"
 #include "../../ui/views/toolbar.h"
 #include "../apps_utils.h"
