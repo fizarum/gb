@@ -26,6 +26,7 @@ _u16 Composer_AddView(Composer_t* composer, _u16 branchId, View_t* view);
 void Composer_Recompose(Composer_t* composer);
 
 void Composer_Draw(Composer_t* composer);
+void Composer_Clear(Composer_t* composer);
 
 #ifdef __cplusplus
 }

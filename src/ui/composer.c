@@ -13,9 +13,10 @@ typedef struct Composer_t {
   Tree_t* root;
 } Composer_t;
 
-static void Composer_OnDrawItems(TreeNode_t* node);
+static void OnDrawItem(TreeNode_t* node);
 static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
                             _u16 left, _u16 top, _u16 right, _u16 bottom);
+static void OnClearItem(TreeNode_t* node);
 
 Composer_t* Composer_Create(const uint16_t screenWidth,
                             const uint16_t screenHeight) {
@@ -177,12 +178,16 @@ void Composer_Recompose(Composer_t* composer) {
 }
 
 void Composer_Draw(Composer_t* composer) {
-  Tree_Foreach(composer->root, Composer_OnDrawItems);
+  Tree_Foreach(composer->root, OnDrawItem);
+}
+
+void Composer_Clear(Composer_t* composer) {
+  Tree_Destroy(composer->root, OnClearItem);
 }
 
 // private part
 
-static void Composer_OnDrawItems(TreeNode_t* node) {
+static void OnDrawItem(TreeNode_t* node) {
   _u16 nodeId = TreeNode_GetId(node);
   // possible temporary solution
   if (nodeId == 0) {
@@ -274,5 +279,12 @@ static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
     printf("[Composer] view[%d] width: %d | height: %d x: %d | y: %d\n",
            View_GetId(view), View_GetWidth(view), View_GetHeight(view),
            View_GetXPosition(view), View_GetYPosition(view));
+  }
+}
+
+static void OnClearItem(TreeNode_t* node) {
+  View_t* view = (View_t*)TreeNode_GetData(node);
+  if (view != NULL) {
+    View_Destroy(view);
   }
 }

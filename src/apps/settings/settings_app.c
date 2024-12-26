@@ -12,13 +12,15 @@
 #include "../apps_utils.h"
 #include "esp_log.h"
 
+static void OnStop();
+
 static AppSpecification_t specs = {
     .name = "Settings",
     .background = COLOR_INDIGO,
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
-    .onStop = &App_StubFunction,
+    .onStop = &OnStop,
 };
 
 static _u8 focusedItemIndex = 0;
@@ -64,7 +66,6 @@ static void onAppStart() {
   Composer_AddView(composer, rootId, toolbar);
 
   // main box
-  // View_t* contentBox = HBox_Create();
   _u16 contentBoxId = Composer_AddHBox(composer, rootId);
 
   listFocus = ListFocus_Create(4);
@@ -146,3 +147,5 @@ static void ShowInfo() {
   App_DrawHorizontalPicker(xPos + 140, yPos, text, strlen(text));
   yPos += padding;
 }
+
+static void OnStop() { Composer_Clear(composer); }
