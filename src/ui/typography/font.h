@@ -19,15 +19,6 @@ typedef struct Font_t {
   uint16_t color;
 } Font_t;
 
-/**
- * @brief Container for symbol bitmap
- */
-// typedef struct SymbolData_t {
-//   _u8 *data;
-//   _u16 dataLength;
-//   _u8 asciiCode;
-// } SymbolData_t;
-
 static uint8_t Font_GetWidth(Font_t *font) {
   //  height is taken because for font smaller than 8x8
   //  height will contain actual size, when width is still 8 pt

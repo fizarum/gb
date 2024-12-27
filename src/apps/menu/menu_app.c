@@ -63,7 +63,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
   const char* appName = AppGetName(selectedApp);
 
-  GFXDrawFilledRect(40, 190, 120, 130, specs.background);
+  GFX_DrawFilledRect(40, 190, 120, 130, specs.background);
   GFX_DrawString(appName, 40, 120, GFX_GetFont());
 
   ESP_LOGI(specs.name, "selected app: %s", appName);
@@ -125,15 +125,15 @@ void SelectPreviousApp() {
 }
 
 void DrawScreen() {
-  GFXFillScreen(specs.background);
+  GFX_FillScreen(specs.background);
   // time placeholder
   GFX_DrawString("23:59", 30, 7, GFX_GetFont());
 
   // battery placeholder
-  GFXDrawFilledRect(270, 290, 5, 15, ACCENT_COLOR);
+  GFX_DrawFilledRect(270, 290, 5, 15, ACCENT_COLOR);
 
   // top status line
-  GFXDrawFilledRect(20, 300, 20, 21, ACCENT_COLOR);
+  GFX_DrawFilledRect(20, 300, 20, 21, ACCENT_COLOR);
 
   // test content
   // GFX_DrawString("Hello world", 40, 120);
@@ -147,13 +147,13 @@ void DrawScreen() {
   // ESP_LOGI(specs.name, "elapsed time: %lld uSeconds", period);
 
   // left arrow
-  GFXDrawFilledRect(15, 15, 110, 130, ACCENT_COLOR);
-  GFXDrawFilledRect(23, 24, 100, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(15, 15, 110, 130, ACCENT_COLOR);
+  GFX_DrawFilledRect(23, 24, 100, 140, ACCENT_COLOR);
 
   // right arrow
-  GFXDrawFilledRect(304, 304, 110, 130, ACCENT_COLOR);
-  GFXDrawFilledRect(296, 297, 100, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(304, 304, 110, 130, ACCENT_COLOR);
+  GFX_DrawFilledRect(296, 297, 100, 140, ACCENT_COLOR);
 
   // bottom status line
-  GFXDrawFilledRect(20, 300, 220, 221, ACCENT_COLOR);
+  GFX_DrawFilledRect(20, 300, 220, 221, ACCENT_COLOR);
 }

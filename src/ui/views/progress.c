@@ -63,15 +63,15 @@ static void Draw(View_t *view, const uint16_t left, const uint16_t top,
 
   if (progress->value < progress->maxValue) {
     GFX_DrawRect(leftWithPadding, topWithPadding, rightWithPadding,
-                 bottomWithPadding, 1, GFXGetFontColor());
+                 bottomWithPadding, 1, GFX_GetFontColor());
     // progress
-    GFXDrawFilledRect(leftWithPadding + 2, leftWithPadding + widthOfFilledPart,
-                      topWithPadding + 2, bottomWithPadding - 2,
-                      GFXGetFontColor());
+    GFX_DrawFilledRect(leftWithPadding + 2, leftWithPadding + widthOfFilledPart,
+                       topWithPadding + 2, bottomWithPadding - 2,
+                       GFX_GetFontColor());
   } else {
     // progress
-    GFXDrawFilledRect(leftWithPadding, leftWithPadding + widthOfFilledPart,
-                      topWithPadding, bottomWithPadding, GFXGetFontColor());
+    GFX_DrawFilledRect(leftWithPadding, leftWithPadding + widthOfFilledPart,
+                       topWithPadding, bottomWithPadding, GFX_GetFontColor());
   }
 }
 

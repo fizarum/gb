@@ -27,10 +27,10 @@ extern "C" {
 
 static inline void App_DrawBackgroundAndTitle(const char *title,
                                               const _u16 backgroundColor) {
-  GFXFillScreen(backgroundColor);
+  GFX_FillScreen(backgroundColor);
   GFX_DrawString(title, TITLE_X_POS, TITLE_Y_POS, GFX_GetFont());
   // top status line
-  GFXDrawFilledRect(20, 300, 20, 21, GFXGetFontColor());
+  GFX_DrawFilledRect(20, 300, 20, 21, GFX_GetFontColor());
 }
 
 static inline void App_DrawProgress(const _u16 left, const _u16 top,
@@ -56,41 +56,41 @@ static inline void App_DrawProgress(const _u16 left, const _u16 top,
 
   if (progress < 100) {
     // top line
-    GFX_DrawHLine(left, top, hLength, 1, GFXGetFontColor());
+    GFX_DrawHLine(left, top, hLength, 1, GFX_GetFontColor());
     // bottom line
-    GFX_DrawHLine(left, bottom, hLength, 1, GFXGetFontColor());
+    GFX_DrawHLine(left, bottom, hLength, 1, GFX_GetFontColor());
     // right vertical line
-    GFX_DrawVLine(right, top, vLength, 1, GFXGetFontColor());
+    GFX_DrawVLine(right, top, vLength, 1, GFX_GetFontColor());
   }
   // progress
-  GFXDrawFilledRect(left, left + width, top, bottom, GFXGetFontColor());
+  GFX_DrawFilledRect(left, left + width, top, bottom, GFX_GetFontColor());
 }
 
 static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
                                           const _u8 focusHeight) {
-  GFXDrawFilledRect(left, left + FOCUS_AREA_WIDTH, 0, GFX_GetCanvasHeight() - 1,
-                    GFX_GetBackgroundColor());
+  GFX_DrawFilledRect(left, left + FOCUS_AREA_WIDTH, 0,
+                     GFX_GetCanvasHeight() - 1, GFX_GetBackgroundColor());
 
   _u16 leftPos = left + FOCUS_SMALL_PADDING;
   _u16 topPos = top - FOCUS_MIDDLE_PADDING;
   _u16 bottomPos = top + focusHeight - FOCUS_MIDDLE_PADDING;
 
-  GFXDrawFilledRect(leftPos,                          // left
-                    leftPos + FOCUS_INDICATOR_WIDTH,  // right
-                    topPos,                           // top
-                    bottomPos,                        // bottom
-                    GFXGetFontColor());
+  GFX_DrawFilledRect(leftPos,                          // left
+                     leftPos + FOCUS_INDICATOR_WIDTH,  // right
+                     topPos,                           // top
+                     bottomPos,                        // bottom
+                     GFX_GetFontColor());
 }
 
 static inline void App_DrawOnOffButton(const _u16 left, const _u16 top,
                                        bool isOn) {
   const char *text = isOn == true ? "ON" : "OFF";
   if (isOn) {
-    GFXDrawFilledRect(left, left + ON_OFF_INDICATOR_SIZE, top,
-                      top + ON_OFF_INDICATOR_SIZE, GFXGetFontColor());
+    GFX_DrawFilledRect(left, left + ON_OFF_INDICATOR_SIZE, top,
+                       top + ON_OFF_INDICATOR_SIZE, GFX_GetFontColor());
   } else {
     GFX_DrawRect(left, top, left + ON_OFF_INDICATOR_SIZE,
-                 top + ON_OFF_INDICATOR_SIZE, 1, GFXGetFontColor());
+                 top + ON_OFF_INDICATOR_SIZE, 1, GFX_GetFontColor());
   }
 
   GFX_DrawString(text, left + 20, top, GFX_GetFont());

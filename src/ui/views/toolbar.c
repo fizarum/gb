@@ -51,8 +51,8 @@ static void Toolbar_Draw(View_t *view, const _u16 left, const _u16 top,
   // add padding between title and line decoration
   yPosForNextView += titleBottomPadding;
 
-  GFXDrawFilledRect(left + lineSidePadding, right - lineSidePadding,
-                    yPosForNextView, yPosForNextView + 1, GFXGetFontColor());
+  GFX_DrawFilledRect(left + lineSidePadding, right - lineSidePadding,
+                     yPosForNextView, yPosForNextView + 1, GFX_GetFontColor());
 }
 
 // private part

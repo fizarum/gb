@@ -95,7 +95,7 @@ static void onAppStart() {
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    GFXFillScreen(specs.background);
+    GFX_FillScreen(specs.background);
   }
   Composer_Draw(composer);
 }

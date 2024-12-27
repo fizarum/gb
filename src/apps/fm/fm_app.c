@@ -136,8 +136,8 @@ static void onAppRedraw(RedrawType_t redrawType) {
     }
 
     // redraw file item
-    GFXDrawFilledRect(startHPadding, GFX_GetCanwasWidth() - 1, vPosOfText,
-                      vPosOfTextBox, specs.background);
+    GFX_DrawFilledRect(startHPadding, GFX_GetCanwasWidth() - 1, vPosOfText,
+                       vPosOfTextBox, specs.background);
     if (fileItem->initialized == true) {
       GFX_DrawString(fileItem->name, startHPadding, vPosOfText, GFX_GetFont());
     }
@@ -156,7 +156,8 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
   // draw scroll bar
   DrawScrollBar(currentPage, pages, GFX_GetCanwasWidth() - 1,
-                GFX_GetCanvasHeight() - 1, GFXGetFontColor(), specs.background);
+                GFX_GetCanvasHeight() - 1, GFX_GetFontColor(),
+                specs.background);
 }
 
 static void onAppStop(void) {

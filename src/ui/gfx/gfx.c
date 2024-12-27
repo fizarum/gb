@@ -2,8 +2,9 @@
 
 #include <ctype.h>
 #include <palette.h>
-#include <resources/symbols_res.h>
 #include <string.h>
+
+#include "../resources/symbols_res.h"
 
 // check is bit set, starting from most significant bit
 // 8-bit version
@@ -15,14 +16,14 @@ static GFX_Callback drawCallback;
 static _u16 canvasWidth = 0;
 static _u16 canvasHeight = 0;
 
-void GFXInit(const _u16 width, const _u16 height, GFX_Callback callback) {
+void GFX_Init(const _u16 width, const _u16 height, GFX_Callback callback) {
   canvasWidth = width;
   canvasHeight = height;
   drawCallback = callback;
   SymbolsResInit();
 }
 
-void GFXSetFont(Font_t *font) { activeFont = font; }
+void GFX_SetFont(Font_t *font) { activeFont = font; }
 Font_t *GFX_GetFont() { return activeFont; }
 
 void GFX_SetBackground(_u16 color) { backgroundColor = color; }
@@ -110,8 +111,8 @@ _u16 GFX_DrawString(const char *string, _u16 xPos, _u16 yPos,
   return letterWidth * length;
 }
 
-void GFXDrawFilledRect(const _u16 left, const _u16 right, const _u16 top,
-                       const _u16 bottom, const _u16 color) {
+void GFX_DrawFilledRect(const _u16 left, const _u16 right, const _u16 top,
+                        const _u16 bottom, const _u16 color) {
   drawCallback(left, top, right, bottom, color);
 }
 
@@ -137,7 +138,7 @@ void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
   drawCallback(left, top, left + lineWidth, top + length, color);
 }
 
-void GFXFillScreen(const _u16 color) {
+void GFX_FillScreen(const _u16 color) {
   drawCallback(0, 0, canvasWidth - 1, canvasHeight - 1, color);
 }
 
@@ -153,7 +154,7 @@ _u8 GFX_FontGetWidth() {
   return activeFont->height * activeFont->scale + activeFont->spacing;
 }
 
-_u16 GFXGetFontColor() {
+_u16 GFX_GetFontColor() {
   if (activeFont == NULL) {
     return 0;
   }

@@ -37,7 +37,7 @@ static bool transmitCommand(const _u8 command);
 static bool transmitData(const _u8* data, const size_t length);
 static bool transmitDataTimes(const _u16 value, const _u16 times);
 static bool transmit(const _u8* data, const size_t length);
-static bool lighten(const uint8_t percents);
+static bool lighten(const _u8 percents);
 
 static DeviceSpecification_t specs = {
     .name = "Display",
@@ -113,7 +113,7 @@ static bool onInit(void) {
 
   displayDataQueue = xQueueCreate(4000, sizeof(UpdateTransaction_t));
 
-  GFXInit(deviceData.width, deviceData.height, &drawCallback);
+  GFX_Init(deviceData.width, deviceData.height, &drawCallback);
 
   return true;
 }
@@ -134,7 +134,7 @@ static void onEnable(bool enable) {
     return;
   }
 
-  GFXSetFont(&font);
+  GFX_SetFont(&font);
 }
 
 static void onUpdate(void) {}
@@ -218,6 +218,6 @@ static IRAM_ATTR bool transmit(const _u8* data, const size_t length) {
   return spi_device_transmit(spiHandle, &transaction) == ESP_OK;
 }
 
-static bool lighten(const uint8_t percents) {
+static bool lighten(const _u8 percents) {
   return PWM_SetValueInPercents(dev.bl, percents);
 }
