@@ -56,12 +56,12 @@ static void Label_Destroy(void* labelArg) {
 // TODO: rework to GetWith() & GetHeight callbacks to view's
 // ctor like Label_Draw() and Label_Destroy()
 static void Label_RecalculateSize(Label_t* label) {
-  uint16_t textLength = strlen(label->text);
+  _u16 textLength = strlen(label->text);
 
-  uint8_t symbolWidth = Font_GetWidth(label->font);
-  uint8_t height = Font_GetHeight(label->font);
+  _u8 symbolWidth = Font_GetWidth(label->font);
+  _u8 height = Font_GetHeight(label->font);
 
-  uint16_t width = textLength * symbolWidth;
+  _u16 width = textLength * symbolWidth;
 
   View_SetWidth(label->view, width);
   View_SetHeight(label->view, height);

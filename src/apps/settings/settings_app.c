@@ -7,8 +7,11 @@
 #include "../../ui/views/box.h"
 #include "../../ui/views/label.h"
 #include "../../ui/views/list_focus.h"
+#include "../../ui/views/option_picker.h"
 #include "../../ui/views/progress.h"
+#include "../../ui/views/switch_button.h"
 #include "../../ui/views/toolbar.h"
+#include "../../ui/views/vspacer.h"
 #include "../apps_utils.h"
 #include "esp_log.h"
 
@@ -24,14 +27,11 @@ static AppSpecification_t specs = {
 };
 
 static _u8 focusedItemIndex = 0;
-static _u8 startVPadding = 40;
 
 const static _u8 maxItems = 4;
 
 static Composer_t* composer;
 static View_t* listFocus;
-
-static void ShowInfo();
 
 static void handleKey(const void* keyData) {
   InputDeviceData_t* data = (InputDeviceData_t*)keyData;
@@ -52,6 +52,22 @@ static void handleKey(const void* keyData) {
   }
 }
 
+static _u8 settingsItem = 4;
+static Array_t* sleepOptions;
+
+static inline View_t* CreateSleepOptionsPicker() {
+  sleepOptions = ArrayCreate(6);
+  ArrayAdd(sleepOptions, "5 sec");
+  ArrayAdd(sleepOptions, "10 sec");
+  ArrayAdd(sleepOptions, "30 sec");
+  ArrayAdd(sleepOptions, "1 min");
+  ArrayAdd(sleepOptions, "5 min");
+  ArrayAdd(sleepOptions, "15 min");
+  ArrayAdd(sleepOptions, "never");
+
+  return OptionPicker_Create(sleepOptions, GFX_GetFont());
+}
+
 static void onAppStart() {
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
   GFX_SetBackground(specs.background);
@@ -67,28 +83,38 @@ static void onAppStart() {
 
   // main box
   _u16 contentBoxId = Composer_AddHBox(composer, rootId);
-
-  listFocus = ListFocus_Create(4);
+  listFocus = ListFocus_Create(settingsItem);
   Composer_AddView(composer, contentBoxId, listFocus);
 
   _u16 settingsBoxId = Composer_AddVBox(composer, contentBoxId);
 
+  // 1. brightness
   _u16 brItemBoxId = Composer_AddVBox(composer, settingsBoxId);
   View_t* brLabel = Label_Create("Brightness:", GFX_GetFont());
   View_t* brProgress = Progress_Create(30, 100);
   Composer_AddView(composer, brItemBoxId, brLabel);
   Composer_AddView(composer, brItemBoxId, brProgress);
 
-  _u16 testBoxId = Composer_AddVBox(composer, settingsBoxId);
-  View_t* label = Label_Create("Hi world,", GFX_GetFont());
-  _u16 viewId = Composer_AddView(composer, testBoxId, label);
+  // 2. volume
+  _u16 volumeBoxId = Composer_AddVBox(composer, settingsBoxId);
+  View_t* vlLabel = Label_Create("volume:", GFX_GetFont());
+  View_t* vlProgress = Progress_Create(10, 100);
+  Composer_AddView(composer, volumeBoxId, vlLabel);
+  Composer_AddView(composer, volumeBoxId, vlProgress);
 
-  View_t* label2 = Label_Create("Its me", GFX_GetFont());
-  _u16 view2Id = Composer_AddView(composer, testBoxId, label2);
+  // 3. power save mode
+  _u16 powerSaveBoxId = Composer_AddHBox(composer, settingsBoxId);
+  View_t* psLabel = Label_Create("power save: ", GFX_GetFont());
+  View_t* psSwitch = SwitchButton_Create(false, GFX_GetFont());
+  Composer_AddView(composer, powerSaveBoxId, psLabel);
+  Composer_AddView(composer, powerSaveBoxId, psSwitch);
 
-  // TODO: fix adding second view to same box
-  //  View_t* brightnessLabel = Label_Create("brightness:", GFX_GetFont());
-  //  Composer_AddView(composer, settingsBoxId, brightnessLabel);
+  // 4. "sleep in" option
+  _u16 sleepOptionBoxId = Composer_AddHBox(composer, settingsBoxId);
+  View_t* slLabel = Label_Create("sleep in: ", GFX_GetFont());
+  View_t* slOptionPicker = CreateSleepOptionsPicker();
+  Composer_AddView(composer, sleepOptionBoxId, slLabel);
+  Composer_AddView(composer, sleepOptionBoxId, slOptionPicker);
 
   Composer_Recompose(composer);
 }
@@ -109,43 +135,7 @@ AppSpecification_t* SettingsAppSpecification(const _u16 appId) {
   return &specs;
 };
 
-static void ShowInfo() {
-  uint8_t yPos = startVPadding;
-  uint8_t xPos = 30;
-  uint8_t itemHeight = 34;
-  _u8 padding = 20;
-  _u8 progressBarHeight = 14;
-
-  GFX_DrawString("brightness:", xPos, yPos, GFX_GetFont());
-  yPos += padding;
-  App_DrawProgress(xPos,                      // left
-                   yPos,                      // top
-                   300,                       // right
-                   yPos + progressBarHeight,  // bottom
-                   20                         // progress
-  );
-
-  yPos += itemHeight;
-  GFX_DrawString("volume:", xPos, yPos, GFX_GetFont());
-  yPos += padding;
-  App_DrawProgress(xPos,                      // left
-                   yPos,                      // top
-                   300,                       // right
-                   yPos + progressBarHeight,  // bottom
-                   40                         // progress
-  );
-
-  yPos += itemHeight;
-  GFX_DrawString("power save:", xPos, yPos, GFX_GetFont());
-  App_DrawOnOffButton(xPos + 140, yPos, true);
-  yPos += padding;
-
-  yPos += itemHeight;
-  GFX_DrawString("sleep in:", xPos, yPos, GFX_GetFont());
-  const char* text = "30 sec";
-
-  App_DrawHorizontalPicker(xPos + 140, yPos, text, strlen(text));
-  yPos += padding;
+static void OnStop() {
+  Composer_Clear(composer);
+  ArrayDestroy(sleepOptions);
 }
-
-static void OnStop() { Composer_Clear(composer); }

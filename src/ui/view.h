@@ -17,7 +17,8 @@ typedef enum SizePolicyType_t {
   MatchParent,
 
   // in this case view's size is calculated from all avail parent's size divided
-  // on sum of all view weights. Weight value is taken from SizePolicy_t.weight
+  // on sum of all view weights. Weight value is taken from SizePolicy_t.weight.
+  // Max value is 7.
   //
   // For example view1.weight = 1, view2.weight = 1 means each has 50% of
   // parent's size.
@@ -31,6 +32,7 @@ typedef union SizePolicy_t {
     SizePolicyType_t type : 8;
     _u8 weight : 8;
   };
+  // in case when type == WrapContent this value represents size in pixels
   _u16 value;
 } SizePolicy_t;
 
@@ -62,8 +64,8 @@ uint16_t View_GetYPosition(const View_t* node);
 uint16_t View_GetWidth(const View_t* node);
 uint16_t View_GetHeight(const View_t* node);
 
-SizePolicy_t View_GetWidthPolicy(const View_t* view);
-SizePolicy_t View_GetHeightPolicy(const View_t* view);
+SizePolicy_t* View_GetWidthPolicy(View_t* view);
+SizePolicy_t* View_GetHeightPolicy(View_t* view);
 
 void View_SetWidth(View_t* node, const _u16 width);
 void View_SetHeight(View_t* node, const _u16 height);

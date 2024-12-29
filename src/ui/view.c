@@ -105,11 +105,9 @@ _u16 View_GetYPosition(const View_t* view) { return view->y; }
 _u16 View_GetWidth(const View_t* view) { return view->width; }
 _u16 View_GetHeight(const View_t* view) { return view->height; }
 
-SizePolicy_t View_GetWidthPolicy(const View_t* view) {
-  return view->widthPolicy;
-}
-SizePolicy_t View_GetHeightPolicy(const View_t* view) {
-  return view->heightPolicy;
+SizePolicy_t* View_GetWidthPolicy(View_t* view) { return &(view->widthPolicy); }
+SizePolicy_t* View_GetHeightPolicy(View_t* view) {
+  return &(view->heightPolicy);
 }
 
 void View_SetWidth(View_t* view, const _u16 width) {

@@ -76,12 +76,12 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
     View_SetHeight(childView, childViewHeight);
   }
 
-  SizePolicyType_t widthPolicy = View_GetWidthPolicy(childView).type;
-  SizePolicyType_t heightPolicy = View_GetHeightPolicy(childView).type;
+  SizePolicyType_t widthPolicy = View_GetWidthPolicy(childView)->type;
+  SizePolicyType_t heightPolicy = View_GetHeightPolicy(childView)->type;
 
   if (widthPolicy == MatchParent) {
-    childViewWidth =
-        box->maxWidth - boxViewWidth - 2;  // 2 x 1 px of line width
+    // 2 x 1 px of line width
+    childViewWidth = box->maxWidth - boxViewWidth - 2;
     View_SetWidth(childView, childViewWidth);
     View_SetWidth(boxView, box->maxWidth);
   } else if (widthPolicy == WrapContent) {
@@ -89,7 +89,8 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
 
     // if box's width with view is bigger that its max width
     if (childViewWidth > freeWidthSpaceInBox) {
-      childViewWidth = freeWidthSpaceInBox - 2;  // 2 x 1 px of line width
+      // 2 x 1 px of line width
+      childViewWidth = freeWidthSpaceInBox - 2;
       // child view exceeds box max size, resize child
       View_SetWidth(boxView, box->maxWidth);
     } else {
@@ -98,7 +99,7 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
     }
     View_SetWidth(childView, childViewWidth);
   } else {
-    // not handled yet
+    // TODO: not handled yet
   }
 
   if (heightPolicy == MatchParent) {
@@ -140,12 +141,13 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
       View_SetWidth(boxView, childViewWidth);
     }
   }
-  ESP_LOGI("Box",
-           "recalculated size for %s box [%d], width: %d | height: %d (max "
-           "width: %d | max height: %d)",
-           box->direction == Horizontal ? "horizontal" : "vertical",
-           View_GetId(boxView), View_GetWidth(boxView), View_GetHeight(boxView),
-           Box_GetMaxWidth(box), Box_GetMaxHeight(box));
+  // ESP_LOGI("Box",
+  //          "recalculated size for %s box [%d], width: %d | height: %d (max "
+  //          "width: %d | max height: %d)",
+  //          box->direction == Horizontal ? "horizontal" : "vertical",
+  //          View_GetId(boxView), View_GetWidth(boxView),
+  //          View_GetHeight(boxView), Box_GetMaxWidth(box),
+  //          Box_GetMaxHeight(box));
 }
 
 // private part
@@ -158,7 +160,6 @@ static View_t *Box_Create(const Direction_t direction) {
 
   box->direction = direction;
   SizePolicy_t sizePolicy = {.type = MatchParent, .weight = 0};
-
   box->view =
       View_Create(box, true, NULL, &Box_Destroy, NULL, sizePolicy, sizePolicy);
 
@@ -171,6 +172,5 @@ static void Box_Destroy(void *boxArg) {
   }
 
   Box_t *box = (Box_t *)boxArg;
-  // TODO: notify tree that children should be destroyed as well
   free(box);
 }
