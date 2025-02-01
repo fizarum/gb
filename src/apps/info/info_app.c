@@ -92,55 +92,62 @@ static void ShowInfo() {
 
   App_DrawBackgroundAndTitle(specs.name, specs.background);
 
+  Font_t* font = GFX_GetFont();
+
   // model
-  GFXDrawString("model:", firstColumnXPos, yPos);
+  GFX_DrawString("model:", firstColumnXPos, yPos, font);
   sprintf(buff, "%s", Chip_GetModel());
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   // rev
   yPos += itemHeight;
-  GFXDrawString("revision:", firstColumnXPos, yPos);
+  GFX_DrawString("revision:", firstColumnXPos, yPos, font);
   sprintf(buff, "%u", chipInfo.revision);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   // cores
   yPos += itemHeight;
-  GFXDrawString("cores:", firstColumnXPos, yPos);
+  GFX_DrawString("cores:", firstColumnXPos, yPos, font);
   sprintf(buff, "%d", chipInfo.cores);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   // cpu
   yPos += itemHeight;
-  GFXDrawString("cpu speed:", firstColumnXPos, yPos);
+  GFX_DrawString("cpu speed:", firstColumnXPos, yPos, font);
   sprintf(buff, "%d Mhz", (_u16)conf.freq_mhz);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   // flash
   yPos += itemHeight;
-  GFXDrawString("flash:", firstColumnXPos, yPos);
+  GFX_DrawString("flash:", firstColumnXPos, yPos, font);
   sprintf(buff, "%u MB", flashSizeInMb);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   // ram
   yPos += itemHeight;
-  GFXDrawString("free ram:", firstColumnXPos, yPos);
+  GFX_DrawString("free ram:", firstColumnXPos, yPos, font);
   sprintf(buff, "%d KB", allRamInKb);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   // sd
   yPos += itemHeight;
-  GFXDrawString("sd size:", firstColumnXPos, yPos);
+  GFX_DrawString("sd size:", firstColumnXPos, yPos, font);
   sprintf(buff, "%lu MB", sdSizeInMB);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   yPos += itemHeight;
-  GFXDrawString("sd used:", firstColumnXPos, yPos);
+  GFX_DrawString("sd used:", firstColumnXPos, yPos, font);
   sprintf(buff, "%lu MB", sdUsedSizeInMB);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 
   // battery
   yPos += itemHeight;
-  GFXDrawString("battery:", firstColumnXPos, yPos);
+  GFX_DrawString("battery:", firstColumnXPos, yPos, font);
   sprintf(buff, "%d %%", batteryData->chargeLevelPercents);
-  GFXDrawString(buff, secondColumnXPos, yPos);
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
+
+  yPos += itemHeight;
+  GFX_DrawString("charging:", firstColumnXPos, yPos, font);
+  sprintf(buff, "%s", batteryData->charging ? "true" : "false");
+  GFX_DrawString(buff, secondColumnXPos, yPos, font);
 }

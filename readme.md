@@ -1,0 +1,1 @@
+used board configuration: [esp32-s3 n16r8](https://github.com/handledexception/platform-espressif32/blob/esp32-s3-devkitc-1-n16r8v/boards/esp32-s3-devkitc-1-n16r8v.json)

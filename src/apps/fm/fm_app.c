@@ -136,16 +136,16 @@ static void onAppRedraw(RedrawType_t redrawType) {
     }
 
     // redraw file item
-    GFXDrawFilledRect(startHPadding, FS_DISPLAY_WIDTH, vPosOfText,
-                      vPosOfTextBox, specs.background);
+    GFX_DrawFilledRect(startHPadding, GFX_GetCanwasWidth() - 1, vPosOfText,
+                       vPosOfTextBox, specs.background);
     if (fileItem->initialized == true) {
-      GFXDrawString(fileItem->name, startHPadding, vPosOfText);
+      GFX_DrawString(fileItem->name, startHPadding, vPosOfText, GFX_GetFont());
     }
 
     vPosOfText += vSpacing;
     vPosOfTextBox = vPosOfText + vSpacing;
-    if (vPosOfTextBox >= FS_DISPLAY_HEIGHT) {
-      vPosOfTextBox = FS_DISPLAY_HEIGHT - 1;
+    if (vPosOfTextBox >= (GFX_GetCanvasHeight() - 1)) {
+      vPosOfTextBox = GFX_GetCanvasHeight() - 1;
     }
   }
 
@@ -155,8 +155,9 @@ static void onAppRedraw(RedrawType_t redrawType) {
                          16);
 
   // draw scroll bar
-  DrawScrollBar(currentPage, pages, FS_DISPLAY_WIDTH, FS_DISPLAY_HEIGHT,
-                GFXGetFontColor(), specs.background);
+  DrawScrollBar(currentPage, pages, GFX_GetCanwasWidth() - 1,
+                GFX_GetCanvasHeight() - 1, GFX_GetFontColor(),
+                specs.background);
 }
 
 static void onAppStop(void) {
