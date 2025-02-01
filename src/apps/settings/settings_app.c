@@ -54,6 +54,8 @@ static void handleKey(const void* keyData) {
 
 static _u8 settingsItem = 4;
 static Array_t* sleepOptions;
+static Array_t* brightnessOptions;
+static Array_t* volumeOptions;
 
 static inline View_t* CreateSleepOptionsPicker() {
   sleepOptions = ArrayCreate(6);
@@ -67,6 +69,38 @@ static inline View_t* CreateSleepOptionsPicker() {
 
   return OptionPicker_Create(sleepOptions, GFX_GetFont());
 }
+
+static inline View_t* CreateBrightnessOptionsPicker() {
+  brightnessOptions = ArrayCreate(10);
+  ArrayAdd(brightnessOptions, "10%");
+  ArrayAdd(brightnessOptions, "20%");
+  ArrayAdd(brightnessOptions, "30%");
+  ArrayAdd(brightnessOptions, "40%");
+  ArrayAdd(brightnessOptions, "50%");
+  ArrayAdd(brightnessOptions, "60%");
+  ArrayAdd(brightnessOptions, "70%");
+  ArrayAdd(brightnessOptions, "80%");
+  ArrayAdd(brightnessOptions, "90%");
+  ArrayAdd(brightnessOptions, "100%");
+
+  return OptionPicker_Create(brightnessOptions, GFX_GetFont());
+}
+
+static inline View_t* CreateVolumeOptionsPicker() {
+  volumeOptions = ArrayCreate(7);
+  ArrayAdd(volumeOptions, "OFF");
+  ArrayAdd(volumeOptions, "10%");
+  ArrayAdd(volumeOptions, "30%");
+  ArrayAdd(volumeOptions, "50%");
+  ArrayAdd(volumeOptions, "70%");
+  ArrayAdd(volumeOptions, "90%");
+  ArrayAdd(volumeOptions, "100%");
+
+  return OptionPicker_Create(volumeOptions, GFX_GetFont());
+}
+// TODO: move to dynamic calculation
+static const _u8 settingItemHeight = 52;
+static const _u8 padding = 20;
 
 static void onAppStart() {
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
@@ -89,18 +123,22 @@ static void onAppStart() {
   _u16 settingsBoxId = Composer_AddVBox(composer, contentBoxId);
 
   // 1. brightness
-  _u16 brItemBoxId = Composer_AddVBox(composer, settingsBoxId);
+  _u16 settingsItem1 = Composer_AddVBox(composer, settingsBoxId);
+  Composer_AddView(composer, settingsItem1, VSpacer_Create(padding));
+  _u16 brItemBoxId = Composer_AddHBox(composer, settingsItem1);
   View_t* brLabel = Label_Create("Brightness:", GFX_GetFont());
-  View_t* brProgress = Progress_Create(30, 100);
+  View_t* brProgress = CreateBrightnessOptionsPicker();
   Composer_AddView(composer, brItemBoxId, brLabel);
   Composer_AddView(composer, brItemBoxId, brProgress);
+  Composer_AddView(composer, brItemBoxId, VSpacer_Create(settingItemHeight));
 
   // 2. volume
-  _u16 volumeBoxId = Composer_AddVBox(composer, settingsBoxId);
+  _u16 volumeBoxId = Composer_AddHBox(composer, settingsBoxId);
   View_t* vlLabel = Label_Create("volume:", GFX_GetFont());
-  View_t* vlProgress = Progress_Create(10, 100);
+  View_t* vlProgress = CreateVolumeOptionsPicker();
   Composer_AddView(composer, volumeBoxId, vlLabel);
   Composer_AddView(composer, volumeBoxId, vlProgress);
+  Composer_AddView(composer, volumeBoxId, VSpacer_Create(settingItemHeight));
 
   // 3. power save mode
   _u16 powerSaveBoxId = Composer_AddHBox(composer, settingsBoxId);
@@ -108,6 +146,7 @@ static void onAppStart() {
   View_t* psSwitch = SwitchButton_Create(false, GFX_GetFont());
   Composer_AddView(composer, powerSaveBoxId, psLabel);
   Composer_AddView(composer, powerSaveBoxId, psSwitch);
+  Composer_AddView(composer, powerSaveBoxId, VSpacer_Create(settingItemHeight));
 
   // 4. "sleep in" option
   _u16 sleepOptionBoxId = Composer_AddHBox(composer, settingsBoxId);
@@ -115,6 +154,8 @@ static void onAppStart() {
   View_t* slOptionPicker = CreateSleepOptionsPicker();
   Composer_AddView(composer, sleepOptionBoxId, slLabel);
   Composer_AddView(composer, sleepOptionBoxId, slOptionPicker);
+  Composer_AddView(composer, sleepOptionBoxId,
+                   VSpacer_Create(settingItemHeight));
 
   Composer_Recompose(composer);
 }
@@ -138,4 +179,6 @@ AppSpecification_t* SettingsAppSpecification(const _u16 appId) {
 static void OnStop() {
   Composer_Clear(composer);
   ArrayDestroy(sleepOptions);
+  ArrayDestroy(brightnessOptions);
+  ArrayDestroy(volumeOptions);
 }

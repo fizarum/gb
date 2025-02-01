@@ -193,12 +193,7 @@ static void OnDrawItem(TreeNode_t* node) {
 static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
                             _u16 left, _u16 top, _u16 right, _u16 bottom) {
   View_t* view = GetViewFromNode(node);
-  // update current view position
-  if (View_IsBox(view) == true) {
-    View_SetPosition(view, left, top);
-  } else {
-    View_SetPosition(view, left + 1, top + 1);
-  }
+  View_SetPosition(view, left, top);
 
   // get actual view size
   _u16 width = View_GetWidth(view);
@@ -208,50 +203,47 @@ static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
     Box_t* box = (Box_t*)View_GetCustomView(view);
     Direction_t direction = Box_GetDirection(box);
     Array_t* children = TreeNode_GetChildren(node);
-    if (children != NULL) {
-      for (_u8 index = 0; index < ArraySize(children); index++) {
-        TreeNode_t* child = ArrayValueAt(children, index);
-        if (direction == Vertical) {
-          OnRecomposeItem(child, direction, left, top + height, right, bottom);
-        } else {
-          OnRecomposeItem(child, direction, left + width, top, right, bottom);
-        }
 
-        View_t* childView = GetViewFromNode(child);
-        _u16 childWidth = View_GetWidth(childView);
-        _u16 childHeight = View_GetHeight(childView);
-        // resize parent with new child's size
-        if (direction == Vertical) {
-          height += childHeight;
-          // if child is wider than box - resize box to fit requirements
-          if (childWidth > width) {
-            width = childWidth;
-          }
-        } else {
-          width += childWidth;
-          // if child is taller than box - resize box to fit requirements
-          if (childHeight > height) {
-            height = childHeight;
-          }
-        }
-        View_SetWidth(view, width);
-        View_SetHeight(view, height);
+    for (_u8 index = 0; index < ArraySize(children); index++) {
+      TreeNode_t* child = ArrayValueAt(children, index);
+      if (direction == Vertical) {
+        OnRecomposeItem(child, direction, left, top + height, right, bottom);
+      } else {
+        OnRecomposeItem(child, direction, left + width, top, right, bottom);
       }
-      Box_SetMaxSize(box, right - left, bottom - top);
+
+      View_t* childView = GetViewFromNode(child);
+      _u16 childWidth = View_GetWidth(childView);
+      _u16 childHeight = View_GetHeight(childView);
+      // resize parent with new child's size
+      if (direction == Vertical) {
+        height += childHeight;
+        // if child is wider than box - resize box to fit requirements
+        if (childWidth > width) {
+          width = childWidth;
+        }
+      } else {
+        width += childWidth;
+        // if child is taller than box - resize box to fit requirements
+        if (childHeight > height) {
+          height = childHeight;
+        }
+      }
+      View_SetWidth(view, width);
+      View_SetHeight(view, height);
     }
+    Box_SetMaxSize(box, right - left, bottom - top);
   } else {
     SizePolicy_t* widthSizePolicy = View_GetWidthPolicy(view);
     SizePolicy_t* heightSizePolicy = View_GetHeightPolicy(view);
 
     if (widthSizePolicy->type == MatchParent) {
-      // TODO: recheck if size < 2
-      width = right - left - 2;
+      width = right > left ? right - left : 0;
       View_SetWidth(view, width);
     }
 
     if (heightSizePolicy->type == MatchParent) {
-      // TODO: recheck if size < 2
-      height = bottom - top - 2;
+      height = bottom > top ? bottom - top : 0;
       View_SetHeight(view, height);
     }
   }

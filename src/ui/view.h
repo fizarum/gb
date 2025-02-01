@@ -29,8 +29,8 @@ typedef enum SizePolicyType_t {
 
 typedef union SizePolicy_t {
   struct {
-    SizePolicyType_t type : 8;
     _u8 weight : 8;
+    SizePolicyType_t type : 8;
   };
   // in case when type == WrapContent this value represents size in pixels
   _u16 value;

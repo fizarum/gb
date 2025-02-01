@@ -9,14 +9,14 @@ typedef struct VSpacer_t {
 static void Destroy(void *spacerArg);
 static void RecalculateSize(VSpacer_t *spacer);
 
-View_t *VSpacer_Create(_u16 height) {
+View_t *VSpacer_Create(const _u16 height) {
   VSpacer_t *spacer = (VSpacer_t *)malloc(sizeof(VSpacer_t));
   if (spacer == NULL) {
     return NULL;
   }
 
-  SizePolicy_t heightPolicy = {.value = height, .type = WrapContent};
-  SizePolicy_t widthPolicy = {.weight = 0, .type = WrapContent};
+  SizePolicy_t heightPolicy = {.value = height};
+  SizePolicy_t widthPolicy = {.value = 0};
 
   spacer->view = View_Create(spacer, false, NULL, &Destroy, NULL, widthPolicy,
                              heightPolicy);
