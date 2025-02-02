@@ -30,7 +30,7 @@ const _u8 startHPadding = 20;
 const _u8 startHPaddingForFocusIndicator = 3;
 static _u16 vPosOfText;
 
-Array_t* filesOnPage;
+Array_t* filesOnPage = NULL;
 
 // pagination
 const _u8 filesPerPage = 10;
@@ -101,12 +101,11 @@ static void onAppStart(void) {
   const char* mnt = storageData->mountPoint;
   vPosOfText = startVPadding;
 
-  PrepareCache();
-
   // first scan files count in current directory
   esp_err_t result = SDCalculateFilesInDirectory(mnt, &totalFiles);
 
   if (result == ESP_OK) {
+    PrepareCache();
     ESP_LOGI(specs.name, "found %d files in directory: %s", totalFiles, mnt);
 
     // calculate pages count
@@ -127,6 +126,10 @@ static void onAppRedraw(RedrawType_t redrawType) {
   }
   vPosOfText = startVPadding;
   _u16 vPosOfTextBox = vPosOfText + vSpacing;
+
+  if (filesOnPage == NULL || ArrayIsEmpty(filesOnPage)) {
+    return;
+  }
 
   for (_u8 index = 0; index < filesPerPage; index++) {
     FileItem_t* fileItem = ArrayValueAt(filesOnPage, index);
@@ -192,10 +195,13 @@ static void PrepareCache() {
  * @brief Removed cache for shown file items
  */
 static void CleanupCache() {
-  for (_u8 index = 0; index < ArraySize(filesOnPage); index++) {
-    FileItem_t* item = (FileItem_t*)ArrayValueAt(filesOnPage, index);
-    free(item);
+  if (filesOnPage != NULL) {
+    for (_u8 index = 0; index < ArraySize(filesOnPage); index++) {
+      FileItem_t* item = (FileItem_t*)ArrayValueAt(filesOnPage, index);
+      free(item);
+    }
   }
+
   ArrayDestroy(filesOnPage);
 }
 

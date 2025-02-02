@@ -125,13 +125,12 @@ static _u16 RegisterDevice(DeviceManager_t* deviceManager,
   _u16 id = DeviceManagerNextDeviceId(deviceManager);
   Device_t* device = DeviceCreate(id, deviceSpecification);
   _u16 addedDeviceId = DeviceManagerAdd(deviceManager, device);
-  const char* deviceName = DeviceGetName(device);
+  const char* name = DeviceGetName(device);
 
   if (addedDeviceId != DEVICE_ID_NONE) {
-    ESP_LOGI(DEV_TAG, "added new device: %d [%s]\n", addedDeviceId, deviceName);
+    ESP_LOGI(DEV_TAG, "added new device: %d [%s]\n", addedDeviceId, name);
   } else {
-    ESP_LOGE(DEV_TAG, "cannot add device: %d [%s]\n", addedDeviceId,
-             deviceName);
+    ESP_LOGW(DEV_TAG, "cannot add device: [%s]\n", name);
   }
   return addedDeviceId;
 }
