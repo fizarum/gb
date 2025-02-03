@@ -118,23 +118,26 @@ static bool onInit(void) {
   return true;
 }
 
-static void onEnable(bool enable) {
+static bool onEnable(bool enable) {
   ESP_LOGI(specs.name, "enable: %d", enable);
-  Ili9341PowerOn(&dev, enable);
+  bool isOn = Ili9341PowerOn(&dev, enable);
+  if (isOn == false) {
+    return false;
+  }
 
   if (enable == true) {
     dev.lighten(brightness);
     xTaskCreate(&drawingTask, "drawingTask", 8096, NULL, 12,
                 &displayTaskHandle);
+    GFX_SetFont(&font);
   } else {
     dev.lighten(0);
     if (displayTaskHandle != NULL) {
       vTaskDelete(displayTaskHandle);
     }
-    return;
   }
 
-  GFX_SetFont(&font);
+  return true;
 }
 
 static void onUpdate(void) {}

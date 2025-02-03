@@ -59,8 +59,10 @@ static bool onInit(void) {
   return batteryPinConfigured && chargingMonitorPinConfigured;
 }
 
-static void onEnable(bool enable) {
+static bool onEnable(bool enable) {
   ESP_LOGI(specs.name, "enable: %d", enable);
+  // actually battery cant be disabled, so always true
+  return true;
 }
 
 static void onUpdate(void) {
