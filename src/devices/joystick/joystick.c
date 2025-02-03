@@ -49,9 +49,10 @@ static bool onInit(void) {
   return initOk;
 }
 
-static void onEnable(bool enable) {
+static bool onEnable(bool enable) {
   ESP_LOGI(specs.name, "enable: %d", enable);
   joystickEnabled = enable;
+  return true;
 }
 
 static void onUpdate(void) {

@@ -91,7 +91,15 @@ static bool onInit(void) {
   return true;
 }
 
-static void onEnable(bool enable) {}
+static bool onEnable(bool enable) {
+  // TODO: complete
+  if (enable == true) {
+    // esp_vfs_fat_sdspi_mount(...);
+  } else {
+    // esp_vfs_fat_sdmmc_unmount(...); or esp_vfs_fat_sdcard_unmount();
+  }
+  return true;
+}
 
 static void onUpdate(void) {}
 
