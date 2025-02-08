@@ -1,6 +1,8 @@
 #include <apps_manager.h>
+#include <broadcast/broadcast_manager.h>
 #include <device_manager.h>
 #include <mcp23017.h>
+#include <specifications/battery_data.h>
 #include <stddef.h>
 
 #include "apps/fm/fm_app.h"
@@ -57,12 +59,17 @@ void systemTask(void* arg) {
   InputDeviceData_t inputDataToReceive;
 
   ESP_LOGI(SYS_TAG, "start!");
+  BroadcastManager_Init();
   appsManager = AppsManagerCreate();
 
   // menu
   _u16 appId = AppsManagerNextAppId(appsManager);
   AppSpecification_t* menuSpecs = MenuAppSpecification(appId, appsManager);
   App_t* menuApp = AppCreate(menuSpecs);
+
+  BroadcastManager_AddListener(ChargingOn, menuApp);
+  BroadcastManager_AddListener(ChargingOff, menuApp);
+  BroadcastManager_AddListener(ChangingLevelChange, menuApp);
 
   // fm
   appId = AppsManagerNextAppId(appsManager);
@@ -85,6 +92,8 @@ void systemTask(void* arg) {
   AppsManagerStart(appsManager, menuApp);
 
   while (1) {
+    BroadcastManager_Update();
+
     if (xQueueReceive(inputDataQueue, &inputDataToReceive, _2) == pdPASS) {
       // handle menu button to close active app (except menu)
       if (IsButtonMenuReleased(&inputDataToReceive) == true) {
@@ -103,7 +112,7 @@ void driverTask(void* arg) {
 
   _u16 joystickId = RegisterDevice(deviceManager, JoystickSpecification());
   RegisterDevice(deviceManager, DislplaySpecification());
-  RegisterDevice(deviceManager, BatterySpecification());
+  _u16 batteryId = RegisterDevice(deviceManager, BatterySpecification());
   RegisterDevice(deviceManager, StorageSpecification());
 
   while (1) {
@@ -114,6 +123,19 @@ void driverTask(void* arg) {
 
     if (IsAnyButtonPressed(data) == true) {
       xQueueSend(inputDataQueue, data, _2);
+    }
+
+    Device_t* batteryDevice = DeviceManagerGet(deviceManager, batteryId);
+    BatteryDeviceData_t* batteryData =
+        (BatteryDeviceData_t*)DeviceGetData(batteryDevice);
+
+    if (batteryData->charginStatusChanged == true) {
+      batteryData->charginStatusChanged = false;
+      if (batteryData->charging) {
+        BroadcastManager_SendEventType(ChargingOn);
+      } else {
+        BroadcastManager_SendEventType(ChargingOff);
+      }
     }
 
     vTaskDelay(_20);

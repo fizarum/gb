@@ -27,8 +27,8 @@ adc_channel_t channel = ADC_CHANNEL_3;
  * we can get 1.907V
  */
 #define BATTERY_LEVEL_MIN 1907
-// 10 seconds
-const uint32_t delayBetweenUpdatesInMicroSeconds = 10 * 1000000;
+// 2 seconds
+const uint32_t delayBetweenUpdatesInMicroSeconds = 2 * 1000000;
 static int lastUpdatedTimeAt, now = 0;
 int voltage = 0;
 
@@ -65,12 +65,20 @@ static bool onEnable(bool enable) {
   return true;
 }
 
+bool chargingLevel = false;
+
 static void onUpdate(void) {
   now = esp_timer_get_time();
 
   if (lastUpdatedTimeAt + delayBetweenUpdatesInMicroSeconds < now) {
     lastUpdatedTimeAt = now;
-    deviceData.charging = gpio_get_level(CHG_MONITOR_PIN);
+
+    chargingLevel = gpio_get_level(CHG_MONITOR_PIN);
+    deviceData.charginStatusChanged = chargingLevel != deviceData.charging;
+
+    if (deviceData.charginStatusChanged) {
+      deviceData.charging = chargingLevel;
+    }
     ESP_LOGI(specs.name, "charging: %d", deviceData.charging);
 
     voltage = BatteryADCRead(unit, channel, isCalibrated);
