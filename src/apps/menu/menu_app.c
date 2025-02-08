@@ -21,6 +21,7 @@ App_t* selectedApp = NULL;
 
 _u8 selectedAppIndex = UINT8_MAX;
 Array_t* allApps = NULL;
+bool isCharging = false;
 
 static AppSpecification_t specs = {
     .name = "Menu",
@@ -80,6 +81,33 @@ static void onAppResume(void) {
   }
 }
 
+void onBroadcastEvent(BroadcastEvent_t event) {
+  switch (event.type) {
+    case ChargingOn:
+      isCharging = true;
+      printf("charging\n");
+      // TODO: temp solution
+      specs.redrawNeeded = RedrawFull;
+      break;
+
+    case ChargingOff:
+      isCharging = false;
+      printf("NOT charging\n");
+      // TODO: temp solution
+      specs.redrawNeeded = RedrawFull;
+      break;
+
+    case ChangingLevelChange:
+      printf("battery level changed\n");
+      // TODO: temp solution
+      specs.redrawNeeded = RedrawFull;
+      break;
+
+    default:
+      break;
+  }
+}
+
 AppSpecification_t* MenuAppSpecification(const _u16 appId,
                                          AppsManager_t* appsManager) {
   specs.id = appId;
@@ -87,6 +115,7 @@ AppSpecification_t* MenuAppSpecification(const _u16 appId,
   specs.onStart = &onAppStart;
   specs.onResume = &onAppResume;
   specs.onRedraw = &onAppRedraw;
+  specs.onBroadcastEvent = &onBroadcastEvent;
 
   _appsManager = appsManager;
   return &specs;
@@ -130,7 +159,15 @@ void DrawScreen() {
   GFX_DrawString("23:59", 30, 7, GFX_GetFont());
 
   // battery placeholder
-  GFX_DrawFilledRect(270, 290, 5, 15, ACCENT_COLOR);
+
+  // clear placeholder
+  GFX_DrawFilledRect(270, 290, 5, 15, specs.background);
+  if (isCharging == true) {
+    GFX_DrawRect(270, 5, 290, 15, 1, ACCENT_COLOR);
+    GFX_DrawChar('~', 270, 5, GFX_GetFont());
+  } else {
+    GFX_DrawFilledRect(270, 290, 5, 15, ACCENT_COLOR);
+  }
 
   // top status line
   GFX_DrawFilledRect(20, 300, 20, 21, ACCENT_COLOR);
