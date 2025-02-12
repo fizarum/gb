@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <palette.h>
+#include <stdio.h>
 #include <types.h>
 
 #include "../ui/gfx/gfx.h"
@@ -112,6 +113,25 @@ static inline void App_DrawHorizontalPicker(const _u16 left, const _u16 top,
   // draw right arrow
   leftPos += textLengthInPx + spacing;
   GFX_DrawChar('>', leftPos, top, GFX_GetFont());
+}
+
+// battery part
+static char percentageStr[8];
+static const _u8 batteryWidgetWidth = 30;
+static const _u8 batteryWidgetHeight = 10;
+static _u8 filledPart = 0;
+static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y,
+                               Font_t *font) {
+  GFX_DrawRect(x, y, x + batteryWidgetWidth, y + batteryWidgetHeight, 1,
+               GFX_GetFontColor());
+  if (charging == true) {
+    GFX_DrawString("++", x, y, font);
+  } else {
+    filledPart = (((float)batteryWidgetWidth) / 100.0) * level;
+
+    GFX_DrawFilledRect(x, x + filledPart, y, y + batteryWidgetHeight,
+                       GFX_GetFontColor());
+  }
 }
 
 // stub for app's unused callbacks

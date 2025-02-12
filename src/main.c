@@ -69,7 +69,6 @@ void systemTask(void* arg) {
 
   BroadcastManager_AddListener(ChargingOn, menuApp);
   BroadcastManager_AddListener(ChargingOff, menuApp);
-  BroadcastManager_AddListener(ChangingLevelChange, menuApp);
 
   // fm
   appId = AppsManagerNextAppId(appsManager);
@@ -131,11 +130,21 @@ void driverTask(void* arg) {
 
     if (batteryData->charginStatusChanged == true) {
       batteryData->charginStatusChanged = false;
+
+      BroadcastEvent_t batteryEvent = {
+          .payload = batteryData->chargeLevelPercents,
+      };
+
       if (batteryData->charging) {
-        BroadcastManager_SendEventType(ChargingOn);
+        batteryEvent.type = ChargingOn;
       } else {
-        BroadcastManager_SendEventType(ChargingOff);
+        batteryEvent.type = ChargingOff;
       }
+
+      ESP_LOGW(DEV_TAG, "charging status changed, sending broadcast event: %lu",
+               batteryEvent.value);
+
+      BroadcastManager_SendEvent(batteryEvent.value);
     }
 
     vTaskDelay(_20);
