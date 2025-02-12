@@ -18,10 +18,14 @@ void DrawScreen();
 
 AppsManager_t* _appsManager = NULL;
 App_t* selectedApp = NULL;
+// TODO: move to battery widget file in UI
+static const _u8 _batteryWidgetWidth = 30;
+static const _u8 _batteryWidgetHeight = 10;
 
 _u8 selectedAppIndex = UINT8_MAX;
 Array_t* allApps = NULL;
 bool isCharging = false;
+_u16 percentage = 0;
 
 static AppSpecification_t specs = {
     .name = "Menu",
@@ -58,16 +62,36 @@ static void handleKey(const void* keyData) {
 }
 
 static void onAppRedraw(RedrawType_t redrawType) {
-  if (redrawType == RedrawFull) {
-    DrawScreen();
+  switch (redrawType) {
+    case RedrawFull: {
+      DrawScreen();
+      const char* appName = AppGetName(selectedApp);
+
+      GFX_DrawFilledRect(40, 190, 120, 130, specs.background);
+      GFX_DrawString(appName, 40, 120, GFX_GetFont());
+
+      ESP_LOGI(specs.name, "selected app: %s", appName);
+      break;
+    }
+    case RedrawPartial: {
+      const char* appName = AppGetName(selectedApp);
+
+      GFX_DrawFilledRect(40, 190, 120, 130, specs.background);
+      GFX_DrawString(appName, 40, 120, GFX_GetFont());
+
+      ESP_LOGI(specs.name, "selected app: %s", appName);
+      break;
+    }
+    // test part
+    case RedrawCustom: {
+      GFX_DrawFilledRect(250, 250 + _batteryWidgetWidth, 7,
+                         7 + _batteryWidgetHeight, specs.background);
+      DrawBattery(isCharging, percentage, 250, 7, GFX_GetFont());
+      break;
+    }
+    default:
+      break;
   }
-
-  const char* appName = AppGetName(selectedApp);
-
-  GFX_DrawFilledRect(40, 190, 120, 130, specs.background);
-  GFX_DrawString(appName, 40, 120, GFX_GetFont());
-
-  ESP_LOGI(specs.name, "selected app: %s", appName);
 }
 
 int64_t start, period;
@@ -82,28 +106,24 @@ static void onAppResume(void) {
 }
 
 void onBroadcastEvent(BroadcastEvent_t event) {
+  ESP_LOGI(specs.name, "received broadcast event: [%d]\n", event.type);
   switch (event.type) {
     case ChargingOn:
       isCharging = true;
-      printf("charging\n");
       // TODO: temp solution
-      specs.redrawNeeded = RedrawFull;
+      percentage = (_u8)event.payload;
+      specs.redrawNeeded = RedrawCustom;
       break;
 
     case ChargingOff:
       isCharging = false;
-      printf("NOT charging\n");
+      percentage = (_u8)event.payload;
       // TODO: temp solution
-      specs.redrawNeeded = RedrawFull;
-      break;
-
-    case ChangingLevelChange:
-      printf("battery level changed\n");
-      // TODO: temp solution
-      specs.redrawNeeded = RedrawFull;
+      specs.redrawNeeded = RedrawCustom;
       break;
 
     default:
+      specs.redrawNeeded = RedrawNone;
       break;
   }
 }
@@ -159,15 +179,7 @@ void DrawScreen() {
   GFX_DrawString("23:59", 30, 7, GFX_GetFont());
 
   // battery placeholder
-
-  // clear placeholder
-  GFX_DrawFilledRect(270, 290, 5, 15, specs.background);
-  if (isCharging == true) {
-    GFX_DrawRect(270, 5, 290, 15, 1, ACCENT_COLOR);
-    GFX_DrawChar('~', 270, 5, GFX_GetFont());
-  } else {
-    GFX_DrawFilledRect(270, 290, 5, 15, ACCENT_COLOR);
-  }
+  // used DrawBattery() instead
 
   // top status line
   GFX_DrawFilledRect(20, 300, 20, 21, ACCENT_COLOR);

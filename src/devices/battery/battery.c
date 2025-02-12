@@ -65,7 +65,8 @@ static bool onEnable(bool enable) {
   return true;
 }
 
-bool chargingLevel = false;
+static bool charging = false;
+static _u8 chargeInPercents;
 
 static void onUpdate(void) {
   now = esp_timer_get_time();
@@ -73,23 +74,29 @@ static void onUpdate(void) {
   if (lastUpdatedTimeAt + delayBetweenUpdatesInMicroSeconds < now) {
     lastUpdatedTimeAt = now;
 
-    chargingLevel = gpio_get_level(CHG_MONITOR_PIN);
-    deviceData.charginStatusChanged = chargingLevel != deviceData.charging;
-
-    if (deviceData.charginStatusChanged) {
-      deviceData.charging = chargingLevel;
-    }
-    ESP_LOGI(specs.name, "charging: %d", deviceData.charging);
-
+    charging = gpio_get_level(CHG_MONITOR_PIN);
     voltage = BatteryADCRead(unit, channel, isCalibrated);
     if (voltage >= BATTERY_LEVEL_MAX) {
-      deviceData.chargeLevelPercents = 100;
-    } else {
-      deviceData.chargeLevelPercents =
-          (_u8)((float)voltage / (float)BATTERY_LEVEL_MAX * 100);
+      voltage = BATTERY_LEVEL_MAX;
     }
+    if (voltage < 0) {
+      voltage = BATTERY_LEVEL_MIN;
+    }
+    chargeInPercents = (_u8)((float)voltage / (float)BATTERY_LEVEL_MAX * 100);
 
-    ESP_LOGI(specs.name, "voltage %%: %d", deviceData.chargeLevelPercents);
+    if (deviceData.charging != charging) {
+      deviceData.charginStatusChanged = true;
+    } else if (deviceData.charging == false &&
+               deviceData.chargeLevelPercents != chargeInPercents) {
+      deviceData.charginStatusChanged = true;
+    } else {
+      deviceData.charginStatusChanged = false;
+    }
+    deviceData.charging = charging;
+    deviceData.chargeLevelPercents = chargeInPercents;
+
+    ESP_LOGI(specs.name, "voltage: %d%% changed: %d", chargeInPercents,
+             deviceData.charginStatusChanged);
   }
 }
 
