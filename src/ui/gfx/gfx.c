@@ -12,24 +12,37 @@
 
 static Font_t *activeFont = NULL;
 static _u16 backgroundColor;
-static GFX_Callback drawCallback;
+static GFX_CanvasUpdated canvasReadyCallback;
 static _u16 canvasWidth = 0;
 static _u16 canvasHeight = 0;
+static _u32 canvasSize = 0;
+static _u16 *canvas;
 
-void GFX_Init(const _u16 width, const _u16 height, GFX_Callback callback) {
+void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback) {
   canvasWidth = width;
   canvasHeight = height;
-  drawCallback = callback;
+  canvasSize = width * height;
+  canvasReadyCallback = callback;
+
+  canvas = calloc(canvasSize, sizeof(_u16));
+  for (_u32 index = 0; index < canvasSize; index++) {
+    canvas[index] = 0;
+  }
   SymbolsResInit();
 }
+
+void GFX_Redraw() { canvasReadyCallback(); }
+
+_u16 *GFX_GetCanvas() { return canvas; }
 
 void GFX_SetFont(Font_t *font) { activeFont = font; }
 Font_t *GFX_GetFont() { return activeFont; }
 
-void GFX_SetBackground(_u16 color) { backgroundColor = color; }
+void GFX_SetBackgroundColor(_u16 color) { backgroundColor = color; }
 
 _u16 GFX_GetCanwasWidth() { return canvasWidth; }
 _u16 GFX_GetCanvasHeight() { return canvasHeight; }
+_u32 GFX_CanvasSize() { return canvasSize; }
 
 /**
  * @brief Draws symbol
@@ -61,8 +74,14 @@ _u8 GFX_DrawSymbol(SymbolData_t *symbol, _u16 xPos, _u16 yPos,
         scaledX = xPos + x * scale;
         scaledY = yPos + y * scale;
 
-        drawCallback(scaledX, scaledY, scaledX + scale - 1, scaledY + scale - 1,
-                     color);
+        if (scale > 1) {
+          // draw rectangle as scaled pixel
+          GFX_DrawFilledRect(scaledX, scaledX + scale, scaledY, scaledY + scale,
+                             color);
+        } else {
+          // draw one pixel
+          canvas[scaledY * canvasWidth + scaledX] = color;
+        }
       }
     }
   }
@@ -110,36 +129,63 @@ _u16 GFX_DrawString(const char *string, _u16 xPos, _u16 yPos,
 
   return letterWidth * length;
 }
-
+// TODO: rework to left, top, right, bottom sequence
 void GFX_DrawFilledRect(const _u16 left, const _u16 right, const _u16 top,
                         const _u16 bottom, const _u16 color) {
-  drawCallback(left, top, right, bottom, color);
+  for (_u32 index = top; index < bottom; index++) {
+    GFX_DrawHLine(left, index, right - left, 1, color);
+  }
 }
 
 void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,
                   const _u16 bottom, const _u8 lineWidth, const _u16 color) {
   // top line
-  drawCallback(left, top, right, top + lineWidth, color);
+  GFX_DrawHLine(left, top, right - left, lineWidth, color);
   // bottom line
-  drawCallback(left, bottom - lineWidth, right, bottom, color);
+  GFX_DrawHLine(left, bottom, right - left, lineWidth, color);
   // left
-  drawCallback(left, top, left + lineWidth, bottom, color);
+  GFX_DrawVLine(left, top, bottom - top, lineWidth, color);
   // right
-  drawCallback(right - lineWidth, top, right, bottom, color);
+  GFX_DrawVLine(right, top, bottom - top, lineWidth, color);
 }
 
+static _u32 start, end;
 void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
                    const _u8 lineWidth, const _u16 color) {
-  drawCallback(left, top, left + length, top + lineWidth, color);
+  _u16 normalizedLength = length;
+  if (length + left >= canvasWidth) {
+    normalizedLength = canvasWidth - left - 1;
+  }
+  // calculate start and end in one line
+  start = top * canvasWidth + left;
+  end = (start + normalizedLength);
+
+  // iterate from top to bottom with iterations = lineWidth
+  for (_u8 lineIndex = 0; lineIndex < lineWidth; lineIndex++) {
+    for (_u32 index = start; index < end; index++) {
+      canvas[index] = color;
+    }
+    start += canvasWidth;
+    end += canvasWidth;
+  }
 }
 
 void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
                    const _u8 lineWidth, const _u16 color) {
-  drawCallback(left, top, left + lineWidth, top + length, color);
+  _u16 bottom = top + length;
+  if (bottom >= canvasHeight) {
+    bottom = canvasHeight - 1;
+  }
+  for (_u16 index = top; index <= bottom; index++) {
+    // we're using drawing horizontal line because of lineWidth
+    GFX_DrawHLine(left, index, lineWidth, 1, color);
+  }
 }
 
 void GFX_FillScreen(const _u16 color) {
-  drawCallback(0, 0, canvasWidth - 1, canvasHeight - 1, color);
+  for (_u32 index = 0; index < canvasSize; index++) {
+    canvas[index] = color;
+  }
 }
 
 _u8 GFX_FontGetWidth() {

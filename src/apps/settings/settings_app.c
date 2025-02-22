@@ -104,7 +104,7 @@ static const _u8 padding = 20;
 
 static void onAppStart() {
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
-  GFX_SetBackground(specs.background);
+  GFX_SetBackgroundColor(specs.background);
 
   _u16 rootId = Composer_GetRootId(composer);
   if (rootId == TREE_INDEX_NONE) {
@@ -165,6 +165,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     GFX_FillScreen(specs.background);
   }
   Composer_Draw(composer);
+  GFX_Redraw();
 }
 
 AppSpecification_t* SettingsAppSpecification(const _u16 appId) {
