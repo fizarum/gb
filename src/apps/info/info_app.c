@@ -45,7 +45,7 @@ static void ShowInfo();
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
-  GFX_SetBackground(specs.background);
+  GFX_SetBackgroundColor(specs.background);
 
   DeviceManager_t* deviceManger = DeviceManagerGetInstance();
   Device_t* powerDevice = DeviceManagerGetByType(deviceManger, TypePower);
@@ -150,4 +150,5 @@ static void ShowInfo() {
   GFX_DrawString("charging:", firstColumnXPos, yPos, font);
   sprintf(buff, "%s", batteryData->charging ? "true" : "false");
   GFX_DrawString(buff, secondColumnXPos, yPos, font);
+  GFX_Redraw();
 }

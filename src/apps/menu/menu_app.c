@@ -92,6 +92,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     default:
       break;
   }
+  GFX_Redraw();
 }
 
 int64_t start, period;
@@ -182,7 +183,7 @@ void DrawScreen() {
   // used DrawBattery() instead
 
   // top status line
-  GFX_DrawFilledRect(20, 300, 20, 21, ACCENT_COLOR);
+  GFX_DrawFilledRect(20, 300, 20, 22, ACCENT_COLOR);
 
   // test content
   // GFX_DrawString("Hello world", 40, 120);
@@ -196,13 +197,13 @@ void DrawScreen() {
   // ESP_LOGI(specs.name, "elapsed time: %lld uSeconds", period);
 
   // left arrow
-  GFX_DrawFilledRect(15, 15, 110, 130, ACCENT_COLOR);
-  GFX_DrawFilledRect(23, 24, 100, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(15, 17, 110, 130, ACCENT_COLOR);
+  GFX_DrawFilledRect(23, 25, 100, 140, ACCENT_COLOR);
 
   // right arrow
-  GFX_DrawFilledRect(304, 304, 110, 130, ACCENT_COLOR);
-  GFX_DrawFilledRect(296, 297, 100, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(304, 306, 110, 130, ACCENT_COLOR);
+  GFX_DrawFilledRect(296, 298, 100, 140, ACCENT_COLOR);
 
   // bottom status line
-  GFX_DrawFilledRect(20, 300, 220, 221, ACCENT_COLOR);
+  GFX_DrawFilledRect(20, 300, 220, 222, ACCENT_COLOR);
 }

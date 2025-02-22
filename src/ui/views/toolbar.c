@@ -52,7 +52,7 @@ static void Toolbar_Draw(View_t *view, const _u16 left, const _u16 top,
   yPosForNextView += titleBottomPadding;
 
   GFX_DrawFilledRect(left + lineSidePadding, right - lineSidePadding,
-                     yPosForNextView, yPosForNextView + 1, GFX_GetFontColor());
+                     yPosForNextView, yPosForNextView + 2, GFX_GetFontColor());
 }
 
 // private part

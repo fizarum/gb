@@ -10,18 +10,21 @@ extern "C" {
 #include "../resources/symbol_data.h"
 #include "../typography/font.h"
 
-typedef void (*GFX_Callback)(const _u16 left, const _u16 top, const _u16 right,
-                             const _u16 bottom, _u16 color);
+typedef void (*GFX_CanvasUpdated)();
 
-void GFX_Init(const _u16 width, const _u16 height, GFX_Callback callback);
+void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback);
+void GFX_Redraw();
 
-// symbols drawing
+_u16 *GFX_GetCanvas();
+
 void GFX_SetFont(Font_t *font);
 Font_t *GFX_GetFont();
-void GFX_SetBackground(_u16 color);
+
+void GFX_SetBackgroundColor(_u16 color);
 
 _u16 GFX_GetCanwasWidth();
 _u16 GFX_GetCanvasHeight();
+_u32 GFX_CanvasSize();
 
 _u8 GFX_DrawSymbol(SymbolData_t *symbol, _u16 xPos, _u16 yPos,
                    const Font_t *font);

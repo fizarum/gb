@@ -31,7 +31,7 @@ static inline void App_DrawBackgroundAndTitle(const char *title,
   GFX_FillScreen(backgroundColor);
   GFX_DrawString(title, TITLE_X_POS, TITLE_Y_POS, GFX_GetFont());
   // top status line
-  GFX_DrawFilledRect(20, 300, 20, 21, GFX_GetFontColor());
+  GFX_DrawFilledRect(20, 300, 20, 22, GFX_GetFontColor());
 }
 
 static inline void App_DrawProgress(const _u16 left, const _u16 top,

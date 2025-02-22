@@ -90,7 +90,7 @@ static void handleKey(const void* keyData) {
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
-  GFX_SetBackground(specs.background);
+  GFX_SetBackgroundColor(specs.background);
 
   DeviceManager_t* deviceManger = DeviceManagerGetInstance();
   Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
@@ -161,6 +161,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
   DrawScrollBar(currentPage, pages, GFX_GetCanwasWidth() - 1,
                 GFX_GetCanvasHeight() - 1, GFX_GetFontColor(),
                 specs.background);
+  GFX_Redraw();
 }
 
 static void onAppStop(void) {
