@@ -65,13 +65,14 @@ static void Draw(View_t *view, const uint16_t left, const uint16_t top,
     GFX_DrawRect(leftWithPadding, topWithPadding, rightWithPadding,
                  bottomWithPadding, 1, GFX_GetFontColor());
     // progress
-    GFX_DrawFilledRect(leftWithPadding + 2, leftWithPadding + widthOfFilledPart,
-                       topWithPadding + 2, bottomWithPadding - 2,
-                       GFX_GetFontColor());
+    GFX_DrawFilledRect(leftWithPadding + 2, topWithPadding + 2,
+                       leftWithPadding + widthOfFilledPart,
+                       bottomWithPadding - 2, GFX_GetFontColor());
   } else {
     // progress
-    GFX_DrawFilledRect(leftWithPadding, leftWithPadding + widthOfFilledPart,
-                       topWithPadding, bottomWithPadding, GFX_GetFontColor());
+    GFX_DrawFilledRect(leftWithPadding, topWithPadding,
+                       leftWithPadding + widthOfFilledPart, bottomWithPadding,
+                       GFX_GetFontColor());
   }
 }
 

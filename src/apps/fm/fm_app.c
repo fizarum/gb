@@ -139,7 +139,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     }
 
     // redraw file item
-    GFX_DrawFilledRect(startHPadding, GFX_GetCanwasWidth() - 1, vPosOfText,
+    GFX_DrawFilledRect(startHPadding, vPosOfText, GFX_GetCanwasWidth() - 1,
                        vPosOfTextBox, specs.background);
     if (fileItem->initialized == true) {
       GFX_DrawString(fileItem->name, startHPadding, vPosOfText, GFX_GetFont());

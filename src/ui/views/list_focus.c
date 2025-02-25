@@ -63,7 +63,7 @@ void ListFocus_SelectItemIndex(View_t *view, _u8 index) {
 
 static void ListFocus_Draw(View_t *view, const _u16 left, const _u16 top,
                            const _u16 right, const _u16 bottom) {
-  GFX_DrawFilledRect(left, right, top, bottom, GFX_GetBackgroundColor());
+  GFX_DrawFilledRect(left, top, right, bottom, GFX_GetBackgroundColor());
 
   ListFocus_t *focus = (ListFocus_t *)View_GetCustomView(view);
 
@@ -75,8 +75,8 @@ static void ListFocus_Draw(View_t *view, const _u16 left, const _u16 top,
   _u16 bottomPos = topPos + focus->itemHeight;
 
   GFX_DrawFilledRect(leftPos,
-                     /*right*/ leftPos + indicatorWidth,
                      /*top*/ topPos,
+                     /*right*/ leftPos + indicatorWidth,
                      /*bottom*/ bottomPos, GFX_GetFontColor());
 }
 

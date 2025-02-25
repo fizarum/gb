@@ -55,7 +55,7 @@ static void Draw(View_t *view, const _u16 left, const _u16 top,
   const char *text = button->isOn == true ? onLabel : offLabel;
 
   if (button->isOn) {
-    GFX_DrawFilledRect(left, left + indicatorSize, top, top + indicatorSize,
+    GFX_DrawFilledRect(left, top, left + indicatorSize, top + indicatorSize,
                        GFX_GetFontColor());
   } else {
     GFX_DrawRect(left, top, left + indicatorSize, top + indicatorSize, 1,

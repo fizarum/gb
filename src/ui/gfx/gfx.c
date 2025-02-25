@@ -12,7 +12,7 @@
 
 static Font_t *activeFont = NULL;
 static _u16 backgroundColor;
-static GFX_CanvasUpdated canvasReadyCallback;
+static GFX_CanvasUpdated canvasCallback;
 static _u16 canvasWidth = 0;
 static _u16 canvasHeight = 0;
 static _u32 canvasSize = 0;
@@ -22,7 +22,7 @@ void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback) {
   canvasWidth = width;
   canvasHeight = height;
   canvasSize = width * height;
-  canvasReadyCallback = callback;
+  canvasCallback = callback;
 
   canvas = calloc(canvasSize, sizeof(_u16));
   for (_u32 index = 0; index < canvasSize; index++) {
@@ -31,7 +31,7 @@ void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback) {
   SymbolsResInit();
 }
 
-void GFX_Redraw() { canvasReadyCallback(); }
+void GFX_Redraw() { canvasCallback(); }
 
 _u16 *GFX_GetCanvas() { return canvas; }
 
@@ -48,7 +48,7 @@ _u32 GFX_CanvasSize() { return canvasSize; }
  * @brief Draws symbol
  * @return pixels (by width) drawn for provided symbol
  */
-_u8 GFX_DrawSymbol(SymbolData_t *symbol, _u16 xPos, _u16 yPos,
+_u8 GFX_DrawSymbol(SymbolData_t *symbol, const _u16 left, const _u16 top,
                    const Font_t *font) {
   if (font == NULL || font->scale == 0) {
     return 0;
@@ -71,12 +71,12 @@ _u8 GFX_DrawSymbol(SymbolData_t *symbol, _u16 xPos, _u16 yPos,
 
     for (_u8 x = 0; x < symbolWidth; x++) {
       if (GFX_IS_BIT_SET8(line, x)) {
-        scaledX = xPos + x * scale;
-        scaledY = yPos + y * scale;
+        scaledX = left + x * scale;
+        scaledY = top + y * scale;
 
         if (scale > 1) {
           // draw rectangle as scaled pixel
-          GFX_DrawFilledRect(scaledX, scaledX + scale, scaledY, scaledY + scale,
+          GFX_DrawFilledRect(scaledX, scaledY, scaledX + scale, scaledY + scale,
                              color);
         } else {
           // draw one pixel
@@ -92,25 +92,26 @@ _u8 GFX_DrawSymbol(SymbolData_t *symbol, _u16 xPos, _u16 yPos,
  * @brief Draws char
  * @return pixels (by width) drawn for provided char
  */
-_u8 GFX_DrawChar(_u8 asciiSymbol, _u16 xPos, _u16 yPos, const Font_t *font) {
+_u8 GFX_DrawChar(_u8 asciiSymbol, const _u16 left, const _u16 top,
+                 const Font_t *font) {
   SymbolData_t *symbol = SymbolsGet(asciiSymbol);
   if (symbol == NULL) {
     return 0;
   }
 
-  return GFX_DrawSymbol(symbol, xPos, yPos, font);
+  return GFX_DrawSymbol(symbol, left, top, font);
 }
 
 /**
  * @brief Draws string
  * @return pixels (by width) drawn for provided string
  */
-_u16 GFX_DrawString(const char *string, _u16 xPos, _u16 yPos,
+_u16 GFX_DrawString(const char *string, const _u16 left, const _u16 top,
                     const Font_t *font) {
   if (string == NULL) {
     return 0;
   }
-  _u16 x = xPos;
+  _u16 x = left;
   _u16 length = strlen(string);
   _u8 letterInUpperCase;
 
@@ -119,7 +120,7 @@ _u16 GFX_DrawString(const char *string, _u16 xPos, _u16 yPos,
 
   for (_u16 index = 0; index < length; index++) {
     letterInUpperCase = toupper(string[index]);
-    GFX_DrawChar(letterInUpperCase, x, yPos, font);
+    GFX_DrawChar(letterInUpperCase, x, top, font);
     x += letterWidth;
     if (x >= canvasWidth) {
       // TODO: add logic for word/letter wrap, ellipsize, etc.
@@ -130,7 +131,7 @@ _u16 GFX_DrawString(const char *string, _u16 xPos, _u16 yPos,
   return letterWidth * length;
 }
 // TODO: rework to left, top, right, bottom sequence
-void GFX_DrawFilledRect(const _u16 left, const _u16 right, const _u16 top,
+void GFX_DrawFilledRect(const _u16 left, const _u16 top, const _u16 right,
                         const _u16 bottom, const _u16 color) {
   for (_u32 index = top; index < bottom; index++) {
     GFX_DrawHLine(left, index, right - left, 1, color);
