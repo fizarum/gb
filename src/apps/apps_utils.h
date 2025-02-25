@@ -31,7 +31,7 @@ static inline void App_DrawBackgroundAndTitle(const char *title,
   GFX_FillScreen(backgroundColor);
   GFX_DrawString(title, TITLE_X_POS, TITLE_Y_POS, GFX_GetFont());
   // top status line
-  GFX_DrawFilledRect(20, 300, 20, 22, GFX_GetFontColor());
+  GFX_DrawFilledRect(20, 20, 300, 22, GFX_GetFontColor());
 }
 
 static inline void App_DrawProgress(const _u16 left, const _u16 top,
@@ -64,12 +64,12 @@ static inline void App_DrawProgress(const _u16 left, const _u16 top,
     GFX_DrawVLine(right, top, vLength, 1, GFX_GetFontColor());
   }
   // progress
-  GFX_DrawFilledRect(left, left + width, top, bottom, GFX_GetFontColor());
+  GFX_DrawFilledRect(left, top, left + width, bottom, GFX_GetFontColor());
 }
 
 static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
                                           const _u8 focusHeight) {
-  GFX_DrawFilledRect(left, left + FOCUS_AREA_WIDTH, 0,
+  GFX_DrawFilledRect(left, 0, left + FOCUS_AREA_WIDTH,
                      GFX_GetCanvasHeight() - 1, GFX_GetBackgroundColor());
 
   _u16 leftPos = left + FOCUS_SMALL_PADDING;
@@ -77,8 +77,8 @@ static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
   _u16 bottomPos = top + focusHeight - FOCUS_MIDDLE_PADDING;
 
   GFX_DrawFilledRect(leftPos,                          // left
-                     leftPos + FOCUS_INDICATOR_WIDTH,  // right
                      topPos,                           // top
+                     leftPos + FOCUS_INDICATOR_WIDTH,  // right
                      bottomPos,                        // bottom
                      GFX_GetFontColor());
 }
@@ -87,7 +87,7 @@ static inline void App_DrawOnOffButton(const _u16 left, const _u16 top,
                                        bool isOn) {
   const char *text = isOn == true ? "ON" : "OFF";
   if (isOn) {
-    GFX_DrawFilledRect(left, left + ON_OFF_INDICATOR_SIZE, top,
+    GFX_DrawFilledRect(left, top, left + ON_OFF_INDICATOR_SIZE,
                        top + ON_OFF_INDICATOR_SIZE, GFX_GetFontColor());
   } else {
     GFX_DrawRect(left, top, left + ON_OFF_INDICATOR_SIZE,
@@ -129,7 +129,7 @@ static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y,
   } else {
     filledPart = (((float)batteryWidgetWidth) / 100.0) * level;
 
-    GFX_DrawFilledRect(x, x + filledPart, y, y + batteryWidgetHeight,
+    GFX_DrawFilledRect(x, y, x + filledPart, y + batteryWidgetHeight,
                        GFX_GetFontColor());
   }
 }

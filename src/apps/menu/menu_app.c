@@ -67,8 +67,12 @@ static void onAppRedraw(RedrawType_t redrawType) {
       DrawScreen();
       const char* appName = AppGetName(selectedApp);
 
-      GFX_DrawFilledRect(40, 190, 120, 130, specs.background);
+      GFX_DrawFilledRect(40, 120, 190, 130, specs.background);
       GFX_DrawString(appName, 40, 120, GFX_GetFont());
+
+      GFX_DrawFilledRect(250, 7, 250 + _batteryWidgetWidth,
+                         7 + _batteryWidgetHeight, specs.background);
+      DrawBattery(isCharging, percentage, 250, 7, GFX_GetFont());
 
       ESP_LOGI(specs.name, "selected app: %s", appName);
       break;
@@ -76,7 +80,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     case RedrawPartial: {
       const char* appName = AppGetName(selectedApp);
 
-      GFX_DrawFilledRect(40, 190, 120, 130, specs.background);
+      GFX_DrawFilledRect(40, 120, 190, 130, specs.background);
       GFX_DrawString(appName, 40, 120, GFX_GetFont());
 
       ESP_LOGI(specs.name, "selected app: %s", appName);
@@ -84,7 +88,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     }
     // test part
     case RedrawCustom: {
-      GFX_DrawFilledRect(250, 250 + _batteryWidgetWidth, 7,
+      GFX_DrawFilledRect(250, 7, 250 + _batteryWidgetWidth,
                          7 + _batteryWidgetHeight, specs.background);
       DrawBattery(isCharging, percentage, 250, 7, GFX_GetFont());
       break;
@@ -183,7 +187,7 @@ void DrawScreen() {
   // used DrawBattery() instead
 
   // top status line
-  GFX_DrawFilledRect(20, 300, 20, 22, ACCENT_COLOR);
+  GFX_DrawFilledRect(20, 20, 300, 22, ACCENT_COLOR);
 
   // test content
   // GFX_DrawString("Hello world", 40, 120);
@@ -197,13 +201,13 @@ void DrawScreen() {
   // ESP_LOGI(specs.name, "elapsed time: %lld uSeconds", period);
 
   // left arrow
-  GFX_DrawFilledRect(15, 17, 110, 130, ACCENT_COLOR);
-  GFX_DrawFilledRect(23, 25, 100, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(15, 110, 17, 130, ACCENT_COLOR);
+  GFX_DrawFilledRect(23, 100, 25, 140, ACCENT_COLOR);
 
   // right arrow
-  GFX_DrawFilledRect(304, 306, 110, 130, ACCENT_COLOR);
-  GFX_DrawFilledRect(296, 298, 100, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(304, 110, 306, 130, ACCENT_COLOR);
+  GFX_DrawFilledRect(296, 100, 298, 140, ACCENT_COLOR);
 
   // bottom status line
-  GFX_DrawFilledRect(20, 300, 220, 222, ACCENT_COLOR);
+  GFX_DrawFilledRect(20, 220, 300, 222, ACCENT_COLOR);
 }

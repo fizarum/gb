@@ -26,14 +26,15 @@ _u16 GFX_GetCanwasWidth();
 _u16 GFX_GetCanvasHeight();
 _u32 GFX_CanvasSize();
 
-_u8 GFX_DrawSymbol(SymbolData_t *symbol, _u16 xPos, _u16 yPos,
+_u8 GFX_DrawSymbol(SymbolData_t *symbol, const _u16 left, const _u16 top,
                    const Font_t *font);
-_u8 GFX_DrawChar(_u8 asciiSymbol, _u16 xPos, _u16 yPos, const Font_t *font);
-_u16 GFX_DrawString(const char *string, _u16 xPos, _u16 yPos,
+_u8 GFX_DrawChar(_u8 asciiSymbol, const _u16 left, const _u16 top,
+                 const Font_t *font);
+_u16 GFX_DrawString(const char *string, const _u16 left, const _u16 top,
                     const Font_t *font);
 
 // objects drawing
-void GFX_DrawFilledRect(const _u16 left, const _u16 right, const _u16 top,
+void GFX_DrawFilledRect(const _u16 left, const _u16 top, const _u16 right,
                         const _u16 bottom, const _u16 color);
 void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,
                   const _u16 bottom, const _u8 lineWidth, const _u16 color);
