@@ -117,6 +117,7 @@ static void onAppStart() {
 
   // main box
   _u16 contentBoxId = Composer_AddHBox(composer, rootId);
+  // list focus (left)
   listFocus = ListFocus_Create(settingsItem);
   Composer_AddView(composer, contentBoxId, listFocus);
 

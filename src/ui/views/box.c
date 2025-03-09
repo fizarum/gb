@@ -60,10 +60,10 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
   _u16 childViewHeight = View_GetHeight(childView);
 
   View_t *boxView = box->view;
-  _u16 boxViewWidth = View_GetWidth(boxView);
-  _u16 boxViewHeight = View_GetHeight(boxView);
-  _u16 boxViewTopPos = View_GetYPosition(boxView);
-  _u16 boxViewLeftPos = View_GetXPosition(boxView);
+  _u16 boxViewWidth = View_GetContentWidth(boxView);
+  _u16 boxViewHeight = View_GetContentHeight(boxView);
+  _u16 boxViewTopPos = View_GetContentYPosition(boxView);
+  _u16 boxViewLeftPos = View_GetContentXPosition(boxView);
 
   // normalize child view sizes according to max sizes of hosting box
   if (childViewWidth > box->maxWidth) {

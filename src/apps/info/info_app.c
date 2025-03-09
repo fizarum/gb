@@ -8,6 +8,8 @@
 #include "../../devices/hal/chip_hal.h"
 #include "../../devices/storage/storage.h"
 #include "../../devices/storage/storage_utils.h"
+#include "../../ui/composer.h"
+#include "../../ui/views/toolbar.h"
 #include "../apps_utils.h"
 #include "esp_chip_info.h"
 #include "esp_flash.h"
@@ -17,8 +19,19 @@
 
 #define kbSize 1024
 #define mbSize (1024 * 1024)
+#define PADDING 20
 
-static char buff[20];
+static char modelStr[16];
+static char revisionStr[16];
+static char coresStr[16];
+static char cpuStr[20];
+static char flashStr[20];
+static char freeRAMStr[20];
+static char sdSizeStr[20];
+static char sdUsedStr[20];
+static char batteryStr[24];
+static char chargingStr[24];
+static char osStr[24];
 
 static AppSpecification_t specs = {
     .name = "Info",
@@ -36,16 +49,23 @@ static esp_chip_info_t chipInfo;
 static rtc_cpu_freq_config_t conf;
 
 static _u16 flashSizeInMb = 0;
-static _u16 allRamInKb = 0;
+static _u16 freeRamInKb = 0;
 
 static _u32 sdSizeInMB = 0;
 static _u32 sdUsedSizeInMB = 0;
 
-static void ShowInfo();
+static Composer_t* composer;
+
+static void AddLabel(const _u16 rootBoxId, const char* text);
 
 static void onAppStart(void) {
-  ESP_LOGI(specs.name, "on app start...");
+  composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
   GFX_SetBackgroundColor(specs.background);
+
+  _u16 rootId = Composer_GetRootId(composer);
+  if (rootId == TREE_INDEX_NONE) {
+    return;
+  }
 
   DeviceManager_t* deviceManger = DeviceManagerGetInstance();
   Device_t* powerDevice = DeviceManagerGetByType(deviceManger, TypePower);
@@ -53,102 +73,95 @@ static void onAppStart(void) {
 
   Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
   storageData = (StorageDeviceData_t*)DeviceGetData(storageDevice);
+  sdSizeInMB = StorageGetTotalSizeInMBs(storageData->mountPoint);
+  sdUsedSizeInMB = StorageGetUsedSizeInMBs(storageData->mountPoint);
 
   esp_chip_info(&chipInfo);
   rtc_clk_cpu_freq_get_config(&conf);
+
+  // toolbar
+  View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
+  Composer_AddView(composer, rootId, toolbar);
+
+  // main box
+  _u16 mainBoxId = Composer_AddVBox(composer, rootId);
+  View_t* boxView = Composer_FindView(composer, mainBoxId);
+  if (boxView != NULL) {
+    View_SetHPadding(boxView, PADDING);
+  }
+
+  // model part
+  sprintf(modelStr, "model: %s", Chip_GetModel());
+  AddLabel(mainBoxId, modelStr);
+
+  // revision
+  sprintf(revisionStr, "rev: %u", chipInfo.revision);
+  AddLabel(mainBoxId, revisionStr);
+
+  // cores
+  sprintf(coresStr, "cores: %d", chipInfo.cores);
+  AddLabel(mainBoxId, coresStr);
+
+  // cpu
+  sprintf(cpuStr, "speed: %u Mhz", (_u16)conf.freq_mhz);
+  AddLabel(mainBoxId, cpuStr);
 
   uint32_t flashChipSize;
   esp_flash_get_size(NULL, &flashChipSize);
   flashSizeInMb = flashChipSize / mbSize;
 
-  allRamInKb = esp_get_free_heap_size() / kbSize;
+  // flash
+  sprintf(flashStr, "flash: %u MB", flashSizeInMb);
+  AddLabel(mainBoxId, flashStr);
 
-  sdSizeInMB = StorageGetTotalSizeInMBs(storageData->mountPoint);
-  sdUsedSizeInMB = StorageGetUsedSizeInMBs(storageData->mountPoint);
+  freeRamInKb = esp_get_free_heap_size() / kbSize;
+  // ram
+  sprintf(freeRAMStr, "RAM: %u KB", freeRamInKb);
+  AddLabel(mainBoxId, freeRAMStr);
+
+  // sd
+  sprintf(sdSizeStr, "sd size: %lu MB", sdSizeInMB);
+  AddLabel(mainBoxId, sdSizeStr);
+
+  sprintf(sdUsedStr, "sd used: %lu MB", sdUsedSizeInMB);
+  AddLabel(mainBoxId, sdUsedStr);
+
+  // battery
+  sprintf(batteryStr, "battery: %d %%", batteryData->chargeLevelPercents);
+  AddLabel(mainBoxId, batteryStr);
+
+  sprintf(chargingStr, "charging: %s", batteryData->charging ? "yes" : "no");
+  AddLabel(mainBoxId, chargingStr);
+
+  sprintf(osStr, "OS ver: %s", osVersion);
+  AddLabel(mainBoxId, osStr);
+
+  Composer_Recompose(composer);
 }
 
 static void handleKey(const void* keyData) {}
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    ShowInfo();
+    GFX_FillScreen(specs.background);
   }
+  Composer_Draw(composer);
+  GFX_Redraw();
 }
+
+static void onAppStop() { Composer_Clear(composer); }
 
 AppSpecification_t* InfoAppSpecification(const _u16 appId) {
   specs.id = appId;
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
   specs.onRedraw = &onAppRedraw;
+  specs.onStop = &onAppStop;
 
   return &specs;
 };
 
-static void ShowInfo() {
-  uint8_t yPos = 40;
-  uint8_t firstColumnXPos = 30;
-  uint8_t secondColumnXPos = 160;
-  uint8_t itemHeight = 18;
-
-  App_DrawBackgroundAndTitle(specs.name, specs.background);
-
-  Font_t* font = GFX_GetFont();
-
-  // model
-  GFX_DrawString("model:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%s", Chip_GetModel());
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  // rev
-  yPos += itemHeight;
-  GFX_DrawString("revision:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%u", chipInfo.revision);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  // cores
-  yPos += itemHeight;
-  GFX_DrawString("cores:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%d", chipInfo.cores);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  // cpu
-  yPos += itemHeight;
-  GFX_DrawString("cpu speed:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%d Mhz", (_u16)conf.freq_mhz);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  // flash
-  yPos += itemHeight;
-  GFX_DrawString("flash:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%u MB", flashSizeInMb);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  // ram
-  yPos += itemHeight;
-  GFX_DrawString("free ram:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%d KB", allRamInKb);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  // sd
-  yPos += itemHeight;
-  GFX_DrawString("sd size:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%lu MB", sdSizeInMB);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  yPos += itemHeight;
-  GFX_DrawString("sd used:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%lu MB", sdUsedSizeInMB);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  // battery
-  yPos += itemHeight;
-  GFX_DrawString("battery:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%d %%", batteryData->chargeLevelPercents);
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-
-  yPos += itemHeight;
-  GFX_DrawString("charging:", firstColumnXPos, yPos, font);
-  sprintf(buff, "%s", batteryData->charging ? "true" : "false");
-  GFX_DrawString(buff, secondColumnXPos, yPos, font);
-  GFX_Redraw();
+static void AddLabel(const _u16 rootBoxId, const char* text) {
+  View_t* label = Label_Create(text, GFX_GetFont());
+  Composer_AddView(composer, rootBoxId, label);
 }
