@@ -132,21 +132,21 @@ _u16 Composer_AddBox(Composer_t* composer, uint16_t branchId, View_t* view) {
   return viewSet == true ? id : TREE_INDEX_NONE;
 }
 
-_u16 Composer_AddVBox(Composer_t* composer, _u16 branchId) {
-  return Composer_AddBox(composer, branchId, VBox_Create());
+_u16 Composer_AddVBox(Composer_t* composer, _u16 parentId) {
+  return Composer_AddBox(composer, parentId, VBox_Create());
 }
 
-_u16 Composer_AddHBox(Composer_t* composer, _u16 branchId) {
-  return Composer_AddBox(composer, branchId, HBox_Create());
+_u16 Composer_AddHBox(Composer_t* composer, _u16 parentId) {
+  return Composer_AddBox(composer, parentId, HBox_Create());
 }
 
-uint16_t Composer_AddView(Composer_t* composer, uint16_t branchId,
+uint16_t Composer_AddView(Composer_t* composer, uint16_t parentId,
                           View_t* view) {
   if (view == NULL) {
     return TREE_INDEX_NONE;
   }
 
-  TreeNode_t* branch = Tree_FindNode(composer->root, branchId);
+  TreeNode_t* branch = Tree_FindNode(composer->root, parentId);
   if (branch == NULL || TreeNode_IsLeaf(branch) == true) {
     return TREE_INDEX_NONE;
   }
@@ -160,6 +160,11 @@ uint16_t Composer_AddView(Composer_t* composer, uint16_t branchId,
 
   bool viewSet = Tree_SetNodeData(composer->root, id, view);
   return viewSet == true ? id : TREE_INDEX_NONE;
+}
+
+View_t* Composer_FindView(Composer_t* composer, const _u16 viewId) {
+  TreeNode_t* node = Tree_FindNode(composer->root, viewId);
+  return GetViewFromNode(node);
 }
 
 void Composer_Recompose(Composer_t* composer) {
@@ -199,6 +204,8 @@ static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
   _u16 width = View_GetWidth(view);
   _u16 height = View_GetHeight(view);
 
+  Padding_t* padding = View_GetPadding(view);
+
   if (View_IsBox(view)) {
     Box_t* box = (Box_t*)View_GetCustomView(view);
     Direction_t direction = Box_GetDirection(box);
@@ -207,9 +214,27 @@ static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
     for (_u8 index = 0; index < ArraySize(children); index++) {
       TreeNode_t* child = ArrayValueAt(children, index);
       if (direction == Vertical) {
-        OnRecomposeItem(child, direction, left, top + height, right, bottom);
+        // TODO: recheck padding here
+        OnRecomposeItem(child, direction,
+                        // left
+                        left + padding->left,
+                        //  top
+                        top + height,
+                        // right
+                        right - padding->right,
+                        // bottom
+                        bottom);
       } else {
-        OnRecomposeItem(child, direction, left + width, top, right, bottom);
+        // TODO: recheck padding here
+        OnRecomposeItem(child, direction,
+                        // left
+                        left + width,
+                        // top
+                        top + padding->top,
+                        // right
+                        right,
+                        // bottom
+                        bottom);
       }
 
       View_t* childView = GetViewFromNode(child);

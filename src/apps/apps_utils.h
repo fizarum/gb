@@ -15,6 +15,8 @@ extern "C" {
 #define TITLE_X_POS 30
 #define TITLE_Y_POS 7
 
+static const char *const osVersion = "0.0.1";
+
 #define PROGRESS_BAR_MIN_HEIGH 14
 
 // on/off button

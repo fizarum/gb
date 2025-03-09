@@ -17,11 +17,12 @@ Composer_t* Composer_Create(const _u16 screenWidth, const _u16 screenHeight);
 
 uint16_t Composer_GetRootId(const Composer_t* composer);
 
-_u16 Composer_AddBox(Composer_t* composer, _u16 branchId, View_t* view);
-_u16 Composer_AddVBox(Composer_t* composer, _u16 branchId);
-_u16 Composer_AddHBox(Composer_t* composer, _u16 branchId);
+_u16 Composer_AddBox(Composer_t* composer, _u16 parentId, View_t* view);
+_u16 Composer_AddVBox(Composer_t* composer, _u16 parentId);
+_u16 Composer_AddHBox(Composer_t* composer, _u16 parentId);
+_u16 Composer_AddView(Composer_t* composer, _u16 parentId, View_t* view);
 
-_u16 Composer_AddView(Composer_t* composer, _u16 branchId, View_t* view);
+View_t* Composer_FindView(Composer_t* composer, const _u16 viewId);
 
 void Composer_Recompose(Composer_t* composer);
 
