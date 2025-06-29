@@ -64,7 +64,6 @@ void systemTask(void* arg) {
   appsManager = AppsManagerCreate();
 
   // menu
-  // _u16 appId = AppsManagerNextAppId(appsManager);
   AppSpecification_t* menuSpecs = MenuAppSpecification(appsManager);
   App_t* menuApp = AppsMangerSetLauncher(appsManager, menuSpecs);
 
