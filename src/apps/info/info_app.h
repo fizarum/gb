@@ -7,7 +7,7 @@ extern "C" {
 
 #include <app.h>
 
-AppSpecification_t *InfoAppSpecification(const _u16 appId);
+AppSpecification_t *InfoAppSpecification();
 
 #ifdef __cplusplus
 }

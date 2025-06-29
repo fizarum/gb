@@ -49,6 +49,10 @@ static void handleKey(const void* keyData) {
     }
     specs.redrawNeeded = RedrawPartial;
     ListFocus_SelectItemIndex(listFocus, focusedItemIndex);
+  } else if (IsButtonRightReleased(data) == true) {
+    // TODO: complete menu switching
+  } else if (IsButtonLeftReleased(data) == true) {
+    // TODO: complete menu switching
   }
 }
 
@@ -169,8 +173,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
   GFX_Redraw();
 }
 
-AppSpecification_t* SettingsAppSpecification(const _u16 appId) {
-  specs.id = appId;
+AppSpecification_t* SettingsAppSpecification() {
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
   specs.onRedraw = &onAppRedraw;

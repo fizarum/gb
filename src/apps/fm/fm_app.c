@@ -169,8 +169,7 @@ static void onAppStop(void) {
   CleanupCache();
 }
 
-AppSpecification_t* FileMangerAppSpecification(const _u16 appId) {
-  specs.id = appId;
+AppSpecification_t* FileMangerAppSpecification() {
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
   specs.onRedraw = &onAppRedraw;

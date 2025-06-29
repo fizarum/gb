@@ -151,8 +151,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
 static void onAppStop() { Composer_Clear(composer); }
 
-AppSpecification_t* InfoAppSpecification(const _u16 appId) {
-  specs.id = appId;
+AppSpecification_t* InfoAppSpecification() {
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
   specs.onRedraw = &onAppRedraw;

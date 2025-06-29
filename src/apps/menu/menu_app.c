@@ -133,9 +133,7 @@ void onBroadcastEvent(BroadcastEvent_t event) {
   }
 }
 
-AppSpecification_t* MenuAppSpecification(const _u16 appId,
-                                         AppsManager_t* appsManager) {
-  specs.id = appId;
+AppSpecification_t* MenuAppSpecification(AppsManager_t* appsManager) {
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
   specs.onResume = &onAppResume;

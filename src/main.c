@@ -5,6 +5,7 @@
 #include <specifications/battery_data.h>
 #include <stddef.h>
 
+#include "apps/demo/demo_app.h"
 #include "apps/fm/fm_app.h"
 #include "apps/info/info_app.h"
 #include "apps/menu/menu_app.h"
@@ -63,32 +64,26 @@ void systemTask(void* arg) {
   appsManager = AppsManagerCreate();
 
   // menu
-  _u16 appId = AppsManagerNextAppId(appsManager);
-  AppSpecification_t* menuSpecs = MenuAppSpecification(appId, appsManager);
-  App_t* menuApp = AppCreate(menuSpecs);
+  // _u16 appId = AppsManagerNextAppId(appsManager);
+  AppSpecification_t* menuSpecs = MenuAppSpecification(appsManager);
+  App_t* menuApp = AppsMangerSetLauncher(appsManager, menuSpecs);
 
   BroadcastManager_AddListener(ChargingOn, menuApp);
   BroadcastManager_AddListener(ChargingOff, menuApp);
 
   // fm
-  appId = AppsManagerNextAppId(appsManager);
-  AppSpecification_t* fmSpecification = FileMangerAppSpecification(appId);
-  App_t* fmApp = AppCreate(fmSpecification);
-  AppsManagerAddApp(appsManager, fmApp);
+  AppsMangerAddAppSpecs(appsManager, FileMangerAppSpecification());
 
   // settings
-  appId = AppsManagerNextAppId(appsManager);
-  AppSpecification_t* settingsSpecification = SettingsAppSpecification(appId);
-  App_t* settingsApp = AppCreate(settingsSpecification);
-  AppsManagerAddApp(appsManager, settingsApp);
+  AppsMangerAddAppSpecs(appsManager, SettingsAppSpecification());
 
   // info
-  appId = AppsManagerNextAppId(appsManager);
-  AppSpecification_t* infoSpecification = InfoAppSpecification(appId);
-  App_t* infoApp = AppCreate(infoSpecification);
-  AppsManagerAddApp(appsManager, infoApp);
+  AppsMangerAddAppSpecs(appsManager, InfoAppSpecification());
 
-  AppsManagerStart(appsManager, menuApp);
+  // demo app
+  AppsMangerAddAppSpecs(appsManager, DemoAppSpecification());
+
+  AppsManagerStart(appsManager, NULL);
 
   while (1) {
     BroadcastManager_Update();

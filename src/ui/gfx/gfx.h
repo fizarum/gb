@@ -33,7 +33,16 @@ _u8 GFX_DrawChar(_u8 asciiSymbol, const _u16 left, const _u16 top,
 _u16 GFX_DrawString(const char *string, const _u16 left, const _u16 top,
                     const Font_t *font);
 
-// objects drawing
+// draw one pixel on x,y (left, top) coords
+void GFX_DrawPixel(const _u16 left, const _u16 top, _u16 color);
+
+// draw array of colors starting on x,y (left, top) coords
+void GFX_DrawPixels(const _u16 left, const _u16 top, _u16 *colors,
+                    _u8 colorsCount);
+
+// draw array of colors in linear colors array
+void GFX_DrawPixelsInBuffer(const _u32 start, _u16 *colors, _u8 colorsCount);
+
 void GFX_DrawFilledRect(const _u16 left, const _u16 top, const _u16 right,
                         const _u16 bottom, const _u16 color);
 void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,

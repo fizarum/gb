@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "../resources/symbols_res.h"
+#include "gfx_utils.h"
 
 // check is bit set, starting from most significant bit
 // 8-bit version
@@ -130,6 +131,45 @@ _u16 GFX_DrawString(const char *string, const _u16 left, const _u16 top,
 
   return letterWidth * length;
 }
+static _u32 start, end;
+
+void GFX_DrawPixel(const _u16 left, const _u16 top, _u16 color) {
+  if (left >= canvasWidth || top > canvasHeight) {
+    return;
+  }
+  start = GFX_GetIndexIn2DSpace(left, top, canvasWidth);
+  canvas[start] = color;
+}
+
+void GFX_DrawPixels(const _u16 left, const _u16 top, _u16 *colors,
+                    _u8 colorsCount) {
+  if (left >= canvasWidth || top > canvasHeight) {
+    return;
+  }
+
+  start = GFX_GetIndexIn2DSpace(left, top, canvasWidth);
+  for (_u8 index = 0; index < colorsCount; ++index) {
+    if (start + index >= canvasSize) {
+      return;
+    }
+    canvas[start + index] = colors[index];
+  }
+}
+
+void GFX_DrawPixelsInBuffer(const _u32 start, _u16 *colors, _u8 colorsCount) {
+  if (start >= canvasSize) {
+    return;
+  }
+
+  if (start + colorsCount >= canvasSize) {
+    return;
+  }
+
+  for (_u8 index = 0; index < colorsCount; ++index) {
+    canvas[start + index] = colors[index];
+  }
+}
+
 // TODO: rework to left, top, right, bottom sequence
 void GFX_DrawFilledRect(const _u16 left, const _u16 top, const _u16 right,
                         const _u16 bottom, const _u16 color) {
@@ -150,7 +190,6 @@ void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,
   GFX_DrawVLine(right, top, bottom - top, lineWidth, color);
 }
 
-static _u32 start, end;
 void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
                    const _u8 lineWidth, const _u16 color) {
   _u16 normalizedLength = length;
