@@ -27,6 +27,16 @@ typedef struct ScreenConfig {
   _u8 pixelSize;
 } ScreenConfig;
 
+// return width in pixels according pixelSize
+static inline _u16 ScreenConfig_GetWidthInPixels(ScreenConfig *config) {
+  return config->width / config->pixelSize;
+}
+
+// return height in pixels according pixelSize
+static inline _u16 ScreenConfig_GetHeightInPixels(ScreenConfig *config) {
+  return config->height / config->pixelSize;
+}
+
 #ifdef __cplusplus
 }
 #endif

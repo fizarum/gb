@@ -57,11 +57,4 @@ inline const static _i16 GetBottom(const Point_t* position, const _u16 height) {
   return (_i16)bottom;
 }
 
-inline const static _u16 MapToViewport(const _u16 value, const _u16 maxValue) {
-  int newValue = value >= maxValue ? maxValue - 1 : value;
-  newValue = newValue < 0 ? 0 : newValue;
-
-  return (_u16)newValue;
-}
-
 #endif  // GAME_SDK_SCREEN_UTILS_H

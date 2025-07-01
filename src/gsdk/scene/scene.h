@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "../screen/palette.h"
+#include "../screen/screen_config.h"
 #include "../screen/tracker.h"
 #include "../sprite/sprite_data.h"
 #include "../types/types.h"
@@ -21,7 +22,7 @@ typedef struct Scene_t Scene_t;
 
 Scene_t* SceneCreate(SpritesHolder_t* spritesHolder,
                      ObjectsHolder_t* objectsHolder, Tracker_t* tracker,
-                     LayerType_t* layerChanged, _u16 width, _u16 height);
+                     LayerType_t* layerChanged, ScreenConfig* config);
 void SceneDestroy(Scene_t* scene);
 
 void SceneUpdate(Scene_t* scene);

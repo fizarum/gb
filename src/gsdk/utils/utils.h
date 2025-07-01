@@ -74,7 +74,7 @@ inline void strToLowerCase(char *str) {
 
 /**
  * align value to some bigger one, by blockSize
- * for example: roundBy(2737, 10) will return 2740
+ * for example: alignTo(2737, 10) will return 2740
  */
 inline _u32 alignTo(uint32_t value, uint16_t blockSize) {
   _u32 blockCounts = value / blockSize;
@@ -84,6 +84,18 @@ inline _u32 alignTo(uint32_t value, uint16_t blockSize) {
   }
   rounded += blockSize;
   return rounded;
+}
+
+/**
+ * @brief align value to limit. If value exceeds limit, limit-1 is
+ * returned
+ */
+inline const static _u16 normalize(const _u16 value, const _u16 limit) {
+  if (value < limit) {
+    return value;
+  }
+
+  return limit - 1;
 }
 
 #ifdef __cplusplus

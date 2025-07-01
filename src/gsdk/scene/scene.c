@@ -6,6 +6,7 @@
 #include "../physics/collision_checker.h"
 #include "../sprite/sprite.h"
 #include "../utils/screen_utils.h"
+#include "../utils/utils.h"
 #include "game_object.h"
 #include "objects_holder.h"
 #include "sprites_holder.h"
@@ -20,8 +21,7 @@ typedef struct Scene_t {
   // Indicator of changed layer. It helps to understand which layers
   // should be processed during pixel's color calculation
   LayerType_t layerChanged;
-  _u16 width;
-  _u16 height;
+  ScreenConfig* config;
 } Scene_t;
 
 Scene_t* _scene = NULL;
@@ -34,7 +34,7 @@ void UpdataAnimatedSprites();
 
 Scene_t* SceneCreate(SpritesHolder_t* spritesHolder,
                      ObjectsHolder_t* objectsHolder, Tracker_t* tracker,
-                     LayerType_t* layerChanged, _u16 width, _u16 height) {
+                     LayerType_t* layerChanged, ScreenConfig* config) {
   Scene_t* scene = (Scene_t*)malloc(sizeof(Scene_t));
 
   if (scene == NULL) return NULL;
@@ -44,8 +44,7 @@ Scene_t* SceneCreate(SpritesHolder_t* spritesHolder,
   scene->objectsHolder = objectsHolder;
   scene->layerChanged = *layerChanged;
 
-  scene->width = width;
-  scene->height = height;
+  scene->config = config;
 
   // TODO: remove this!
   _scene = scene;
@@ -157,8 +156,8 @@ void SceneSetDurtyRegion(Scene_t* scene, const Rectangle_t* region,
                          const LayerType_t layer) {
   _u8 left = Rectangle_GetVisibleLeft(region);
   _u8 top = Rectangle_GetVisibleTop(region);
-  _u8 right = Rectangle_GetVisibleRight(region, scene->width);
-  _u8 bottom = Rectangle_GetVisibleBottom(region, scene->height);
+  _u8 right = Rectangle_GetVisibleRight(region, scene->config->width);
+  _u8 bottom = Rectangle_GetVisibleBottom(region, scene->config->height);
 
   TrackerSetRegion(scene->tracker, left, top, right, bottom);
 
@@ -168,7 +167,8 @@ void SceneSetDurtyRegion(Scene_t* scene, const Rectangle_t* region,
 }
 
 static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
-  if (SpriteIsOnDisplay(sprite, scene->width, scene->height) == false) {
+  if (SpriteIsOnDisplay(sprite, scene->config->width, scene->config->height) ==
+      false) {
     return;
   }
 
@@ -178,10 +178,10 @@ static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
   const _u8 width = SpriteGetWidth(sprite);
   const _u8 height = SpriteGetHeight(sprite);
 
-  _u16 l = MapToViewport(position->x, scene->width);
-  _u16 t = MapToViewport(position->y, scene->height);
-  _u16 r = MapToViewport(GetRight(position, width), scene->width);
-  _u16 b = MapToViewport(GetBottom(position, height), scene->height);
+  _u16 l = normalize(position->x, scene->config->width);
+  _u16 t = normalize(position->y, scene->config->height);
+  _u16 r = normalize(GetRight(position, width), scene->config->width);
+  _u16 b = normalize(GetBottom(position, height), scene->config->height);
 
   TrackerSetRegion(scene->tracker, l, t, r, b);
 

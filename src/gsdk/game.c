@@ -43,20 +43,20 @@ Game* Game_Create(ScreenConfig* config, OnPixelsBufferUpdateCallback callback) {
 
   palette.background = COLOR_BLACK;
 
-  tracker = TrackerCreate(config->width, config->height);
+  tracker = TrackerCreate(config);
 
   game->spritesHolder = SpritesHolderCreate();
   game->objectsHolder = ObjectsHolderCreate();
 
   _Game_SetupDefaultPalette();
 
-  menu = MenuCreate(config->width, config->height);
+  menu = MenuCreate(config);
   state = STOPPED;
   layerChanged = LAYER_NONE;
   _tileMap = NULL;
 
   scene = SceneCreate(game->spritesHolder, game->objectsHolder, tracker,
-                      &(layerChanged), config->width, config->height);
+                      &(layerChanged), config);
 
   if (scene == NULL) {
     return NULL;
@@ -146,7 +146,6 @@ void _TrackerCallback(_u16 cellIndex, _u8 cellData) {
       }
     }
     _colorsPortion[bitIndex] = _color;
-
     x++;
   }
 

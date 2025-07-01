@@ -20,8 +20,7 @@ typedef struct Menu_t {
   _u8 totalItems;
   _u8 selectedItem;
 
-  _u16 screenWidth;
-  _u16 screenHeight;
+  ScreenConfig* config;
 
   SpriteData_t* btnLeft;
   SpriteData_t* btnMid;
@@ -31,7 +30,7 @@ typedef struct Menu_t {
 _u8 _MenuGetHCenterForText(const Menu_t* menu, const _u8 letterSize,
                            const _u8 lettersCount);
 
-Menu_t* MenuCreate(const _u16 screenWidth, const _u16 screenHeight) {
+Menu_t* MenuCreate(ScreenConfig* config) {
   Menu_t* menu = (Menu_t*)malloc(sizeof(Menu_t));
 
   if (menu == NULL) return NULL;
@@ -42,8 +41,7 @@ Menu_t* MenuCreate(const _u16 screenWidth, const _u16 screenHeight) {
   menu->backgroundSprites = ArrayCreate(SPRITES_BACKGROUND_MAX_COUNT);
   menu->foregroundSprites = ArrayCreate(SPRITES_FOREGROUND_MAX_COUNT);
 
-  menu->screenWidth = screenWidth;
-  menu->screenHeight = screenHeight;
+  menu->config = config;
 
   menu->btnLeft = NULL;
   menu->btnMid = NULL;
@@ -176,5 +174,5 @@ void MenuCreateHCenterLabel(Menu_t* menu, const SpriteData_t** letterSprites,
 _u8 _MenuGetHCenterForText(const Menu_t* menu, const _u8 letterSize,
                            const _u8 lettersCount) {
   _u16 stringLength = letterSize * lettersCount;
-  return menu->screenWidth / 2 - stringLength / 2;
+  return menu->config->width / 2 - stringLength / 2;
 }

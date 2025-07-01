@@ -5,13 +5,14 @@
 extern "C" {
 #endif
 #include "../scene/layer_type.h"
+#include "../screen/screen_config.h"
 #include "../sprite/sprite_data.h"
 #include "../types/types.h"
 #include "menu_item.h"
 
 typedef struct Menu_t Menu_t;
 
-Menu_t* MenuCreate(const _u16 screenWidth, const _u16 screenHeight);
+Menu_t* MenuCreate(ScreenConfig* config);
 void MenuDestroy(Menu_t* menu);
 
 void MenuSelectNextItem(Menu_t* menu);

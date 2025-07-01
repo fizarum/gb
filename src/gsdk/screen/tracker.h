@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include <types.h>
+
+#include "../screen/screen_config.h"
 
 #define CELL_SIZE 8
 #define CELL_MAX_ADDR 7
@@ -14,7 +16,7 @@ typedef void (*TrackerCallback)(uint16_t cellIndex, uint8_t cellData);
 
 typedef struct Tracker_t Tracker_t;
 
-Tracker_t* TrackerCreate(const uint16_t width, const uint16_t height);
+Tracker_t* TrackerCreate(ScreenConfig* config);
 void TrackerDestroy(Tracker_t* tracker);
 
 /**

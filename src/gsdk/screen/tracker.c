@@ -3,39 +3,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <types.h>
 
 #include "../utils/screen_utils.h"
 #include "../utils/utils.h"
 
 typedef struct Tracker_t {
   _u8* canvas;
+  _u8 canvasWidth;
+  _u16 canvasSize;
+
+  ScreenConfig* config;
 
   bool isAtLeastOnePixelDurty;
 
-  _u8 canvasWidth;
-  _u16 canvasHeight;
-
-  _u16 width;
-  _u16 height;
-
-  _u16 canvasSize;
-
 } Tracker_t;
 
-Tracker_t* TrackerCreate(const _u16 width, const _u16 height) {
+Tracker_t* TrackerCreate(ScreenConfig* config) {
   Tracker_t* tracker = (Tracker_t*)malloc(sizeof(Tracker_t));
   if (tracker == NULL) return NULL;
 
-  tracker->width = width;
-  tracker->height = height;
+  tracker->config = config;
 
-  tracker->canvasWidth = width / CELL_SIZE;
-  tracker->canvasHeight = height;
-  printf("screen width: %d\n", width);
+  tracker->canvasWidth = config->width / CELL_SIZE;
+
+  printf("screen width: %d\n", config->width);
   printf("screen width [in cells]: %d\n", tracker->canvasWidth);
 
-  _u16 totalCells = tracker->canvasWidth * height;
+  _u16 totalCells = tracker->canvasWidth * config->height;
   printf("total cells: %d\n", totalCells);
 
   tracker->canvas = malloc(totalCells);
@@ -56,6 +50,7 @@ void TrackerDestroy(Tracker_t* tracker) {
 
 void TrackerClear(Tracker_t* tracker) {
   memset(tracker->canvas, 0, tracker->canvasSize);
+
   tracker->isAtLeastOnePixelDurty = false;
 }
 
@@ -65,7 +60,7 @@ void TrackerSetRegion(Tracker_t* tracker, const _u16 l, const _u16 t,
     return;
   }
 
-  if (t >= tracker->height || l >= tracker->width) {
+  if (t >= tracker->config->height || l >= tracker->config->width) {
     return;
   }
 
@@ -81,9 +76,11 @@ void TrackerSetRegion(Tracker_t* tracker, const _u16 l, const _u16 t,
   _u16 index = 0;
   _u8 temp = 0;
 
+  // TODO: write top left position of durty region, so we can start iterate from
+  // it in TrackerGetRegion to minimize iteration steps
   for (_u16 y = t; y <= b; y++) {
-    // tracker->canvasWidth * y;
     _u16 yOffset = GetIndexIn2DSpace(0, y, tracker->canvasWidth);
+
     for (_u8 x = leftCell; x <= rightCell; x++) {
       index = yOffset + x;
       temp = 0xff;

@@ -19,7 +19,7 @@ static AppSpecification_t specs = {
 
 static ScreenConfig screenConfig = {
     .width = 320,
-    .height = 240.,
+    .height = 240,
     .pixelSize = 2,
 };
 
