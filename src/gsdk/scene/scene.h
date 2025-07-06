@@ -5,7 +5,6 @@
 
 #include "../screen/palette.h"
 #include "../screen/screen_config.h"
-#include "../screen/tracker.h"
 #include "../sprite/sprite_data.h"
 #include "../types/types.h"
 #include "objects_holder.h"

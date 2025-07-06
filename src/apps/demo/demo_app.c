@@ -90,7 +90,6 @@ void _AssignSprites() {
   Scene_t* scene = Game_GetScene();
 
   const SpriteData_t* playerSd = &player;
-  const SpriteData_t* animatedSd = &player16;
   const SpriteData_t* sandSd = &sand;
   const SpriteData_t* coastSd = &coast;
 
@@ -103,12 +102,12 @@ void _AssignSprites() {
   coastId = SceneAddSprite2(scene, coastSd, LAYER_TILEMAP);
   playerId = SceneAddGameObject(scene, playerSd, LAYER_MID, true, true, false);
 
-  SpriteId animated = SceneAddSprite2(scene, animatedSd, LAYER_MID);
-  SceneChangeSpriteAnimationSpeed(animated, ANIMATION_SPEED_FAST);
-  SceneMoveSprite2To(scene, animated, 100, 100);
+  SpriteId animatedFire = SceneAddSprite2(scene, &fire, LAYER_NEAR);
+  SceneChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_SUPER_FAST);
+  SceneMoveSprite2To(scene, animatedFire, 100, 40);
 
   // stop animation
-  SceneChangeSpriteAnimationSpeed(animated, ANIMATION_SPEED_NONE);
+  // SceneChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_NONE);
 
   SceneMoveSprite2To(scene, waterSid, 100, 100);
 
