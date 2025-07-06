@@ -73,8 +73,8 @@ SpriteId SpritesHolderAddSprite(SpritesHolder_t* holder,
 }
 
 _ci SpritesHolderGetColorIndex2(const SpritesHolder_t* holder,
-                                const LayerType_t layer, const _u8 x,
-                                const _u8 y, _ci fallback) {
+                                const LayerType_t layer, const _u16 x,
+                                const _u16 y, _ci fallback) {
   Array_t* sprites = SelectContainer(holder, layer);
   if (sprites == NULL || ArrayIsEmpty(sprites) == true) return fallback;
 

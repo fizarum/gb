@@ -20,8 +20,6 @@ typedef struct Menu_t {
   _u8 totalItems;
   _u8 selectedItem;
 
-  ScreenConfig* config;
-
   SpriteData_t* btnLeft;
   SpriteData_t* btnMid;
   SpriteData_t* btnRight;
@@ -30,7 +28,7 @@ typedef struct Menu_t {
 _u8 _MenuGetHCenterForText(const Menu_t* menu, const _u8 letterSize,
                            const _u8 lettersCount);
 
-Menu_t* MenuCreate(ScreenConfig* config) {
+Menu_t* MenuCreate() {
   Menu_t* menu = (Menu_t*)malloc(sizeof(Menu_t));
 
   if (menu == NULL) return NULL;
@@ -40,8 +38,6 @@ Menu_t* MenuCreate(ScreenConfig* config) {
   menu->buttons = ArrayCreate(BUTTONS_MAX_COUNT);
   menu->backgroundSprites = ArrayCreate(SPRITES_BACKGROUND_MAX_COUNT);
   menu->foregroundSprites = ArrayCreate(SPRITES_FOREGROUND_MAX_COUNT);
-
-  menu->config = config;
 
   menu->btnLeft = NULL;
   menu->btnMid = NULL;
@@ -74,8 +70,8 @@ void MenuSelectPreviousItem(Menu_t* menu) {
   menu->selectedItem--;
 }
 
-SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u8 x,
-                       const _u8 y, const LayerType_t layer) {
+SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u16 x,
+                       const _u16 y, const LayerType_t layer) {
   Sprite_t* sprite = Sprite_Create(data, layer);
 
   if (x != 0 || y != 0) {
@@ -91,7 +87,7 @@ SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u8 x,
   return OBJECT_ID_NA;
 }
 
-_ci MenuGetColorIndex(Menu_t* menu, const _u8 x, const _u8 y, _ci fallback) {
+_ci MenuGetColorIndex(Menu_t* menu, const _u16 x, const _u16 y, _ci fallback) {
   Array_t* sprites = menu->foregroundSprites;
   Sprite_t* sprite = NULL;
   _ci color = fallback;
@@ -120,13 +116,13 @@ _ci MenuGetColorIndex(Menu_t* menu, const _u8 x, const _u8 y, _ci fallback) {
 void MenuSetupButtonSprites(Menu_t* menu, const SpriteData_t* leftPartSprite,
                             const SpriteData_t* middlePartSprite,
                             const SpriteData_t* rightPartSprite) {
-  menu->btnLeft = leftPartSprite;
-  menu->btnMid = middlePartSprite;
-  menu->btnRight = rightPartSprite;
+  menu->btnLeft = (SpriteData_t*)leftPartSprite;
+  menu->btnMid = (SpriteData_t*)middlePartSprite;
+  menu->btnRight = (SpriteData_t*)rightPartSprite;
 }
 
 void MenuCreateHCenterButton(Menu_t* menu, const SpriteData_t** letterSprites,
-                             const _u8 lettersCount, const _u8 y) {
+                             const _u8 lettersCount, const _u16 y) {
   const _u8 letterSize = letterSprites[0]->width;
 
   _u8 xPos = _MenuGetHCenterForText(menu, letterSize, lettersCount);
@@ -147,7 +143,7 @@ void MenuCreateHCenterButton(Menu_t* menu, const SpriteData_t** letterSprites,
 }
 
 void MenuCreateLabel(Menu_t* menu, const SpriteData_t** letterSprites,
-                     const _u8 lettersCount, const _u8 x, const _u8 y) {
+                     const _u8 lettersCount, const _u16 x, const _u16 y) {
   const _u8 letterSize = letterSprites[0]->width;
   _u8 xPos = x;
 
@@ -159,7 +155,7 @@ void MenuCreateLabel(Menu_t* menu, const SpriteData_t** letterSprites,
 }
 
 void MenuCreateHCenterLabel(Menu_t* menu, const SpriteData_t** letterSprites,
-                            const _u8 lettersCount, const _u8 y) {
+                            const _u8 lettersCount, const _u16 y) {
   const _u8 letterSize = letterSprites[0]->width;
 
   _u8 xPos = _MenuGetHCenterForText(menu, letterSize, lettersCount);
@@ -174,5 +170,5 @@ void MenuCreateHCenterLabel(Menu_t* menu, const SpriteData_t** letterSprites,
 _u8 _MenuGetHCenterForText(const Menu_t* menu, const _u8 letterSize,
                            const _u8 lettersCount) {
   _u16 stringLength = letterSize * lettersCount;
-  return menu->config->width / 2 - stringLength / 2;
+  return ScreenConfig_GetRealWidth() / 2 - stringLength / 2;
 }

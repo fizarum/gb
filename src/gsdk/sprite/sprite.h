@@ -29,15 +29,15 @@ const _u8 SpriteGetHeight(const Sprite_t* sprite);
  * otained
  * @return ColorIndex
  */
-const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u8 x, const _u8 y,
-                              const _ci fallback);
+const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u16 x,
+                              const _u16 y, const _ci fallback);
 
-const bool SpriteContainsPoint(const Sprite_t* sprite, const _i16 x,
-                               const _i16 y);
+const bool SpriteContainsPoint(const Sprite_t* sprite, const _u16 x,
+                               const _u16 y);
 
 const LayerType_t SpriteGetLayer(const Sprite_t* sprite);
 
-void SpriteMoveTo(Sprite_t* sprite, const _u8 x, const _u8 y);
+void SpriteMoveTo(Sprite_t* sprite, const _u16 x, const _u16 y);
 void SpriteMoveBy(Sprite_t* sprite, const _i8 x, const _i8 y);
 
 const bool SpriteIsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,

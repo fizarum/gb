@@ -7,35 +7,12 @@ extern "C" {
 
 #include <types.h>
 
-typedef struct ScreenConfig {
-  _u16 width;
-  _u16 height;
+typedef struct ScreenConfig ScreenConfig;
 
-  /*
-   * Virtual pixel size. Bigger pixel size - better performance
-   * but smaller resolution
-   */
-  // #define PIXEL_SIZE 2  // 160x120
-  //  #define PIXEL_SIZE 3  // 106x80
-  //  #define PIXEL_SIZE 4  // 80x60
-  //  #define PIXEL_SIZE 5  // 64x48
-  //  the best performance/pixel size value
-  //  #define PIXEL_SIZE 8  // 40x30
-  //  #define PIXEL_SIZE 10  // 32x24
-  //  #define PIXEL_SIZE 20  // 16x12
-  //  #define PIXEL_SIZE 40  // 8x6
-  _u8 pixelSize;
-} ScreenConfig;
+void ScreenConfig_Create(const _u16 width, const _u16 height);
 
-// return width in pixels according pixelSize
-static inline _u16 ScreenConfig_GetWidthInPixels(ScreenConfig *config) {
-  return config->width / config->pixelSize;
-}
-
-// return height in pixels according pixelSize
-static inline _u16 ScreenConfig_GetHeightInPixels(ScreenConfig *config) {
-  return config->height / config->pixelSize;
-}
+_u16 ScreenConfig_GetRealWidth();
+_u16 ScreenConfig_GetRealHeight();
 
 #ifdef __cplusplus
 }

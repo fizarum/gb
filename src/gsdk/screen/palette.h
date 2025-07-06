@@ -16,10 +16,10 @@
 #define COLOR_DARKGREY 0x7BEF        ///< 123, 125, 123
 #define COLOR_BLUE 0x001F            ///<   0,   0, 255
 #define COLOR_GREEN 0x07E0           ///<   0, 255,   0
-#define COLOR_CYAN 0x07FF            ///<   0, 255, 255
+#define COLOR_CYAN 0x07FF            ///<   0, 255, 255 #00ffff
 #define COLOR_RED 0xF800             ///< 255,   0,   0
-#define COLOR_MAGENTA 0xF81F         ///< 255,   0, 255
-#define COLOR_YELLOW 0xFFE0          ///< 255, 255,   0
+#define COLOR_MAGENTA 0xF81F         ///< 255,   0, 255 #ff00ff
+#define COLOR_YELLOW 0xFFE0          ///< 255, 255,   0 #ffff00
 #define COLOR_WHITE 0xFFFF           ///< 255, 255, 255
 #define COLOR_ORANGE 0xFD20          ///< 255, 165,   0
 #define COLOR_GREENYELLOW 0xAFE5     ///< 173, 255,  41

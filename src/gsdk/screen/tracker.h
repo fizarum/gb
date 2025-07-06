@@ -16,7 +16,7 @@ typedef void (*TrackerCallback)(uint16_t cellIndex, uint8_t cellData);
 
 typedef struct Tracker_t Tracker_t;
 
-Tracker_t* TrackerCreate(ScreenConfig* config);
+Tracker_t* TrackerCreate();
 void TrackerDestroy(Tracker_t* tracker);
 
 /**

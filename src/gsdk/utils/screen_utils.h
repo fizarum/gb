@@ -6,9 +6,9 @@
 #include "../types/point.h"
 #include "../types/types.h"
 
-inline const static bool IsPointInside(const _i16 x, const _i16 y,
-                                       const _i16 left, const _i16 top,
-                                       const _i16 right, const _i16 bottom) {
+inline const static bool IsPointInside(const _u16 x, const _u16 y,
+                                       const _u16 left, const _u16 top,
+                                       const _u16 right, const _u16 bottom) {
   return x >= left && x <= right && y >= top && y <= bottom;
 }
 
@@ -40,21 +40,19 @@ inline const static _u16 GetVisibleRight(const Point_t* position,
 
 inline const static _u16 GetVisibleBottom(const Point_t* position,
                                           const _u16 height, const _u16 limit) {
-  int result = position->y + height - 1;
+  _i32 result = position->y + height - 1;
   result = result >= limit ? limit - 1 : result;
   result = result < 0 ? 0 : result;
 
   return (_u16)result;
 }
 
-inline const static _i16 GetRight(const Point_t* position, const _u16 width) {
-  int right = position->x + width - 1;
-  return (_i16)right;
+inline const static _i32 GetRight(const Point_t* position, const _u16 width) {
+  return position->x + width - 1;
 }
 
-inline const static _i16 GetBottom(const Point_t* position, const _u16 height) {
-  int bottom = position->y + height - 1;
-  return (_i16)bottom;
+inline const static _i32 GetBottom(const Point_t* position, const _u16 height) {
+  return position->y + height - 1;
 }
 
 #endif  // GAME_SDK_SCREEN_UTILS_H

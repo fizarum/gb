@@ -78,7 +78,7 @@ void TileMapSet(TileMap_t* tileMap, SpriteId* tiles, const _u16 count,
   Rectangle_Resize(&(tileMap->bounds), widthInPixels, heightInPixels);
 }
 
-SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u8 x, const _u8 y) {
+SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u16 x, const _u16 y) {
   _u8 tileSize = tileMap->tileSize;
 
   _u8 tileAddressByX = x / tileSize;
@@ -93,7 +93,7 @@ SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u8 x, const _u8 y) {
   return tileMap->tiles[index];
 }
 
-_ci TileMapGetPixel(const TileMap_t* tileMap, const _u8 x, const _u8 y,
+_ci TileMapGetPixel(const TileMap_t* tileMap, const _u16 x, const _u16 y,
                     const _ci fallback) {
   if (tileMap == NULL) return fallback;
 

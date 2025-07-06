@@ -55,8 +55,8 @@ const Point_t* SpriteGetPosition(const Sprite_t* sprite) {
   return &(sprite->position);
 }
 
-const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u8 x, const _u8 y,
-                              const _ci fallback) {
+const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u16 x,
+                              const _u16 y, const _ci fallback) {
   bool inside = IsPointInside(x, y, sprite->position.x, sprite->position.y,
                               sprite->position.x + sprite->data->width - 1,
                               sprite->position.y + sprite->data->height - 1);
@@ -65,8 +65,8 @@ const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u8 x, const _u8 y,
     return fallback;
   }
 
-  _i16 localX = x - sprite->position.x;
-  _i16 localY = y - sprite->position.y;
+  _i32 localX = x - sprite->position.x;
+  _i32 localY = y - sprite->position.y;
 
   // we have 2 real pixels per item in "pixels" array we have to divide the
   // result of RectangleIndexOf() by 2
@@ -86,8 +86,8 @@ const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u8 x, const _u8 y,
   return getFirstIndex(indexes);
 }
 
-const bool SpriteContainsPoint(const Sprite_t* sprite, const _i16 x,
-                               const _i16 y) {
+const bool SpriteContainsPoint(const Sprite_t* sprite, const _u16 x,
+                               const _u16 y) {
   return IsPointInside(x, y, sprite->position.x, sprite->position.y,
                        sprite->position.x + sprite->data->width - 1,
                        sprite->position.y + sprite->data->height - 1);
@@ -97,7 +97,7 @@ const LayerType_t SpriteGetLayer(const Sprite_t* sprite) {
   return sprite->layer;
 }
 
-void SpriteMoveTo(Sprite_t* sprite, const _u8 x, const _u8 y) {
+void SpriteMoveTo(Sprite_t* sprite, const _u16 x, const _u16 y) {
   sprite->position.x = x;
   sprite->position.y = y;
 }
@@ -109,10 +109,10 @@ void SpriteMoveBy(Sprite_t* sprite, const _i8 x, const _i8 y) {
 
 const bool SpriteIsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
                              _u16 displayHeight) {
-  _i16 l = sprite->position.x;
-  _i16 t = sprite->position.y;
-  _i16 r = GetRight(&(sprite->position), sprite->data->width);
-  _i16 b = GetBottom(&(sprite->position), sprite->data->height);
+  _i32 l = sprite->position.x;
+  _i32 t = sprite->position.y;
+  _i32 r = GetRight(&(sprite->position), sprite->data->width);
+  _i32 b = GetBottom(&(sprite->position), sprite->data->height);
 
   // left && right cases
   if (r < 0 || l >= displayWidth) {

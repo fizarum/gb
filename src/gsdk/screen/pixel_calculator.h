@@ -11,45 +11,45 @@ extern "C" {
 #include "../types/types.h"
 #include "palette.h"
 
-static _ci index;
+static _ci _index;
 SpriteId id = OBJECT_ID_NA;
 
-static inline Color CalculatePixel(Palette_t* palette, _u8 x, _u8 y,
+static inline Color CalculatePixel(Palette_t* palette, _u16 x, _u16 y,
                                    SpritesHolder_t* sprites, TileMap_t* tilemap,
                                    LayerType_t layerChanged, _ci fallbackCI) {
-  index = fallbackCI;
+  _index = fallbackCI;
   id = OBJECT_ID_NA;
 
   if (layerChanged == LAYER_UI) {
-    index = SpritesHolderGetColorIndex2(sprites, LAYER_UI, x, y, fallbackCI);
-    if (index != fallbackCI) {
-      return palette->colors[index];
+    _index = SpritesHolderGetColorIndex2(sprites, LAYER_UI, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
     }
   }
 
   if (layerChanged >= LAYER_NEAR) {
-    index = SpritesHolderGetColorIndex2(sprites, LAYER_NEAR, x, y, fallbackCI);
-    if (index != fallbackCI) {
-      return palette->colors[index];
+    _index = SpritesHolderGetColorIndex2(sprites, LAYER_NEAR, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
     }
   }
 
   if (layerChanged >= LAYER_MID) {
-    index = SpritesHolderGetColorIndex2(sprites, LAYER_MID, x, y, fallbackCI);
-    if (index != fallbackCI) {
-      return palette->colors[index];
+    _index = SpritesHolderGetColorIndex2(sprites, LAYER_MID, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
     }
   }
 
   if (layerChanged >= LAYER_FAR) {
-    index = SpritesHolderGetColorIndex2(sprites, LAYER_FAR, x, y, fallbackCI);
-    if (index != fallbackCI) {
-      return palette->colors[index];
+    _index = SpritesHolderGetColorIndex2(sprites, LAYER_FAR, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
     }
 
-    index = TileMapGetPixel(tilemap, x, y, fallbackCI);
-    if (index != fallbackCI) {
-      return palette->colors[index];
+    _index = TileMapGetPixel(tilemap, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
     }
   }
 
@@ -58,8 +58,8 @@ static inline Color CalculatePixel(Palette_t* palette, _u8 x, _u8 y,
 
 static inline Color CalculatePixelForMenu(Palette_t* palette, _u8 x, _u8 y,
                                           Menu_t* menu, _ci fallbackCI) {
-  _ci index = MenuGetColorIndex(menu, x, y, fallbackCI);
-  return palette->colors[index];
+  _ci _index = MenuGetColorIndex(menu, x, y, fallbackCI);
+  return palette->colors[_index];
 }
 #ifdef __cplusplus
 }

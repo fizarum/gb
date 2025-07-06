@@ -12,27 +12,27 @@ extern "C" {
 
 typedef struct Menu_t Menu_t;
 
-Menu_t* MenuCreate(ScreenConfig* config);
+Menu_t* MenuCreate();
 void MenuDestroy(Menu_t* menu);
 
 void MenuSelectNextItem(Menu_t* menu);
 void MenuSelectPreviousItem(Menu_t* menu);
 
-SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u8 x,
-                       const _u8 y, const LayerType_t layer);
+SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u16 x,
+                       const _u16 y, const LayerType_t layer);
 
-_ci MenuGetColorIndex(Menu_t* menu, const _u8 x, const _u8 y, _ci fallback);
+_ci MenuGetColorIndex(Menu_t* menu, const _u16 x, const _u16 y, _ci fallback);
 
 void MenuSetupButtonSprites(Menu_t* menu, const SpriteData_t* leftPartSprite,
                             const SpriteData_t* middlePartSprite,
                             const SpriteData_t* rightPartSprite);
 void MenuCreateHCenterButton(Menu_t* menu, const SpriteData_t** letterSprites,
-                             const _u8 lettersCount, const _u8 y);
+                             const _u8 lettersCount, const _u16 y);
 
 void MenuCreateLabel(Menu_t* menu, const SpriteData_t** letterSprites,
-                     const _u8 lettersCount, const _u8 x, const _u8 y);
+                     const _u8 lettersCount, const _u16 x, const _u16 y);
 void MenuCreateHCenterLabel(Menu_t* menu, const SpriteData_t** letterSprites,
-                            const _u8 lettersCount, const _u8 y);
+                            const _u8 lettersCount, const _u16 y);
 #ifdef __cplusplus
 }
 #endif

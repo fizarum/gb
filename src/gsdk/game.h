@@ -12,7 +12,7 @@ extern "C" {
 #include "types/types.h"
 
 typedef struct Game Game;
-Game* Game_Create(ScreenConfig* config, OnPixelsBufferUpdateCallback callback);
+Game* Game_Create();
 void Game_Destroy(Game* game);
 
 void Game_SetTileMap(TileMap_t* tileMap);

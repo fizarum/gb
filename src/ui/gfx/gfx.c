@@ -156,7 +156,7 @@ void GFX_DrawPixels(const _u16 left, const _u16 top, _u16 *colors,
   }
 }
 
-void GFX_DrawPixelsInBuffer(const _u32 start, _u16 *colors, _u8 colorsCount) {
+void GFX_DrawPixelsInBuffer(const _u32 start, _u16 *colors, _u16 colorsCount) {
   if (start >= canvasSize) {
     return;
   }
@@ -165,7 +165,7 @@ void GFX_DrawPixelsInBuffer(const _u32 start, _u16 *colors, _u8 colorsCount) {
     return;
   }
 
-  for (_u8 index = 0; index < colorsCount; ++index) {
+  for (_u16 index = 0; index < colorsCount; ++index) {
     canvas[start + index] = colors[index];
   }
 }

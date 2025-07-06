@@ -29,8 +29,8 @@ void SpritesHolderDestroy(SpritesHolder_t* holder);
  * @return SpriteId unique id of sprite if it is added or OBJECT_ID_NA otherwise
  */
 SpriteId SpritesHolderAddSprite(SpritesHolder_t* holder,
-                                 const SpriteData_t* data,
-                                 const LayerType_t layer);
+                                const SpriteData_t* data,
+                                const LayerType_t layer);
 
 /**
  * @brief Get Color Index by [x,y] coordinates
@@ -45,8 +45,8 @@ SpriteId SpritesHolderAddSprite(SpritesHolder_t* holder,
  * cant be found
  */
 _ci SpritesHolderGetColorIndex2(const SpritesHolder_t* holder,
-                                const LayerType_t layer, const _u8 x,
-                                const _u8 y, _ci fallback);
+                                const LayerType_t layer, const _u16 x,
+                                const _u16 y, _ci fallback);
 
 void SpritesHolderForeachSprite(const SpritesHolder_t* holder,
                                 const LayerType_t type,

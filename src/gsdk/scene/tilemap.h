@@ -18,8 +18,8 @@ void TileMapDestroy(TileMap_t* tileMap);
 
 void TileMapSet(TileMap_t* tileMap, SpriteId* tiles, const _u16 count,
                 const _u8 width);
-SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u8 x, const _u8 y);
-_ci TileMapGetPixel(const TileMap_t* tileMap, const _u8 x, const _u8 y,
+SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u16 x, const _u16 y);
+_ci TileMapGetPixel(const TileMap_t* tileMap, const _u16 x, const _u16 y,
                     const _ci fallback);
 
 const Rectangle_t* TileMapGetBounds(const TileMap_t* tileMap);

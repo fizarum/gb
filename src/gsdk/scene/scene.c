@@ -1,10 +1,12 @@
 #include "scene.h"
 
+#include <stack.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "../physics/collision_checker.h"
 #include "../sprite/sprite.h"
+#include "../types/region.h"
 #include "../utils/screen_utils.h"
 #include "../utils/utils.h"
 #include "game_object.h"
@@ -12,8 +14,6 @@
 #include "sprites_holder.h"
 
 typedef struct Scene_t {
-  Tracker_t* tracker;
-
   SpritesHolder_t* spritesHolder;
   ObjectsHolder_t* objectsHolder;
   TileMap_t* tilemap;
@@ -21,10 +21,41 @@ typedef struct Scene_t {
   // Indicator of changed layer. It helps to understand which layers
   // should be processed during pixel's color calculation
   LayerType_t layerChanged;
-  ScreenConfig* config;
 } Scene_t;
 
 Scene_t* _scene = NULL;
+
+// TODO: temp workaround to replace complex logic of Tracker
+#define regionsCount 20
+static Region_t* durtyRegions[regionsCount];
+static bool entireScreenisDurty = false;
+
+static inline Region_t* _findNextEmptyRegion() {
+  for (_u8 index = 0; index < regionsCount; index++) {
+    Region_t* reg = durtyRegions[index];
+    if (Region_IsEmpty(reg)) {
+      return reg;
+    }
+  }
+  return NULL;
+}
+
+static inline Region_t* _findSameRegion(_u16 l, _u16 t, _u16 r, _u16 b) {
+  for (_u8 index = 0; index < regionsCount; index++) {
+    Region_t* reg = durtyRegions[index];
+    if (Region_isSame(reg, l, t, r, b)) {
+      return reg;
+    }
+  }
+  return NULL;
+}
+
+static inline void _resetAllRegions() {
+  for (_u8 index = 0; index < regionsCount; index++) {
+    Region_Reset(durtyRegions[index]);
+  }
+  entireScreenisDurty = false;
+}
 
 void SceneSetDurtyRegion(Scene_t* scene, const Rectangle_t* region,
                          const LayerType_t layer);
@@ -33,28 +64,78 @@ static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite);
 void UpdataAnimatedSprites();
 
 Scene_t* SceneCreate(SpritesHolder_t* spritesHolder,
-                     ObjectsHolder_t* objectsHolder, Tracker_t* tracker,
-                     LayerType_t* layerChanged, ScreenConfig* config) {
+                     ObjectsHolder_t* objectsHolder,
+                     LayerType_t* layerChanged) {
   Scene_t* scene = (Scene_t*)malloc(sizeof(Scene_t));
 
   if (scene == NULL) return NULL;
 
-  scene->tracker = tracker;
+  entireScreenisDurty = true;
+
   scene->spritesHolder = spritesHolder;
   scene->objectsHolder = objectsHolder;
   scene->layerChanged = *layerChanged;
 
-  scene->config = config;
-
   // TODO: remove this!
   _scene = scene;
+
+  for (_u16 index = 0; index < regionsCount; index++) {
+    Region_t* reg = (Region_t*)malloc(sizeof(Region_t));
+    reg->l = 0;
+    reg->t = 0;
+    reg->r = 0;
+    reg->b = 0;
+    durtyRegions[index] = reg;
+  }
 
   return scene;
 }
 
 void SceneDestroy(Scene_t* scene) { free(scene); }
 
-void SceneUpdate(Scene_t* scene) { UpdataAnimatedSprites(); }
+void SceneUpdate(Scene_t* scene) { UpdataAnimatedSprites(scene); }
+
+void Scene_Pause(Scene_t* scene) {
+  _resetAllRegions();
+  entireScreenisDurty = true;
+  scene->layerChanged = LAYER_UI;
+}
+
+void Scene_Resume(Scene_t* scene) {
+  _resetAllRegions();
+  entireScreenisDurty = true;
+  scene->layerChanged = LAYER_UI;
+}
+
+void Scene_CleanupRegions(Scene_t* scene, OnRegionRedrawRequested callback) {
+  if (scene->layerChanged == LAYER_NONE) {
+    return;
+  }
+
+  // redraw entire screen
+  if (entireScreenisDurty) {
+    callback(0, 0, ScreenConfig_GetRealWidth() - 1,
+             ScreenConfig_GetRealHeight() - 1);
+    entireScreenisDurty = false;
+    scene->layerChanged = LAYER_NONE;
+    return;
+  }
+
+  printf("requested cleanup regions\n");
+
+  for (_u8 index = 0; index < regionsCount; index++) {
+    Region_t* reg = durtyRegions[index];
+    if (Region_IsEmpty(reg) == false) {
+      callback(reg->l, reg->t, reg->r, reg->b);
+      reg->l = 0;
+      reg->t = 0;
+      reg->r = 0;
+      reg->b = 0;
+    }
+  }
+  entireScreenisDurty = false;
+  scene->layerChanged = LAYER_NONE;
+}
 
 TileMap_t* SceneSetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
                              const _u8 width) {
@@ -72,7 +153,7 @@ TileMap_t* SceneSetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
   TileMapSet(tilemap, tiles, count, width);
 
   // 3. and request to refresh
-  Rectangle_t* mapBounds = TileMapGetBounds(tilemap);
+  Rectangle_t* mapBounds = (Rectangle_t*)TileMapGetBounds(tilemap);
   SceneSetDurtyRegion(scene, mapBounds, layer);
 
   scene->tilemap = tilemap;
@@ -115,7 +196,7 @@ void SceneMoveSprite2By(Scene_t* scene, SpriteId id, _i8 x, _i8 y) {
   SceneSetDurtySprite(scene, sprite);
 }
 
-void SceneMoveSprite2To(Scene_t* scene, SpriteId id, _u8 x, _u8 y) {
+void SceneMoveSprite2To(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
   Sprite_t* sprite = (Sprite_t*)id;
 
   // set old region as durty
@@ -140,7 +221,7 @@ void SceneMoveGameObjectBy(Scene_t* scene, ObjectId id, _i8 x, _i8 y) {
   }
 }
 
-void SceneMoveGameObjectTo(Scene_t* scene, ObjectId id, _u8 x, _u8 y) {
+void SceneMoveGameObjectTo(Scene_t* scene, ObjectId id, _u16 x, _u16 y) {
   SpriteId sid = GameObjectGetSpriteId((GameObject_t*)id);
   SceneMoveSprite2To(scene, sid, x, y);
 }
@@ -154,12 +235,22 @@ void SceneChangeSpriteAnimationSpeed(SpriteId sid,
 //------------------------------------------------------- private functions
 void SceneSetDurtyRegion(Scene_t* scene, const Rectangle_t* region,
                          const LayerType_t layer) {
-  _u8 left = Rectangle_GetVisibleLeft(region);
-  _u8 top = Rectangle_GetVisibleTop(region);
-  _u8 right = Rectangle_GetVisibleRight(region, scene->config->width);
-  _u8 bottom = Rectangle_GetVisibleBottom(region, scene->config->height);
+  if (entireScreenisDurty) {
+    return;
+  }
+  _u16 left = Rectangle_GetVisibleLeft(region);
+  _u16 top = Rectangle_GetVisibleTop(region);
+  _u16 right = Rectangle_GetVisibleRight(region, ScreenConfig_GetRealWidth());
+  _u16 bottom =
+      Rectangle_GetVisibleBottom(region, ScreenConfig_GetRealHeight());
 
-  TrackerSetRegion(scene->tracker, left, top, right, bottom);
+  Region_t* reg = _findNextEmptyRegion();
+  if (reg != NULL) {
+    reg->l = left;
+    reg->t = top;
+    reg->r = right;
+    reg->b = bottom;
+  }
 
   if (layer > scene->layerChanged) {
     scene->layerChanged = layer;
@@ -167,8 +258,12 @@ void SceneSetDurtyRegion(Scene_t* scene, const Rectangle_t* region,
 }
 
 static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
-  if (SpriteIsOnDisplay(sprite, scene->config->width, scene->config->height) ==
-      false) {
+  if (entireScreenisDurty) {
+    return;
+  }
+
+  if (SpriteIsOnDisplay(sprite, ScreenConfig_GetRealWidth(),
+                        ScreenConfig_GetRealHeight()) == false) {
     return;
   }
 
@@ -178,13 +273,25 @@ static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
   const _u8 width = SpriteGetWidth(sprite);
   const _u8 height = SpriteGetHeight(sprite);
 
-  _u16 l = normalize(position->x, scene->config->width);
-  _u16 t = normalize(position->y, scene->config->height);
-  _u16 r = normalize(GetRight(position, width), scene->config->width);
-  _u16 b = normalize(GetBottom(position, height), scene->config->height);
+  _u16 l = normalize(position->x, ScreenConfig_GetRealWidth());
+  _u16 t = normalize(position->y, ScreenConfig_GetRealHeight());
+  _u16 r = normalize(GetRight(position, width), ScreenConfig_GetRealWidth());
+  _u16 b = normalize(GetBottom(position, height), ScreenConfig_GetRealHeight());
 
-  TrackerSetRegion(scene->tracker, l, t, r, b);
+  // TODO: investigate why we still have duplicates here
+  //  preventing adding duplicated
+  Region_t* reg = _findSameRegion(l, t, r, b);
+  if (reg != NULL) {
+    return;
+  }
 
+  reg = _findNextEmptyRegion();
+  if (reg != NULL) {
+    reg->l = l;
+    reg->t = t;
+    reg->r = r;
+    reg->b = b;
+  }
   if (layer > scene->layerChanged) {
     scene->layerChanged = layer;
   }
@@ -200,11 +307,11 @@ static void UpdateAnimationStateCallback(SpriteId sid) {
   }
 }
 
-void UpdataAnimatedSprites() {
-  SpritesHolderForeachSprite(_scene->spritesHolder, LAYER_FAR,
+void UpdataAnimatedSprites(Scene_t* scene) {
+  SpritesHolderForeachSprite(scene->spritesHolder, LAYER_FAR,
                              UpdateAnimationStateCallback);
-  SpritesHolderForeachSprite(_scene->spritesHolder, LAYER_MID,
+  SpritesHolderForeachSprite(scene->spritesHolder, LAYER_MID,
                              UpdateAnimationStateCallback);
-  SpritesHolderForeachSprite(_scene->spritesHolder, LAYER_NEAR,
+  SpritesHolderForeachSprite(scene->spritesHolder, LAYER_NEAR,
                              UpdateAnimationStateCallback);
 }

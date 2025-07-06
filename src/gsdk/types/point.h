@@ -11,8 +11,8 @@ extern "C" {
  *
  */
 typedef struct Point_t {
-  _i16 x;
-  _i16 y;
+  _i32 x;
+  _i32 y;
 } Point_t;
 
 #ifdef __cplusplus

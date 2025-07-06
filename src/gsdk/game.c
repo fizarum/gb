@@ -2,24 +2,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ui/gfx/gfx.h>
 
 #include "scene/objects_holder.h"
 #include "screen/pixel_calculator.h"
-#include "screen/tracker.h"
+#include "screen/screen_config.h"
 #include "types/game_state.h"
 #include "utils/screen_utils.h"
 #include "utils/utils.h"
 
-static Tracker_t* tracker;
 static Palette_t palette;
 static GameState_t state;
 static LayerType_t layerChanged;
 static Scene_t* scene;
 static Menu_t* menu;
 static TileMap_t* _tileMap;
-static ScreenConfig* _config;
-
-static _u8 cellsInScreenWidth;
 
 typedef struct Game {
   SpritesHolder_t* spritesHolder;
@@ -28,42 +26,34 @@ typedef struct Game {
 } Game;
 
 static void _Game_SetupDefaultPalette();
-void _TrackerCallback(_u16 cellIndex, _u8 cellData);
+void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b);
 
-OnPixelsUpdateCallback _drawCallback2;
-OnPixelsBufferUpdateCallback _drawCallback;
 static Game* _game;
 
-Game* Game_Create(ScreenConfig* config, OnPixelsBufferUpdateCallback callback) {
+Game* Game_Create() {
   Game* game = (Game*)malloc(sizeof(Game));
   if (game == NULL) return NULL;
 
-  _config = config;
-  cellsInScreenWidth = _config->width / CELL_SIZE;
-
   palette.background = COLOR_BLACK;
-
-  tracker = TrackerCreate(config);
 
   game->spritesHolder = SpritesHolderCreate();
   game->objectsHolder = ObjectsHolderCreate();
 
   _Game_SetupDefaultPalette();
 
-  menu = MenuCreate(config);
+  menu = MenuCreate();
   state = STOPPED;
   layerChanged = LAYER_NONE;
   _tileMap = NULL;
 
-  scene = SceneCreate(game->spritesHolder, game->objectsHolder, tracker,
-                      &(layerChanged), config);
+  scene =
+      SceneCreate(game->spritesHolder, game->objectsHolder, &(layerChanged));
 
   if (scene == NULL) {
     return NULL;
   }
 
   _game = game;
-  _drawCallback = callback;
 
   return game;
 }
@@ -74,7 +64,6 @@ void Game_Destroy(Game* game) {
   state = STOPPED;
 
   SceneDestroy(scene);
-  TrackerDestroy(tracker);
   SpritesHolderDestroy(game->spritesHolder);
   ObjectsHolderDestroy(game->objectsHolder);
 
@@ -92,7 +81,7 @@ void Game_Pause() {
   layerChanged = LAYER_UI;
 
   printf("game state: PAUSED\n");
-  TrackerSetAll(tracker);
+  Scene_Pause(scene);
 }
 
 void Game_Resume() {
@@ -100,7 +89,7 @@ void Game_Resume() {
   layerChanged = LAYER_UI;
 
   printf("game state: RUNNING\n");
-  TrackerSetAll(tracker);
+  Scene_Resume(scene);
 }
 
 void Game_TogglePauseResume() {
@@ -114,12 +103,11 @@ void Game_TogglePauseResume() {
 void Game_Start() { Game_Resume(); }
 
 void Game_Update() {
-  if (state == RUNNING && scene != NULL) {
-    SceneUpdate(scene);
-  }
-  if (state != STOPPED) {
-    TrackerGetRegion(tracker, &_TrackerCallback);
-    TrackerClear(tracker);
+  if (scene != NULL) {
+    if (state == RUNNING) {
+      SceneUpdate(scene);
+    }
+    Scene_CleanupRegions(scene, &_OnRegionRedrawRequested);
   }
 }
 
@@ -128,29 +116,34 @@ Menu_t* Game_GetMenu() { return menu; }
 Scene_t* Game_GetScene() { return scene; }
 
 static Color _color;
-static Color _colorsPortion[CELL_SIZE];
+static Color buffer[320] = {COLOR_MAGENTA};
 
-void _TrackerCallback(_u16 cellIndex, _u8 cellData) {
-  _u8 startX = (cellIndex % cellsInScreenWidth) * CELL_SIZE;
+void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b) {
+  _u16 lineLength = r - l + 1;
+  _u16 lines = b - t + 1;
 
-  _u16 y = cellIndex / cellsInScreenWidth;
-  _u16 x = startX;
+  _u16 pixelIndex = 0;
+  _u16 lineIndex = 0;
 
-  for (_u8 bitIndex = 0; bitIndex < CELL_SIZE; bitIndex++) {
-    if (isBitSet(cellData, bitIndex)) {
+  for (_u16 y = t; y <= b; y++) {
+    pixelIndex = 0;
+    _color = COLOR_MAGENTA;
+
+    for (_u16 x = l; x <= r; x++) {
       if (state == RUNNING) {
         _color = CalculatePixel(&palette, x, y, _game->spritesHolder, _tileMap,
                                 layerChanged, 0);
       } else {
         _color = CalculatePixelForMenu(&palette, x, y, menu, 0);
       }
-    }
-    _colorsPortion[bitIndex] = _color;
-    x++;
-  }
 
-  _u32 index = GetIndexIn2DSpace(startX, y, _config->width);
-  _drawCallback(index, _colorsPortion, CELL_SIZE);
+      buffer[pixelIndex] = _color;
+      pixelIndex++;
+    }
+
+    _u32 index = GetIndexIn2DSpace(l, y, ScreenConfig_GetRealWidth());
+    GFX_DrawPixelsInBuffer(index, buffer, lineLength);
+  }
 }
 
 static void _Game_SetupDefaultPalette() {

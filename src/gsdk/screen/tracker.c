@@ -12,24 +12,20 @@ typedef struct Tracker_t {
   _u8 canvasWidth;
   _u16 canvasSize;
 
-  ScreenConfig* config;
-
   bool isAtLeastOnePixelDurty;
 
 } Tracker_t;
 
-Tracker_t* TrackerCreate(ScreenConfig* config) {
+Tracker_t* TrackerCreate() {
   Tracker_t* tracker = (Tracker_t*)malloc(sizeof(Tracker_t));
   if (tracker == NULL) return NULL;
 
-  tracker->config = config;
+  tracker->canvasWidth = ScreenConfig_GetWidth() / CELL_SIZE;
 
-  tracker->canvasWidth = config->width / CELL_SIZE;
-
-  printf("screen width: %d\n", config->width);
+  printf("screen width: %d\n", ScreenConfig_GetWidth());
   printf("screen width [in cells]: %d\n", tracker->canvasWidth);
 
-  _u16 totalCells = tracker->canvasWidth * config->height;
+  _u16 totalCells = tracker->canvasWidth * ScreenConfig_GetHeight();
   printf("total cells: %d\n", totalCells);
 
   tracker->canvas = malloc(totalCells);
@@ -60,7 +56,7 @@ void TrackerSetRegion(Tracker_t* tracker, const _u16 l, const _u16 t,
     return;
   }
 
-  if (t >= tracker->config->height || l >= tracker->config->width) {
+  if (t >= ScreenConfig_GetHeight() || l >= ScreenConfig_GetWidth()) {
     return;
   }
 
