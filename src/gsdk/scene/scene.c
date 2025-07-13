@@ -30,6 +30,8 @@ Scene_t* _scene = NULL;
 static Region_t* durtyRegions[regionsCount];
 static bool entireScreenisDurty = false;
 
+void UpdataAnimatedSprites(Scene_t* scene);
+
 static inline Region_t* _findNextEmptyRegion() {
   for (_u8 index = 0; index < regionsCount; index++) {
     Region_t* reg = durtyRegions[index];
@@ -61,11 +63,9 @@ void SceneSetDurtyRegion(Scene_t* scene, const Rectangle_t* region,
                          const LayerType_t layer);
 static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite);
 
-void UpdataAnimatedSprites();
-
-Scene_t* SceneCreate(SpritesHolder_t* spritesHolder,
-                     ObjectsHolder_t* objectsHolder,
-                     LayerType_t* layerChanged) {
+Scene_t* Scene_Create(SpritesHolder_t* spritesHolder,
+                      ObjectsHolder_t* objectsHolder,
+                      LayerType_t* layerChanged) {
   Scene_t* scene = (Scene_t*)malloc(sizeof(Scene_t));
 
   if (scene == NULL) return NULL;
@@ -91,9 +91,9 @@ Scene_t* SceneCreate(SpritesHolder_t* spritesHolder,
   return scene;
 }
 
-void SceneDestroy(Scene_t* scene) { free(scene); }
+void Scene_Destroy(Scene_t* scene) { free(scene); }
 
-void SceneUpdate(Scene_t* scene) { UpdataAnimatedSprites(scene); }
+void Scene_Update(Scene_t* scene) { UpdataAnimatedSprites(scene); }
 
 void Scene_Pause(Scene_t* scene) {
   _resetAllRegions();
@@ -137,8 +137,8 @@ void Scene_CleanupRegions(Scene_t* scene, OnRegionRedrawRequested callback) {
   scene->layerChanged = LAYER_NONE;
 }
 
-TileMap_t* SceneSetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
-                             const _u8 width) {
+TileMap_t* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
+                              const _u8 width) {
   if (tiles == NULL || count == 0 || width == 0) return NULL;
 
   // 1. obtain tile size by taking it value from first sprite
@@ -161,9 +161,9 @@ TileMap_t* SceneSetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
   return tilemap;
 }
 
-SpriteId SceneAddSprite2(Scene_t* scene, const SpriteData_t* data,
+SpriteId Scene_AddSprite(Scene_t* scene, const SpriteData_t* data,
                          const LayerType_t layer) {
-  SpriteId sid = SpritesHolderAddSprite(scene->spritesHolder, data, layer);
+  SpriteId sid = SpritesHolder_AddSprite(scene->spritesHolder, data, layer);
   if (sid != OBJECT_ID_NA) {
     Sprite_t* sprite = (Sprite_t*)sid;
 
@@ -177,16 +177,16 @@ SpriteId SceneAddSprite2(Scene_t* scene, const SpriteData_t* data,
   return sid;
 }
 
-ObjectId SceneAddGameObject(Scene_t* scene, const SpriteData_t* data,
-                            const LayerType_t layer, const bool collidable,
-                            const bool obstacle, const bool gravitable) {
-  SpriteId sid = SceneAddSprite2(scene, data, layer);
+ObjectId Scene_AddGameObject(Scene_t* scene, const SpriteData_t* data,
+                             const LayerType_t layer, const bool collidable,
+                             const bool obstacle, const bool gravitable) {
+  SpriteId sid = Scene_AddSprite(scene, data, layer);
 
-  return ObjectsHolderAdd(scene->objectsHolder, sid, layer, collidable,
-                          obstacle, gravitable);
+  return ObjectsHolder_Add(scene->objectsHolder, sid, layer, collidable,
+                           obstacle, gravitable);
 }
 
-void SceneMoveSprite2By(Scene_t* scene, SpriteId id, _i8 x, _i8 y) {
+void Scene_MoveSpriteBy(Scene_t* scene, SpriteId id, _i8 x, _i8 y) {
   Sprite_t* sprite = (Sprite_t*)id;
 
   // set old region as durty
@@ -196,7 +196,7 @@ void SceneMoveSprite2By(Scene_t* scene, SpriteId id, _i8 x, _i8 y) {
   SceneSetDurtySprite(scene, sprite);
 }
 
-void SceneMoveSprite2To(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
+void Scene_MoveSpriteTo(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
   Sprite_t* sprite = (Sprite_t*)id;
 
   // set old region as durty
@@ -208,26 +208,26 @@ void SceneMoveSprite2To(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
 
 Point_t __nextPoint1ForCollision, __nextPoint2ForCollision;
 
-void SceneMoveGameObjectBy(Scene_t* scene, ObjectId id, _i8 x, _i8 y) {
+void Scene_MoveGameObjectBy(Scene_t* scene, ObjectId id, _i8 x, _i8 y) {
   GameObject_t* object = (GameObject_t*)id;
   SpriteId sid = GameObjectGetSpriteId(object);
 
   ObjectId obstacleId =
       CollisionCheckerGetObstacleId(scene->objectsHolder, id, x, y);
   if (obstacleId == OBJECT_ID_NA) {
-    SceneMoveSprite2By(scene, sid, x, y);
+    Scene_MoveSpriteBy(scene, sid, x, y);
   } else {
     printf("hit registered with object: %ju\n", obstacleId);
   }
 }
 
-void SceneMoveGameObjectTo(Scene_t* scene, ObjectId id, _u16 x, _u16 y) {
+void Scene_MoveGameObjectTo(Scene_t* scene, ObjectId id, _u16 x, _u16 y) {
   SpriteId sid = GameObjectGetSpriteId((GameObject_t*)id);
-  SceneMoveSprite2To(scene, sid, x, y);
+  Scene_MoveSpriteTo(scene, sid, x, y);
 }
 
-void SceneChangeSpriteAnimationSpeed(SpriteId sid,
-                                     const AnimationSpeed_t speed) {
+void Scene_ChangeSpriteAnimationSpeed(SpriteId sid,
+                                      const AnimationSpeed_t speed) {
   Sprite_t* sprite = (Sprite_t*)sid;
   SpriteSetAnimationSpeed(sprite, speed);
 }
@@ -308,10 +308,10 @@ static void UpdateAnimationStateCallback(SpriteId sid) {
 }
 
 void UpdataAnimatedSprites(Scene_t* scene) {
-  SpritesHolderForeachSprite(scene->spritesHolder, LAYER_FAR,
-                             UpdateAnimationStateCallback);
-  SpritesHolderForeachSprite(scene->spritesHolder, LAYER_MID,
-                             UpdateAnimationStateCallback);
-  SpritesHolderForeachSprite(scene->spritesHolder, LAYER_NEAR,
-                             UpdateAnimationStateCallback);
+  SpritesHolder_ForeachSprite(scene->spritesHolder, LAYER_FAR,
+                              UpdateAnimationStateCallback);
+  SpritesHolder_ForeachSprite(scene->spritesHolder, LAYER_MID,
+                              UpdateAnimationStateCallback);
+  SpritesHolder_ForeachSprite(scene->spritesHolder, LAYER_NEAR,
+                              UpdateAnimationStateCallback);
 }

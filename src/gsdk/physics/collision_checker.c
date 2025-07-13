@@ -30,10 +30,10 @@ ObjectId CollisionCheckerGetObstacleId(const ObjectsHolder_t* holder,
                          &__nextPoint1ForCollision, &__nextPoint2ForCollision);
 
   ObjectId anotherObjectId =
-      ObjectsHolderGetObject(holder, layer, &__nextPoint1ForCollision, id);
+      ObjectsHolder_GetObject(holder, layer, &__nextPoint1ForCollision, id);
   if (anotherObjectId == OBJECT_ID_NA) {
     anotherObjectId =
-        ObjectsHolderGetObject(holder, layer, &__nextPoint2ForCollision, id);
+        ObjectsHolder_GetObject(holder, layer, &__nextPoint2ForCollision, id);
   }
 
   // if no obstacles detected - allow movement

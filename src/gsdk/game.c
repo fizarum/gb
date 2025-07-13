@@ -36,8 +36,8 @@ Game* Game_Create() {
 
   palette.background = COLOR_BLACK;
 
-  game->spritesHolder = SpritesHolderCreate();
-  game->objectsHolder = ObjectsHolderCreate();
+  game->spritesHolder = SpritesHolder_Create();
+  game->objectsHolder = ObjectsHolder_Create();
 
   _Game_SetupDefaultPalette();
 
@@ -47,7 +47,7 @@ Game* Game_Create() {
   _tileMap = NULL;
 
   scene =
-      SceneCreate(game->spritesHolder, game->objectsHolder, &(layerChanged));
+      Scene_Create(game->spritesHolder, game->objectsHolder, &(layerChanged));
 
   if (scene == NULL) {
     return NULL;
@@ -63,9 +63,9 @@ void Game_Destroy(Game* game) {
 
   state = STOPPED;
 
-  SceneDestroy(scene);
-  SpritesHolderDestroy(game->spritesHolder);
-  ObjectsHolderDestroy(game->objectsHolder);
+  Scene_Destroy(scene);
+  SpritesHolder_Destroy(game->spritesHolder);
+  ObjectsHolder_Destroy(game->objectsHolder);
 
   free(game);
 }
@@ -105,7 +105,7 @@ void Game_Start() { Game_Resume(); }
 void Game_Update() {
   if (scene != NULL) {
     if (state == RUNNING) {
-      SceneUpdate(scene);
+      Scene_Update(scene);
     }
     Scene_CleanupRegions(scene, &_OnRegionRedrawRequested);
   }

@@ -19,12 +19,14 @@ typedef struct SpritesHolder_t {
   Array_t* uiSprites;
 } SpritesHolder_t;
 
-inline void DestroySprite(void* sprite);
+static inline void DestroySprite(void* sprite) {
+  Sprite_Destroy((Sprite_t*)sprite);
+}
 
 Array_t* SelectContainer(const SpritesHolder_t* holder,
                          const LayerType_t layer);
 
-SpritesHolder_t* SpritesHolderCreate() {
+SpritesHolder_t* SpritesHolder_Create() {
   SpritesHolder_t* holder = (SpritesHolder_t*)malloc(sizeof(SpritesHolder_t));
 
   if (holder == NULL) return NULL;
@@ -37,7 +39,7 @@ SpritesHolder_t* SpritesHolderCreate() {
   return holder;
 }
 
-void SpritesHolderDestroy(SpritesHolder_t* holder) {
+void SpritesHolder_Destroy(SpritesHolder_t* holder) {
   if (holder == NULL) return;
 
   ArrayForeach(holder->tilemapSprites, DestroySprite);
@@ -55,9 +57,9 @@ void SpritesHolderDestroy(SpritesHolder_t* holder) {
   free(holder);
 }
 
-SpriteId SpritesHolderAddSprite(SpritesHolder_t* holder,
-                                const SpriteData_t* data,
-                                const LayerType_t layer) {
+SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
+                                 const SpriteData_t* data,
+                                 const LayerType_t layer) {
   Sprite_t* sprite = Sprite_Create(data, layer);
 
   Array_t* sprites = SelectContainer(holder, layer);
@@ -72,7 +74,7 @@ SpriteId SpritesHolderAddSprite(SpritesHolder_t* holder,
   return OBJECT_ID_NA;
 }
 
-_ci SpritesHolderGetColorIndex2(const SpritesHolder_t* holder,
+_ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
                                 const LayerType_t layer, const _u16 x,
                                 const _u16 y, _ci fallback) {
   Array_t* sprites = SelectContainer(holder, layer);
@@ -88,9 +90,9 @@ _ci SpritesHolderGetColorIndex2(const SpritesHolder_t* holder,
   return fallback;
 }
 
-void SpritesHolderForeachSprite(const SpritesHolder_t* holder,
-                                const LayerType_t type,
-                                void (*foreach)(SpriteId spriteId)) {
+void SpritesHolder_ForeachSprite(const SpritesHolder_t* holder,
+                                 const LayerType_t type,
+                                 void (*foreach)(SpriteId spriteId)) {
   Array_t* sprites = SelectContainer(holder, type);
   if (sprites == NULL) return;
 
@@ -119,5 +121,3 @@ Array_t* SelectContainer(const SpritesHolder_t* holder,
       return NULL;
   }
 }
-
-void DestroySprite(void* sprite) { Sprite_Destroy((Sprite_t*)sprite); }

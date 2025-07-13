@@ -15,8 +15,8 @@ extern "C" {
 
 typedef struct SpritesHolder_t SpritesHolder_t;
 
-SpritesHolder_t* SpritesHolderCreate();
-void SpritesHolderDestroy(SpritesHolder_t* holder);
+SpritesHolder_t* SpritesHolder_Create();
+void SpritesHolder_Destroy(SpritesHolder_t* holder);
 
 /**
  * @brief Creates Sprite_t instance and add to internal container
@@ -28,9 +28,9 @@ void SpritesHolderDestroy(SpritesHolder_t* holder);
  * @param y
  * @return SpriteId unique id of sprite if it is added or OBJECT_ID_NA otherwise
  */
-SpriteId SpritesHolderAddSprite(SpritesHolder_t* holder,
-                                const SpriteData_t* data,
-                                const LayerType_t layer);
+SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
+                                 const SpriteData_t* data,
+                                 const LayerType_t layer);
 
 /**
  * @brief Get Color Index by [x,y] coordinates
@@ -44,11 +44,11 @@ SpriteId SpritesHolderAddSprite(SpritesHolder_t* holder,
  * @return Color Index (_ci) from sprite by [x,y] coords or fallback if sprite
  * cant be found
  */
-_ci SpritesHolderGetColorIndex2(const SpritesHolder_t* holder,
+_ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
                                 const LayerType_t layer, const _u16 x,
                                 const _u16 y, _ci fallback);
 
-void SpritesHolderForeachSprite(const SpritesHolder_t* holder,
+void SpritesHolder_ForeachSprite(const SpritesHolder_t* holder,
                                 const LayerType_t type,
                                 void (*foreach)(SpriteId spriteId));
 

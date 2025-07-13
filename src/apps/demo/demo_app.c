@@ -56,13 +56,13 @@ static void handleKey(const void* keyData) {
   Scene_t* scene = Game_GetScene();
 
   if (IsButtonLeftPressed(data)) {
-    SceneMoveGameObjectBy(scene, playerId, -1, 0);
+    Scene_MoveGameObjectBy(scene, playerId, -1, 0);
   } else if (IsButtonRightPressed(data)) {
-    SceneMoveGameObjectBy(scene, playerId, 1, 0);
+    Scene_MoveGameObjectBy(scene, playerId, 1, 0);
   } else if (IsButtonUpPressed(data)) {
-    SceneMoveGameObjectBy(scene, playerId, 0, -1);
+    Scene_MoveGameObjectBy(scene, playerId, 0, -1);
   } else if (IsButtonDownPressed(data)) {
-    SceneMoveGameObjectBy(scene, playerId, 0, 1);
+    Scene_MoveGameObjectBy(scene, playerId, 0, 1);
   } else if (IsButtonStartReleased(data)) {
     Game_TogglePauseResume();
   }
@@ -93,36 +93,36 @@ void _AssignSprites() {
   const SpriteData_t* sandSd = &sand;
   const SpriteData_t* coastSd = &coast;
 
-  SpriteId waterSid = SceneAddSprite2(scene, &water, LAYER_FAR);
+  SpriteId waterSid = Scene_AddSprite(scene, &water, LAYER_FAR);
 
-  grassId = SceneAddSprite2(scene, &grass, LAYER_TILEMAP);
-  waterId = SceneAddSprite2(scene, &water, LAYER_TILEMAP);
-  water2Id = SceneAddSprite2(scene, &water2, LAYER_TILEMAP);
-  sandId = SceneAddSprite2(scene, sandSd, LAYER_TILEMAP);
-  coastId = SceneAddSprite2(scene, coastSd, LAYER_TILEMAP);
-  playerId = SceneAddGameObject(scene, playerSd, LAYER_MID, true, true, false);
+  grassId = Scene_AddSprite(scene, &grass, LAYER_TILEMAP);
+  waterId = Scene_AddSprite(scene, &water, LAYER_TILEMAP);
+  water2Id = Scene_AddSprite(scene, &water2, LAYER_TILEMAP);
+  sandId = Scene_AddSprite(scene, sandSd, LAYER_TILEMAP);
+  coastId = Scene_AddSprite(scene, coastSd, LAYER_TILEMAP);
+  playerId = Scene_AddGameObject(scene, playerSd, LAYER_MID, true, true, false);
 
-  SpriteId animatedFire = SceneAddSprite2(scene, &fire, LAYER_NEAR);
-  SceneChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_SUPER_FAST);
-  SceneMoveSprite2To(scene, animatedFire, 100, 40);
+  SpriteId animatedFire = Scene_AddSprite(scene, &fire, LAYER_NEAR);
+  Scene_ChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_SUPER_FAST);
+  Scene_MoveSpriteTo(scene, animatedFire, 100, 40);
 
   // stop animation
-  // SceneChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_NONE);
+  // Scene_ChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_NONE);
 
-  SceneMoveSprite2To(scene, waterSid, 100, 100);
+  Scene_MoveSpriteTo(scene, waterSid, 100, 100);
 
   // tree sprite, 8x8 pixels
   ObjectId treeObjectId =
-      SceneAddGameObject(scene, &tree, LAYER_MID, true, true, false);
-  SceneMoveGameObjectTo(scene, treeObjectId, 30, 30);
+      Scene_AddGameObject(scene, &tree, LAYER_MID, true, true, false);
+  Scene_MoveGameObjectTo(scene, treeObjectId, 30, 30);
 
   // another tree, used as background sprite
-  SpriteId treeBackId = SceneAddSprite2(scene, &tree, LAYER_FAR);
-  SceneMoveSprite2To(scene, treeBackId, 10, 35);
+  SpriteId treeBackId = Scene_AddSprite(scene, &tree, LAYER_FAR);
+  Scene_MoveSpriteTo(scene, treeBackId, 10, 35);
 
   // tree used as foreground sprite
-  SpriteId treeNearId = SceneAddSprite2(scene, &tree, LAYER_NEAR);
-  SceneMoveSprite2To(scene, treeNearId, 80, 10);
+  SpriteId treeNearId = Scene_AddSprite(scene, &tree, LAYER_NEAR);
+  Scene_MoveSpriteTo(scene, treeNearId, 80, 10);
 }
 
 TileMap_t* _AssignTileMap() {
@@ -296,7 +296,8 @@ TileMap_t* _AssignTileMap() {
   };
 
   _u16 tilesCount = sizeof(locationBackground) / sizeof(SpriteId);
-  return SceneSetupTileMap(Game_GetScene(), locationBackground, tilesCount, 20);
+  return Scene_SetupTileMap(Game_GetScene(), locationBackground, tilesCount,
+                            20);
 }
 
 void _AssignMenuSprites() {

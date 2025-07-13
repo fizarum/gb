@@ -13,14 +13,14 @@ extern "C" {
 
 typedef struct ObjectsHolder_t ObjectsHolder_t;
 
-ObjectsHolder_t* ObjectsHolderCreate();
-void ObjectsHolderDestroy(ObjectsHolder_t* holder);
+ObjectsHolder_t* ObjectsHolder_Create();
+void ObjectsHolder_Destroy(ObjectsHolder_t* holder);
 
-ObjectId ObjectsHolderAdd(ObjectsHolder_t* holder, SpriteId spriteId,
+ObjectId ObjectsHolder_Add(ObjectsHolder_t* holder, SpriteId spriteId,
                           LayerType_t layer, bool collidable, bool obstacle,
                           bool gravitable);
 
-ObjectId ObjectsHolderGetObject(const ObjectsHolder_t* holder,
+ObjectId ObjectsHolder_GetObject(const ObjectsHolder_t* holder,
                                 const LayerType_t layer, const Point_t* point,
                                 const ObjectId excepted);
 #ifdef __cplusplus
