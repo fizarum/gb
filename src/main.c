@@ -1,7 +1,6 @@
 #include <apps_manager.h>
 #include <broadcast/broadcast_manager.h>
 #include <device_manager.h>
-#include <mcp23017.h>
 #include <specifications/battery_data.h>
 #include <stddef.h>
 
@@ -10,6 +9,7 @@
 #include "apps/info/info_app.h"
 #include "apps/menu/menu_app.h"
 #include "apps/settings/settings_app.h"
+#include "devices/audio/audio.h"
 #include "devices/battery/battery.h"
 #include "devices/display/display.h"
 #include "devices/joystick/joystick.h"
@@ -25,6 +25,8 @@ static const char* const DEV_TAG = "Devices";
 
 TaskHandle_t systemTaskHandle = NULL;
 TaskHandle_t driverTaskHandle = NULL;
+
+TaskHandle_t testHandler = NULL;
 QueueHandle_t inputDataQueue;
 
 AppsManager_t* appsManager = NULL;
@@ -41,6 +43,7 @@ const _u8 inputDataSize = 2;
 
 void systemTask(void* arg);
 void driverTask(void* arg);
+void testTask(void* arg);
 static _u16 RegisterDevice(DeviceManager_t* deviceManager,
                            DeviceSpecification_t* deviceSpecification);
 
@@ -51,6 +54,14 @@ void app_main() {
 
   xTaskCreate(driverTask, "driverTask", 4096, NULL, 11, &driverTaskHandle);
   xTaskCreate(systemTask, "systemTask", 4096, NULL, 10, &systemTaskHandle);
+  xTaskCreate(testTask, "testTask", 4096, NULL, 10, &testHandler);
+}
+
+void testTask(void* arg) {
+  while (1) {
+    playSystemSound(1);
+    vTaskDelay(pdMS_TO_TICKS(5000));
+  }
 }
 
 void systemTask(void* arg) {
@@ -107,6 +118,7 @@ void driverTask(void* arg) {
   RegisterDevice(deviceManager, DislplaySpecification());
   _u16 batteryId = RegisterDevice(deviceManager, BatterySpecification());
   RegisterDevice(deviceManager, StorageSpecification());
+  RegisterDevice(deviceManager, AudioSpecification());
 
   while (1) {
     DeviceManagerUpdate(deviceManager);
