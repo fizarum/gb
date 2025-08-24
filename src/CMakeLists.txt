@@ -6,5 +6,6 @@ FILE(GLOB_RECURSE app_sources ${CMAKE_SOURCE_DIR}/src/*.*)
 idf_component_register(SRCS ${app_sources}
     INCLUDE_DIRS "."
     REQUIRES esp_psram
-    EMBED_FILES res/sfx/cursor.pcm
+    EMBED_FILES res/sfx/sfx1.pcm
+    EMBED_FILES res/sfx/sfx2.pcm
 )

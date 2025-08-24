@@ -43,7 +43,7 @@ const _u8 inputDataSize = 2;
 
 void systemTask(void* arg);
 void driverTask(void* arg);
-void testTask(void* arg);
+
 static _u16 RegisterDevice(DeviceManager_t* deviceManager,
                            DeviceSpecification_t* deviceSpecification);
 
@@ -54,14 +54,6 @@ void app_main() {
 
   xTaskCreate(driverTask, "driverTask", 4096, NULL, 11, &driverTaskHandle);
   xTaskCreate(systemTask, "systemTask", 4096, NULL, 10, &systemTaskHandle);
-  xTaskCreate(testTask, "testTask", 4096, NULL, 10, &testHandler);
-}
-
-void testTask(void* arg) {
-  while (1) {
-    playSystemSound(1);
-    vTaskDelay(pdMS_TO_TICKS(5000));
-  }
 }
 
 void systemTask(void* arg) {

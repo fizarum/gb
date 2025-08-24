@@ -3,53 +3,79 @@
 #include <driver/i2s_std.h>
 #include <specifications/audio_data.h>
 
+#include "audio_state.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "system_sound.h"
 
 #define SAMPLE_RATE 44100
 #define DATA_CHUNCK_SIZE 512
-
-// #define I2S_BUFF_SIZE 1024
 
 #define AUDIO_LRCLK 8
 #define AUDIO_DOUT 17
 #define AUDIO_BCLK 18
 
-extern const _u8 beep1_start[] asm("_binary_cursor_pcm_start");
-extern const _u8 beep1_end[] asm("_binary_cursor_pcm_end");
-
-static i2s_chan_handle_t channelHandler;
-static bool enabled = false;
-
-static void i2s_example_write_task();
+typedef struct SystemSoundInfo {
+  _u8* start;
+  _u8* end;
+  size_t length;
+} SystemSoundInfo;
 
 static DeviceSpecification_t specs = {
     .name = "Sound",
     .type = TypeAudio,
 };
 
+static AudioDeviceData_t data = {
+    .volume = 1.0,
+};
+
+static i2s_chan_handle_t channelHandler;
+static SystemSoundInfo systemSound = {
+    .start = NULL,
+    .end = NULL,
+    .length = 0,
+};
+static AudioState audioState;
+
 TaskHandle_t audioTaskHandler = NULL;
 static QueueHandle_t audioQueue;
 
-static AudioDeviceData_t data = {
-    .data = NULL,
-    .dataLength = 0,
-    .volume = 0.0,
-};
+static void processAudio(void* arg);
 
 void playSystemSound(_u16 type) {
-  if (type == 1) {
-    i2s_example_write_task();
+  if (audioState == Play) {
+    return;
+  }
+
+  if (audioState == Stop || audioState == Enabled) {
+    audioState = Play;
+  }
+  switch (type) {
+    case 1:
+      systemSound.start = (_u8*)sfx2_start;
+      systemSound.end = (_u8*)sfx2_end;
+      systemSound.length = sfx2_end - sfx2_start;
+      break;
+
+    case 2:
+      systemSound.start = (_u8*)o_start;
+      systemSound.end = (_u8*)o_end;
+      systemSound.length = o_end - o_start;
+      break;
+
+    default:
+      systemSound.start = NULL;
+      systemSound.end = NULL;
+      systemSound.length = 0;
+      break;
   }
 }
 
-// static void audioTask(void* arg);
-
 static bool onInit(void) {
-  audioQueue = xQueueCreate(DATA_CHUNCK_SIZE * 2, sizeof(_u16));
-
   i2s_chan_config_t channelConfig =
       I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_AUTO, I2S_ROLE_MASTER);
 
@@ -82,25 +108,31 @@ static bool onInit(void) {
 
   result = i2s_channel_init_std_mode(channelHandler, &config);
 
+  if (result == ESP_OK) {
+    audioQueue = xQueueCreate(DATA_CHUNCK_SIZE * 2, sizeof(_u16));
+  }
+
   return result == ESP_OK;
 }
 
 static bool onEnable(bool enable) {
-  ESP_LOGI(specs.name, "enable: %d", enable);
-
   esp_err_t result;
-  enabled = enable;
-  if (enable) {
-    result = i2s_channel_enable(channelHandler);
-    // xTaskCreate(&audioTask, "audioTask", 2048, NULL, 12, &audioTaskHandler);
-  } else {
-    result = i2s_channel_disable(channelHandler);
-    if (audioTaskHandler != NULL) {
-      // vTaskDelete(audioTaskHandler);
-    }
-  }
 
-  return result == ESP_OK;
+  if (enable) {
+    // TODO: read volume value from settings
+    data.volume = 2.0;
+
+    audioState = Enabled;
+    xTaskCreate(&processAudio, "processAudio", 2048, NULL, 12,
+                &audioTaskHandler);
+  } else {
+    if (audioTaskHandler != NULL) {
+      vTaskDelete(audioTaskHandler);
+    }
+    audioState = Disabled;
+  }
+  ESP_LOGI(specs.name, "enable: %d", enable);
+  return enable;
 }
 
 static void onUpdate(void) {}
@@ -115,57 +147,49 @@ DeviceSpecification_t* AudioSpecification() {
   return &specs;
 }
 
-void audioTask(void* arg) {
-  esp_err_t result;
-  _u16 flag;
+static _u16 buffer[DATA_CHUNCK_SIZE * 2];
+
+static void processAudio(void* arg) {
+  static size_t w_bytes = 0;
+  static uint32_t offset = 0;
+  static _u32 chunks = 0;
+  static _u16 chunkIndex = 0;
+  static _u32 index = 0;
 
   while (1) {
-    if (xQueueReceive(audioQueue, &flag, 0) == pdPASS &&
-        (data.data != NULL, data.dataLength > 0)) {
-      result = i2s_channel_write(channelHandler, data.data, data.dataLength,
-                                 NULL, 1000);
-      if (result != ESP_OK) {
-        ESP_LOGE(specs.name, "can not write audio chunk, code: %d\n", result);
+    if (audioState == Play && systemSound.length > 0) {
+      chunks = systemSound.length / DATA_CHUNCK_SIZE;
+      if (systemSound.length % DATA_CHUNCK_SIZE != 0) {
+        chunks += 1;
       }
+      i2s_channel_enable(channelHandler);
+      for (index = 0; index < chunks; ++index) {
+        for (chunkIndex = 0; chunkIndex < DATA_CHUNCK_SIZE; ++chunkIndex) {
+          offset++;
+          // reading only first (hight) 8 bit, details:
+          //     https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/i2s.html#std-tx-mode
+          // buffer[i] = (beep1_start[offset] << 3) * (data.volume);
+          buffer[chunkIndex] =
+              (*(systemSound.start + offset) << 3);  //* (data.volume);
+        }
+
+        if (i2s_channel_write(channelHandler, buffer, DATA_CHUNCK_SIZE * 2,
+                              &w_bytes, 1000) != ESP_OK) {
+          ESP_LOGE(specs.name, "can not process audio chunk\n");
+        }
+      }
+      i2s_channel_disable(channelHandler);
+      audioState = Stop;
+
+      w_bytes = 0;
+      offset = 0;
+      chunks = 0;
+      for (index = 0; index < DATA_CHUNCK_SIZE * 2; ++index) {
+        buffer[index] = 0;
+      }
+      vTaskDelay(pdMS_TO_TICKS(1));
     } else {
-      vTaskDelay(1);
-    }
-  }
-}
-
-static _u16 buffer[DATA_CHUNCK_SIZE];
-
-static void i2s_example_write_task() {
-  size_t w_bytes = 0;
-  uint32_t offset = 0;
-
-  float volume = 0.5f;
-
-  size_t beepSoundSize = beep1_end - beep1_start;
-  _u32 chunks = beepSoundSize / DATA_CHUNCK_SIZE;
-  if (beepSoundSize % DATA_CHUNCK_SIZE != 0) {
-    chunks += 1;
-  }
-
-  for (_u32 index = 0; index < chunks; ++index) {
-    if (channelHandler == NULL) {
-      break;
-    }
-
-    if (i2s_channel_write(channelHandler, buffer, DATA_CHUNCK_SIZE * 2,
-                          &w_bytes, 1000) == ESP_OK) {
-      //..
-    }
-
-    if (offset > beepSoundSize) {
-      break;
-    }
-
-    for (int i = 0; i < DATA_CHUNCK_SIZE; i++) {
-      offset++;
-      // reading only first (hight) 8 bit, details:
-      //     https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/i2s.html#std-tx-mode
-      buffer[i] = beep1_start[offset] << 3;
+      vTaskDelay(pdMS_TO_TICKS(100));
     }
   }
 }
