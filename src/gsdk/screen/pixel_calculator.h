@@ -1,0 +1,68 @@
+#ifndef GAME_SDK_PIXEL_CALCULATOR_H
+#define GAME_SDK_PIXEL_CALCULATOR_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "../menu/menu.h"
+#include "../scene/sprites_holder.h"
+#include "../scene/tilemap.h"
+#include "../types/types.h"
+#include "palette.h"
+
+static _ci _index;
+SpriteId id = OBJECT_ID_NA;
+
+static inline Color CalculatePixel(Palette_t* palette, _u16 x, _u16 y,
+                                   SpritesHolder_t* sprites, TileMap_t* tilemap,
+                                   LayerType_t layerChanged, _ci fallbackCI) {
+  _index = fallbackCI;
+  id = OBJECT_ID_NA;
+
+  if (layerChanged == LAYER_UI) {
+    _index = SpritesHolder_GetColorIndex(sprites, LAYER_UI, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
+    }
+  }
+
+  if (layerChanged >= LAYER_NEAR) {
+    _index = SpritesHolder_GetColorIndex(sprites, LAYER_NEAR, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
+    }
+  }
+
+  if (layerChanged >= LAYER_MID) {
+    _index = SpritesHolder_GetColorIndex(sprites, LAYER_MID, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
+    }
+  }
+
+  if (layerChanged >= LAYER_FAR) {
+    _index = SpritesHolder_GetColorIndex(sprites, LAYER_FAR, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
+    }
+
+    _index = TileMapGetPixel(tilemap, x, y, fallbackCI);
+    if (_index != fallbackCI) {
+      return palette->colors[_index];
+    }
+  }
+
+  return palette->backgoundColor;
+}
+
+static inline Color CalculatePixelForMenu(Palette_t* palette, _u8 x, _u8 y,
+                                          Menu_t* menu, _ci fallbackCI) {
+  _ci _index = MenuGetColorIndex(menu, x, y, fallbackCI);
+  return palette->colors[_index];
+}
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // GAME_SDK_PIXEL_CALCULATOR_H

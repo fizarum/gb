@@ -7,6 +7,7 @@
 #include "../../devices/joystick/joystick.h"
 #include "../../ui/gfx/gfx.h"
 #include "../apps_utils.h"
+#include "devices/audio/audio.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 
@@ -54,8 +55,10 @@ static void handleKey(const void* keyData) {
 
   if (IsButtonLeftReleased(data)) {
     SelectPreviousApp();
+    playSystemSound(1);
   } else if (IsButtonRightReleased(data)) {
     SelectNextApp();
+    playSystemSound(2);
   } else if (IsButtonYReleased(data)) {
     AppsManagerStartAppWithId(_appsManager, AppGetId(selectedApp));
   }
@@ -133,9 +136,7 @@ void onBroadcastEvent(BroadcastEvent_t event) {
   }
 }
 
-AppSpecification_t* MenuAppSpecification(const _u16 appId,
-                                         AppsManager_t* appsManager) {
-  specs.id = appId;
+AppSpecification_t* MenuAppSpecification(AppsManager_t* appsManager) {
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
   specs.onResume = &onAppResume;

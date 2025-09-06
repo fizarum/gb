@@ -44,7 +44,7 @@ static DeviceSpecification_t specs = {
     .type = TypeDisplay,
 };
 
-ILI9341_t dev = {
+static ILI9341_t dev = {
     .width = DISPLAY_WIDTH,
     .height = DISPLAY_HEIGHT,
     .offsetx = CONFIG_OFFSETX,
@@ -86,8 +86,7 @@ static DisplayDeviceData_t deviceData;
 static _u8 brightness = 30;
 
 void drawingTask(void* arg);
-static void drawCallback(const _u16 left, const _u16 top, const _u16 right,
-                         const _u16 bottom, _u16 color);
+
 static inline void canvasUpdated() {
   xQueueSend(displayUpdatedQueue, GFX_GetCanvas(), 0);
 }
@@ -114,7 +113,7 @@ static bool onInit(void) {
   deviceData.width = dev.width;
   deviceData.height = dev.height;
 
-  displayUpdatedQueue = xQueueCreate(100, sizeof(_u16));
+  displayUpdatedQueue = xQueueCreate(1, sizeof(_u16*));
 
   GFX_Init(deviceData.width, deviceData.height, &canvasUpdated);
 
@@ -158,24 +157,17 @@ DeviceSpecification_t* DislplaySpecification() {
 void drawingTask(void* arg) {
   _u16 flag;
   _u16 lineLength = deviceData.width;
-  _u16* colors = calloc(lineLength, sizeof(_u16));
   _u16* canvas = GFX_GetCanvas();
+  _u32 offset = 0;
+  _u16 y = 0;
 
   while (1) {
     if (xQueueReceive(displayUpdatedQueue, &flag, 0) == pdPASS) {
-      _u32 index = 0;
-      _u16 color = 0;
+      offset = 0;
 
-      _u32 offset = 0;
-      _u16 indexInLine = 0;
-      for (_u16 y = 0; y < deviceData.height; y++) {
-        indexInLine = 0;
-        for (_u32 index = offset; index < offset + lineLength; index++) {
-          colors[indexInLine] = canvas[index];
-          indexInLine++;
-        }
-
-        Ili9341DrawPixels(&dev, 0, y, lineLength, y, colors, lineLength);
+      for (y = 0; y < deviceData.height; y++) {
+        Ili9341DrawPixels(&dev, 0, y, lineLength, y, (canvas + offset),
+                          lineLength);
         offset += lineLength;
       }
     } else {
@@ -183,11 +175,6 @@ void drawingTask(void* arg) {
     }
   }
 }
-
-static void drawCallback(const _u16 left, const _u16 top, const _u16 right,
-                         const _u16 bottom, _u16 color) {}
-
-static spi_transaction_t transaction;
 
 static bool transmitCommand(const _u8 command) {
   gpio_set_level(dev.dc, DC_C);
@@ -223,6 +210,8 @@ static bool transmitDataTimes(const _u16 value, const _u16 times) {
 
   return transmit(buffer, bytesCount);
 }
+
+static spi_transaction_t transaction;
 
 static IRAM_ATTR bool transmit(const _u8* data, const size_t length) {
   memset(&transaction, 0, sizeof(transaction));

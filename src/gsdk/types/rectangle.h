@@ -1,0 +1,56 @@
+#ifndef GAME_SDK_RECTANGLE_H
+#define GAME_SDK_RECTANGLE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <types.h>
+
+typedef struct Rectangle_t {
+  _i16 left;
+  _i16 top;
+  _i16 right;
+  _i16 bottom;
+} Rectangle_t;
+
+static inline void Rectangle_Reset(Rectangle_t* rectangle) {
+  rectangle->left = 0;
+  rectangle->top = 0;
+  rectangle->right = 0;
+  rectangle->bottom = 0;
+}
+
+static inline void Rectangle_Resize(Rectangle_t* rectangle, const _u16 width,
+                                    const _u16 height) {
+  rectangle->right = rectangle->left + width - 1;
+  rectangle->bottom = rectangle->top + height - 1;
+}
+
+static inline _u16 Rectangle_GetVisibleLeft(const Rectangle_t* rectangle) {
+  return rectangle->left < 0 ? 0 : rectangle->left;
+}
+
+static inline _u16 Rectangle_GetVisibleTop(const Rectangle_t* rectangle) {
+  return rectangle->top < 0 ? 0 : rectangle->top;
+}
+
+static inline _u16 Rectangle_GetVisibleRight(const Rectangle_t* rectagle,
+                                             const _u16 limit) {
+  // if object is out of screen
+  if (rectagle->right < 0) return 0;
+  return rectagle->right >= limit ? limit - 1 : rectagle->right;
+}
+
+static inline _u16 Rectangle_GetVisibleBottom(const Rectangle_t* rectangle,
+                                              const _u16 limit) {
+  // if object is out of screen
+  if (rectangle->bottom < 0) return 0;
+  return rectangle->bottom >= limit ? limit - 1 : rectangle->bottom;
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // GAME_SDK_RECTANGLE_H

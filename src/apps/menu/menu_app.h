@@ -8,8 +8,7 @@ extern "C" {
 #include <app.h>
 #include <apps_manager.h>
 
-AppSpecification_t* MenuAppSpecification(const _u16 appId,
-                                         AppsManager_t* appsManager);
+AppSpecification_t* MenuAppSpecification(AppsManager_t* appsManager);
 
 #ifdef __cplusplus
 }
