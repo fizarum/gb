@@ -20,8 +20,8 @@ typedef struct GameObject_t {
   bool gravitable;
 
   /**
-   * @brief precalculated position of object's corners during movement
-   * for movement by diagonal only one corner is updated, but when object moves
+   * @brief Precalculated position of object's corners during movement.
+   * For movement by diagonal only one corner is updated, but when object moves
    * by horizontal/vertical axis 2 corners should be updated
    */
   Point_t nextPositionOfCorner1;
@@ -57,11 +57,11 @@ bool GameObjectIsObstacle(const GameObject_t* object) {
 }
 
 const Point_t* GameObjectGetNextPositionOfCorner1(const GameObject_t* object) {
-  return (const Point_t*)&(object->nextPositionOfCorner1);
+  return &(object->nextPositionOfCorner1);
 }
 
 const Point_t* GameObjectGetNextPositionOfCorner2(const GameObject_t* object) {
-  return (const Point_t*)&(object->nextPositionOfCorner2);
+  return &(object->nextPositionOfCorner2);
 }
 
 void GameObjectSetNextPositionForCorner1(GameObject_t* object, const int16_t x,

@@ -14,11 +14,25 @@ typedef struct Rectangle_t {
   _i16 bottom;
 } Rectangle_t;
 
+static inline bool Rectangle_IsEmpty(Rectangle_t* rectangle) {
+  return rectangle->left == 0 && rectangle->top == 0 && rectangle->right == 0 &&
+         rectangle->bottom == 0;
+}
+
 static inline void Rectangle_Reset(Rectangle_t* rectangle) {
   rectangle->left = 0;
   rectangle->top = 0;
   rectangle->right = 0;
   rectangle->bottom = 0;
+}
+
+static inline void Rectangle_Set(Rectangle_t* rectangle, const _u16 left,
+                                 const _u16 top, const _u16 right,
+                                 const _u16 bottom) {
+  rectangle->left = left;
+  rectangle->top = top;
+  rectangle->right = right;
+  rectangle->bottom = bottom;
 }
 
 static inline void Rectangle_Resize(Rectangle_t* rectangle, const _u16 width,
@@ -47,6 +61,12 @@ static inline _u16 Rectangle_GetVisibleBottom(const Rectangle_t* rectangle,
   // if object is out of screen
   if (rectangle->bottom < 0) return 0;
   return rectangle->bottom >= limit ? limit - 1 : rectangle->bottom;
+}
+
+static inline bool Rectangle_isSame(const Rectangle_t* rectangle, const _u16 l,
+                                    const _u16 t, const _u16 r, const _u16 b) {
+  return rectangle->left == l && rectangle->top == t && rectangle->right == r &&
+         rectangle->bottom == b;
 }
 
 #ifdef __cplusplus
