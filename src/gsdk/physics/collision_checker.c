@@ -38,7 +38,6 @@ ObjectId CollisionCheckerGetObstacleId(const ObjectsHolder_t* holder,
 
   // if no obstacles detected - allow movement
   if (anotherObjectId == OBJECT_ID_NA || anotherObjectId == id) {
-    // SceneMoveSpriteBy(sid, x, y);
     return OBJECT_ID_NA;
   }
 

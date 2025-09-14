@@ -15,7 +15,7 @@ typedef struct ObjectsHolder_t {
   Array_t* midObjects;
 } ObjectsHolder_t;
 
-inline void DestroyGameObject(void* gameObject);
+static inline void DestroyGameObject(void* gameObject);
 
 static inline Array_t* SelectObjectsContainer(const ObjectsHolder_t* holder,
                                               LayerType_t layer) {
@@ -80,6 +80,6 @@ ObjectId ObjectsHolder_GetObject(const ObjectsHolder_t* holder,
   return OBJECT_ID_NA;
 }
 
-void DestroyGameObject(void* gameObject) {
+static inline void DestroyGameObject(void* gameObject) {
   GameObjectDestroy((GameObject_t*)gameObject);
 }
