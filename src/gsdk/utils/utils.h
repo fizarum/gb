@@ -90,7 +90,7 @@ inline _u32 alignTo(uint32_t value, uint16_t blockSize) {
  * @brief align value to limit. If value exceeds limit, limit-1 is
  * returned
  */
-inline const static _u16 normalize(const _u16 value, const _u16 limit) {
+inline const static _i32 normalize(const _i32 value, const _i32 limit) {
   if (value < limit) {
     return value;
   }

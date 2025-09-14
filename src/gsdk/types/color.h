@@ -11,10 +11,10 @@ typedef _u16 Color;
 static const Color ColorTransparent = UINT16_MAX;
 
 /**
- * @brief index of color in pallette, can have values in range: 0..15
+ * @brief color index: index of color in pallette, can have values in range:
+ * 0..15
  */
-typedef _u8 ColorIndex;
-typedef ColorIndex _ci;
+typedef _u8 _ci;
 
 /**
  * @brief pair of ColorIndex values first 4 bits represents value of first

@@ -7,8 +7,8 @@
 #include "../types/types.h"
 
 inline const static bool IsPointInside(const _u16 x, const _u16 y,
-                                       const _u16 left, const _u16 top,
-                                       const _u16 right, const _u16 bottom) {
+                                       const _i32 left, const _i32 top,
+                                       const _i32 right, const _i32 bottom) {
   return x >= left && x <= right && y >= top && y <= bottom;
 }
 

@@ -73,7 +73,7 @@ ObjectId ObjectsHolder_GetObject(const ObjectsHolder_t* holder,
       continue;
     }
     Sprite_t* sprite = (Sprite_t*)GameObjectGetSpriteId(object);
-    if (SpriteContainsPoint(sprite, point->x, point->y)) {
+    if (Sprite_ContainsPoint(sprite, point->x, point->y)) {
       return (ObjectId)object;
     }
   }

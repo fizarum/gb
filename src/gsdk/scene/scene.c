@@ -143,9 +143,9 @@ TileMap_t* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
 
   // 1. obtain tile size by taking it value from first sprite
   Sprite_t* sprite = (Sprite_t*)tiles[0];
-  LayerType_t layer = SpriteGetLayer(sprite);
+  LayerType_t layer = Sprite_GetLayer(sprite);
 
-  _u8 tileSize = SpriteGetWidth(sprite);
+  _u8 tileSize = Sprite_GetWidth(sprite);
 
   TileMap_t* tilemap = TileMapCreate(tileSize);
 
@@ -191,7 +191,7 @@ void Scene_MoveSpriteBy(Scene_t* scene, SpriteId id, _i8 x, _i8 y) {
 
   // set old region as durty
   SceneSetDurtySprite(scene, sprite);
-  SpriteMoveBy(sprite, x, y);
+  Sprite_MoveBy(sprite, x, y);
   // as well as new
   SceneSetDurtySprite(scene, sprite);
 }
@@ -201,7 +201,7 @@ void Scene_MoveSpriteTo(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
 
   // set old region as durty
   SceneSetDurtySprite(scene, sprite);
-  SpriteMoveTo(sprite, x, y);
+  Sprite_MoveTo(sprite, x, y);
   // as well as new
   SceneSetDurtySprite(scene, sprite);
 }
@@ -229,7 +229,7 @@ void Scene_MoveGameObjectTo(Scene_t* scene, ObjectId id, _u16 x, _u16 y) {
 void Scene_ChangeSpriteAnimationSpeed(SpriteId sid,
                                       const AnimationSpeed_t speed) {
   Sprite_t* sprite = (Sprite_t*)sid;
-  SpriteSetAnimationSpeed(sprite, speed);
+  Sprite_SetAnimationSpeed(sprite, speed);
 }
 
 //------------------------------------------------------- private functions
@@ -262,16 +262,16 @@ static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
     return;
   }
 
-  if (SpriteIsOnDisplay(sprite, ScreenConfig_GetRealWidth(),
-                        ScreenConfig_GetRealHeight()) == false) {
+  if (Sprite_IsOnDisplay(sprite, ScreenConfig_GetRealWidth(),
+                         ScreenConfig_GetRealHeight()) == false) {
     return;
   }
 
-  const Point_t* position = SpriteGetPosition(sprite);
-  const LayerType_t layer = SpriteGetLayer(sprite);
+  const Point_t* position = Sprite_GetPosition(sprite);
+  const LayerType_t layer = Sprite_GetLayer(sprite);
 
-  const _u8 width = SpriteGetWidth(sprite);
-  const _u8 height = SpriteGetHeight(sprite);
+  const _u8 width = Sprite_GetWidth(sprite);
+  const _u8 height = Sprite_GetHeight(sprite);
 
   _u16 l = normalize(position->x, ScreenConfig_GetRealWidth());
   _u16 t = normalize(position->y, ScreenConfig_GetRealHeight());
@@ -300,8 +300,8 @@ static inline void SceneSetDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
 static void UpdateAnimationStateCallback(SpriteId sid) {
   Sprite_t* sprite = (Sprite_t*)sid;
 
-  SpriteUpdateState(sprite);
-  bool isNewFrame = SpriteIsFrameChanged(sprite);
+  Sprite_UpdateState(sprite);
+  bool isNewFrame = Sprite_IsFrameChanged(sprite);
   if (isNewFrame == true) {
     SceneSetDurtySprite(_scene, sprite);
   }
