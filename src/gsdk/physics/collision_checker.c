@@ -18,13 +18,13 @@ ObjectId CollisionCheckerGetObstacleId(const ObjectsHolder_t* holder,
 
   Sprite_t* sprite = (Sprite_t*)GameObjectGetSpriteId(object);
 
-  const LayerType_t layer = SpriteGetLayer(sprite);
+  const LayerType_t layer = Sprite_GetLayer(sprite);
   // no layer type defined for sprite (probably invisible) - allow movement
   if (layer == LAYER_NONE) return OBJECT_ID_NA;
 
-  const Point_t* position = SpriteGetPosition(sprite);
-  const _u8 width = SpriteGetWidth(sprite);
-  const _u8 height = SpriteGetHeight(sprite);
+  const Point_t* position = Sprite_GetPosition(sprite);
+  const _u8 width = Sprite_GetWidth(sprite);
+  const _u8 height = Sprite_GetHeight(sprite);
 
   CalculateNextPosition2(position, width, height, x, y,
                          &__nextPoint1ForCollision, &__nextPoint2ForCollision);

@@ -101,10 +101,10 @@ _ci TileMapGetPixel(const TileMap_t* tileMap, const _u16 x, const _u16 y,
   if (id == OBJECT_ID_NA) return fallback;
 
   Sprite_t* sprite = (Sprite_t*)id;
-  _u8 xOnSprite = x % SpriteGetWidth(sprite);
-  _u8 yOnSprite = y % SpriteGetHeight(sprite);
+  _u8 xOnSprite = x % Sprite_GetWidth(sprite);
+  _u8 yOnSprite = y % Sprite_GetHeight(sprite);
 
-  return SpriteGetColorIndex(sprite, xOnSprite, yOnSprite, fallback);
+  return Sprite_GetColorIndex(sprite, xOnSprite, yOnSprite, fallback);
 }
 
 const Rectangle_t* TileMapGetBounds(const TileMap_t* tileMap) {

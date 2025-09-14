@@ -75,10 +75,10 @@ SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u16 x,
   Sprite_t* sprite = Sprite_Create(data, layer);
 
   if (x != 0 || y != 0) {
-    SpriteMoveTo(sprite, x, y);
+    Sprite_MoveTo(sprite, x, y);
   }
 
-  Array_t* sprites = (SpriteGetLayer(sprite) == LAYER_MENU_NEAR)
+  Array_t* sprites = (Sprite_GetLayer(sprite) == LAYER_MENU_NEAR)
                          ? menu->foregroundSprites
                          : menu->backgroundSprites;
   if (ArrayAdd(sprites, sprite) == true) {
@@ -94,8 +94,8 @@ _ci MenuGetColorIndex(Menu_t* menu, const _u16 x, const _u16 y, _ci fallback) {
 
   for (_u16 index = 0; index < ArraySize(sprites); index++) {
     sprite = (Sprite_t*)ArrayValueAt(sprites, index);
-    if (SpriteContainsPoint(sprite, x, y) == true) {
-      color = SpriteGetColorIndex(sprite, x, y, fallback);
+    if (Sprite_ContainsPoint(sprite, x, y) == true) {
+      color = Sprite_GetColorIndex(sprite, x, y, fallback);
       if (color != fallback) {
         return color;
       }
@@ -106,8 +106,8 @@ _ci MenuGetColorIndex(Menu_t* menu, const _u16 x, const _u16 y, _ci fallback) {
   sprites = menu->backgroundSprites;
   for (_u16 index = 0; index < ArraySize(sprites); index++) {
     sprite = (Sprite_t*)ArrayValueAt(sprites, index);
-    if (SpriteContainsPoint(sprite, x, y) == true) {
-      return SpriteGetColorIndex(sprite, x, y, fallback);
+    if (Sprite_ContainsPoint(sprite, x, y) == true) {
+      return Sprite_GetColorIndex(sprite, x, y, fallback);
     }
   }
   return fallback;

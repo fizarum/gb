@@ -45,28 +45,32 @@ Sprite_t* Sprite_Create(const SpriteData_t* data, const LayerType_t layer) {
 
 void Sprite_Destroy(Sprite_t* sprite) { free(sprite); }
 
-const _u8 SpriteGetWidth(const Sprite_t* sprite) { return sprite->data->width; }
+const _u8 Sprite_GetWidth(const Sprite_t* sprite) {
+  return sprite->data->width;
+}
 
-const _u8 SpriteGetHeight(const Sprite_t* sprite) {
+const _u8 Sprite_GetHeight(const Sprite_t* sprite) {
   return sprite->data->height;
 }
 
-const Point_t* SpriteGetPosition(const Sprite_t* sprite) {
+const Point_t* Sprite_GetPosition(const Sprite_t* sprite) {
   return &(sprite->position);
 }
 
-const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u16 x,
-                              const _u16 y, const _ci fallback) {
-  bool inside = IsPointInside(x, y, sprite->position.x, sprite->position.y,
-                              sprite->position.x + sprite->data->width - 1,
-                              sprite->position.y + sprite->data->height - 1);
+const _ci Sprite_GetColorIndex(const Sprite_t* sprite, const _u16 x,
+                               const _u16 y, const _ci fallback) {
+  const Point_t* pos = &(sprite->position);
+
+  bool inside =
+      IsPointInside(x, y, pos->x, pos->y, pos->x + sprite->data->width - 1,
+                    pos->y + sprite->data->height - 1);
 
   if (inside == false) {
     return fallback;
   }
 
-  _i32 localX = x - sprite->position.x;
-  _i32 localY = y - sprite->position.y;
+  _i32 localX = x - pos->x;
+  _i32 localY = y - pos->y;
 
   // we have 2 real pixels per item in "pixels" array we have to divide the
   // result of RectangleIndexOf() by 2
@@ -86,33 +90,33 @@ const _ci SpriteGetColorIndex(const Sprite_t* sprite, const _u16 x,
   return getFirstIndex(indexes);
 }
 
-const bool SpriteContainsPoint(const Sprite_t* sprite, const _u16 x,
-                               const _u16 y) {
+const bool Sprite_ContainsPoint(const Sprite_t* sprite, const _u16 x,
+                                const _u16 y) {
   return IsPointInside(x, y, sprite->position.x, sprite->position.y,
                        sprite->position.x + sprite->data->width - 1,
                        sprite->position.y + sprite->data->height - 1);
 }
 
-const LayerType_t SpriteGetLayer(const Sprite_t* sprite) {
+const LayerType_t Sprite_GetLayer(const Sprite_t* sprite) {
   return sprite->layer;
 }
 
-void SpriteMoveTo(Sprite_t* sprite, const _u16 x, const _u16 y) {
+void Sprite_MoveTo(Sprite_t* sprite, const _u16 x, const _u16 y) {
   sprite->position.x = x;
   sprite->position.y = y;
 }
 
-void SpriteMoveBy(Sprite_t* sprite, const _i8 x, const _i8 y) {
+void Sprite_MoveBy(Sprite_t* sprite, const _i8 x, const _i8 y) {
   sprite->position.x += x;
   sprite->position.y += y;
 }
 
-const bool SpriteIsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
-                             _u16 displayHeight) {
+const bool Sprite_IsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
+                              _u16 displayHeight) {
   _i32 l = sprite->position.x;
   _i32 t = sprite->position.y;
-  _i32 r = GetRight(&(sprite->position), sprite->data->width);
-  _i32 b = GetBottom(&(sprite->position), sprite->data->height);
+  _i32 r = l + sprite->data->width - 1;
+  _i32 b = t + sprite->data->height - 1;
 
   // left && right cases
   if (r < 0 || l >= displayWidth) {
@@ -126,7 +130,7 @@ const bool SpriteIsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
   return true;
 }
 
-void SpriteUpdateState(Sprite_t* sprite) {
+void Sprite_UpdateState(Sprite_t* sprite) {
   if (sprite->animationSpeed == ANIMATION_SPEED_NONE) return;
 
   sprite->remainTicksToUpdateFrame--;
@@ -142,10 +146,10 @@ void SpriteUpdateState(Sprite_t* sprite) {
   }
 }
 
-const bool SpriteIsFrameChanged(const Sprite_t* sprite) {
+const bool Sprite_IsFrameChanged(const Sprite_t* sprite) {
   return sprite->frameChanged;
 }
 
-void SpriteSetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed_t speed) {
+void Sprite_SetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed_t speed) {
   sprite->animationSpeed = speed;
 }

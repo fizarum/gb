@@ -83,8 +83,8 @@ _ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
   Sprite_t* sprite = NULL;
   for (_u16 index = 0; index < ArraySize(sprites); index++) {
     sprite = (Sprite_t*)ArrayValueAt(sprites, index);
-    if (SpriteContainsPoint(sprite, x, y) == true) {
-      return SpriteGetColorIndex(sprite, x, y, fallback);
+    if (Sprite_ContainsPoint(sprite, x, y) == true) {
+      return Sprite_GetColorIndex(sprite, x, y, fallback);
     }
   }
   return fallback;
