@@ -39,10 +39,10 @@ const static inline Direction getDirection(_i8 x, _i8 y) {
   return DIRECTION_NONE;
 }
 
-void CalculateNextPosition2(const Point_t* position, const _u8 width,
-                            const _u8 height, const _i8 moveByX,
-                            const _i8 moveByY, Point_t* corner1Pos,
-                            Point_t* corner2Pos) {
+void CalculateNextPosition(const Point_t* position, const _u8 width,
+                           const _u8 height, const _i8 moveByX,
+                           const _i8 moveByY, Point_t* corner1Pos,
+                           Point_t* corner2Pos) {
   Direction direction = getDirection(moveByX, moveByY);
 
   switch (direction) {

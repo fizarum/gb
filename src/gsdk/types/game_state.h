@@ -4,11 +4,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 typedef enum {
   RUNNING,
   PAUSED,
   STOPPED,
-} GameState_t;
+} GameState;
+
 #ifdef __cplusplus
 }
 #endif

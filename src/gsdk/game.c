@@ -12,17 +12,16 @@
 #include "utils/screen_utils.h"
 #include "utils/utils.h"
 
-static Palette_t palette;
-static GameState_t state;
+static Palette palette;
+static GameState state;
 static LayerType_t layerChanged;
 static Scene_t* scene;
 static Menu_t* menu;
-static TileMap_t* _tileMap;
+static TileMap* _tileMap;
 
 typedef struct Game {
   SpritesHolder_t* spritesHolder;
   ObjectsHolder_t* objectsHolder;
-
 } Game;
 
 static void _Game_SetupDefaultPalette();
@@ -70,7 +69,7 @@ void Game_Destroy(Game* game) {
   free(game);
 }
 
-void Game_SetTileMap(TileMap_t* tileMap) { _tileMap = tileMap; }
+void Game_SetTileMap(TileMap* tileMap) { _tileMap = tileMap; }
 
 void Game_SetMenuItems(MenuItem_t** items, _u8 itemsCount) {
   // TODO: complete

@@ -19,7 +19,7 @@ typedef enum {
   KEY_SELECT,
   KEY_START,
   KEY_MENU,
-} KeyCode_t;
+} KeyCode;
 #ifdef __cplusplus
 }
 #endif

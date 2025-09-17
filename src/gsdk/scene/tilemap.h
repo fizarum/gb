@@ -11,18 +11,18 @@ extern "C" {
 #include "../types/rectangle.h"
 #include "../types/types.h"
 
-typedef struct TileMap_t TileMap_t;
+typedef struct TileMap TileMap;
 
-TileMap_t* TileMapCreate(const _u8 tileSize);
-void TileMapDestroy(TileMap_t* tileMap);
+TileMap* TileMap_Create(const _u8 tileSize);
+void TileMap_Destroy(TileMap* tileMap);
 
-void TileMapSet(TileMap_t* tileMap, SpriteId* tiles, const _u16 count,
-                const _u8 width);
-SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u16 x, const _u16 y);
-_ci TileMapGetPixel(const TileMap_t* tileMap, const _u16 x, const _u16 y,
-                    const _ci fallback);
+void TileMap_Set(TileMap* tileMap, SpriteId* tiles, const _u16 count,
+                 const _u8 width);
+SpriteId TileMap_GetTile(const TileMap* tileMap, const _u16 x, const _u16 y);
+_ci TileMap_GetPixel(const TileMap* tileMap, const _u16 x, const _u16 y,
+                     const _ci fallback);
 
-const Rectangle_t* TileMapGetBounds(const TileMap_t* tileMap);
+const Rectangle_t* TileMap_GetBounds(const TileMap* tileMap);
 
 #ifdef __cplusplus
 }

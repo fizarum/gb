@@ -25,8 +25,8 @@ void Scene_Pause(Scene_t* scene);
 void Scene_Resume(Scene_t* scene);
 void Scene_CleanupRegions(Scene_t* scene, OnRegionRedrawRequested callback);
 
-TileMap_t* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
-                              const _u8 width);
+TileMap* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
+                            const _u8 width);
 
 SpriteId Scene_AddSprite(Scene_t* scene, const SpriteData_t* data,
                          const LayerType_t spriteType);
@@ -42,5 +42,5 @@ void Scene_MoveSpriteTo(Scene_t* scene, SpriteId id, _u16 x, _u16 y);
 void Scene_MoveGameObjectBy(Scene_t* scene, ObjectId id, _i8 x, _i8 y);
 void Scene_MoveGameObjectTo(Scene_t* scene, ObjectId id, _u16 x, _u16 y);
 
-void Scene_ChangeSpriteAnimationSpeed(SpriteId id, const AnimationSpeed_t speed);
+void Scene_ChangeSpriteAnimationSpeed(SpriteId id, const AnimationSpeed speed);
 #endif  // GAME_SDK_SCENE_H

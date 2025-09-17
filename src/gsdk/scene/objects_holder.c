@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "../collections/array.h"
-#include "../scene/game_object.h"
+#include "../game_object/game_object.h"
 #include "../sprite/sprite.h"
 
 // max objects count is 32

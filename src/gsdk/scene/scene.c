@@ -4,18 +4,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../game_object/game_object.h"
 #include "../physics/collision_checker.h"
 #include "../sprite/sprite.h"
 #include "../utils/screen_utils.h"
 #include "../utils/utils.h"
-#include "game_object.h"
 #include "objects_holder.h"
 #include "sprites_holder.h"
 
 typedef struct Scene_t {
   SpritesHolder_t* spritesHolder;
   ObjectsHolder_t* objectsHolder;
-  TileMap_t* tilemap;
+  TileMap* tilemap;
 
   // Indicator of changed layer. It helps to understand which layers
   // should be processed during pixel's color calculation
@@ -106,8 +106,8 @@ void Scene_CleanupRegions(Scene_t* scene, OnRegionRedrawRequested callback) {
   scene->layerChanged = LAYER_NONE;
 }
 
-TileMap_t* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
-                              const _u8 width) {
+TileMap* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
+                            const _u8 width) {
   if (tiles == NULL || count == 0 || width == 0) return NULL;
 
   // 1. obtain tile size by taking it value from first sprite
@@ -116,13 +116,13 @@ TileMap_t* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
 
   _u8 tileSize = Sprite_GetWidth(sprite);
 
-  TileMap_t* tilemap = TileMapCreate(tileSize);
+  TileMap* tilemap = TileMap_Create(tileSize);
 
   // 2. fill data into tilemap
-  TileMapSet(tilemap, tiles, count, width);
+  TileMap_Set(tilemap, tiles, count, width);
 
   // 3. and request to refresh
-  Rectangle_t* mapBounds = (Rectangle_t*)TileMapGetBounds(tilemap);
+  Rectangle_t* mapBounds = (Rectangle_t*)TileMap_GetBounds(tilemap);
   setDurtyRegion(scene, mapBounds, layer);
 
   scene->tilemap = tilemap;
@@ -175,14 +175,12 @@ void Scene_MoveSpriteTo(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
   setDurtySprite(scene, sprite);
 }
 
-// Point_t __nextPoint1ForCollision, __nextPoint2ForCollision;
-
 void Scene_MoveGameObjectBy(Scene_t* scene, ObjectId id, _i8 x, _i8 y) {
   GameObject_t* object = (GameObject_t*)id;
   SpriteId sid = GameObjectGetSpriteId(object);
 
   ObjectId obstacleId =
-      CollisionCheckerGetObstacleId(scene->objectsHolder, id, x, y);
+      CollisionChecker_GetObstacle(scene->objectsHolder, id, x, y);
   if (obstacleId == OBJECT_ID_NA) {
     Scene_MoveSpriteBy(scene, sid, x, y);
   } else {
@@ -196,7 +194,7 @@ void Scene_MoveGameObjectTo(Scene_t* scene, ObjectId id, _u16 x, _u16 y) {
 }
 
 void Scene_ChangeSpriteAnimationSpeed(SpriteId sid,
-                                      const AnimationSpeed_t speed) {
+                                      const AnimationSpeed speed) {
   Sprite_t* sprite = (Sprite_t*)sid;
   Sprite_SetAnimationSpeed(sprite, speed);
 }

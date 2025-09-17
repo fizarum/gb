@@ -14,8 +14,8 @@ extern "C" {
 static _ci _index;
 SpriteId id = OBJECT_ID_NA;
 
-static inline Color CalculatePixel(Palette_t* palette, _u16 x, _u16 y,
-                                   SpritesHolder_t* sprites, TileMap_t* tilemap,
+static inline Color CalculatePixel(Palette* palette, _u16 x, _u16 y,
+                                   SpritesHolder_t* sprites, TileMap* tilemap,
                                    LayerType_t layerChanged, _ci fallbackCI) {
   _index = fallbackCI;
   id = OBJECT_ID_NA;
@@ -47,7 +47,7 @@ static inline Color CalculatePixel(Palette_t* palette, _u16 x, _u16 y,
       return palette->colors[_index];
     }
 
-    _index = TileMapGetPixel(tilemap, x, y, fallbackCI);
+    _index = TileMap_GetPixel(tilemap, x, y, fallbackCI);
     if (_index != fallbackCI) {
       return palette->colors[_index];
     }
@@ -56,7 +56,7 @@ static inline Color CalculatePixel(Palette_t* palette, _u16 x, _u16 y,
   return palette->backgoundColor;
 }
 
-static inline Color CalculatePixelForMenu(Palette_t* palette, _u8 x, _u8 y,
+static inline Color CalculatePixelForMenu(Palette* palette, _u8 x, _u8 y,
                                           Menu_t* menu, _ci fallbackCI) {
   _ci _index = MenuGetColorIndex(menu, x, y, fallbackCI);
   return palette->colors[_index];
