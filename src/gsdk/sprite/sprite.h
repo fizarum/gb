@@ -45,7 +45,7 @@ const bool Sprite_IsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
 
 void Sprite_UpdateState(Sprite_t* sprite);
 const bool Sprite_IsFrameChanged(const Sprite_t* sprite);
-void Sprite_SetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed_t speed);
+void Sprite_SetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed speed);
 
 #ifdef __cplusplus
 }

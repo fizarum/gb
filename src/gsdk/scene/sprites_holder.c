@@ -19,12 +19,12 @@ typedef struct SpritesHolder_t {
   Array_t* uiSprites;
 } SpritesHolder_t;
 
-static inline void DestroySprite(void* sprite) {
+static inline void destroySprite(void* sprite) {
   Sprite_Destroy((Sprite_t*)sprite);
 }
 
-Array_t* SelectContainer(const SpritesHolder_t* holder,
-                         const LayerType_t layer);
+static inline Array_t* selectContainer(const SpritesHolder_t* holder,
+                                       const LayerType_t layer);
 
 SpritesHolder_t* SpritesHolder_Create() {
   SpritesHolder_t* holder = (SpritesHolder_t*)malloc(sizeof(SpritesHolder_t));
@@ -42,11 +42,11 @@ SpritesHolder_t* SpritesHolder_Create() {
 void SpritesHolder_Destroy(SpritesHolder_t* holder) {
   if (holder == NULL) return;
 
-  ArrayForeach(holder->tilemapSprites, DestroySprite);
-  ArrayForeach(holder->farSprites, DestroySprite);
-  ArrayForeach(holder->midSprites, DestroySprite);
-  ArrayForeach(holder->nearSprites, DestroySprite);
-  ArrayForeach(holder->uiSprites, DestroySprite);
+  ArrayForeach(holder->tilemapSprites, destroySprite);
+  ArrayForeach(holder->farSprites, destroySprite);
+  ArrayForeach(holder->midSprites, destroySprite);
+  ArrayForeach(holder->nearSprites, destroySprite);
+  ArrayForeach(holder->uiSprites, destroySprite);
 
   ArrayDestroy(holder->tilemapSprites);
   ArrayDestroy(holder->farSprites);
@@ -62,7 +62,7 @@ SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
                                  const LayerType_t layer) {
   Sprite_t* sprite = Sprite_Create(data, layer);
 
-  Array_t* sprites = SelectContainer(holder, layer);
+  Array_t* sprites = selectContainer(holder, layer);
   if (sprites == NULL) return OBJECT_ID_NA;
 
   bool isSpriteAdded = ArrayAdd(sprites, sprite);
@@ -77,7 +77,7 @@ SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
 _ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
                                 const LayerType_t layer, const _u16 x,
                                 const _u16 y, _ci fallback) {
-  Array_t* sprites = SelectContainer(holder, layer);
+  Array_t* sprites = selectContainer(holder, layer);
   if (sprites == NULL || ArrayIsEmpty(sprites) == true) return fallback;
 
   Sprite_t* sprite = NULL;
@@ -93,7 +93,7 @@ _ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
 void SpritesHolder_ForeachSprite(const SpritesHolder_t* holder,
                                  const LayerType_t type,
                                  void (*foreach)(SpriteId spriteId)) {
-  Array_t* sprites = SelectContainer(holder, type);
+  Array_t* sprites = selectContainer(holder, type);
   if (sprites == NULL) return;
 
   _u16 size = ArraySize(sprites);
@@ -104,7 +104,7 @@ void SpritesHolder_ForeachSprite(const SpritesHolder_t* holder,
   }
 }
 
-Array_t* SelectContainer(const SpritesHolder_t* holder,
+Array_t* selectContainer(const SpritesHolder_t* holder,
                          const LayerType_t layer) {
   switch (layer) {
     case LAYER_TILEMAP:

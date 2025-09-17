@@ -19,7 +19,7 @@ static AppSpecification_t specs = {
 
 static void _AssignMenuSprites();
 static void _AssignSprites();
-static TileMap_t* _AssignTileMap();
+static TileMap* _AssignTileMap();
 
 static Game* game;
 static ObjectId playerId;
@@ -38,7 +38,7 @@ static void onAppStart() {
   PrepareSprites();
   _AssignSprites();
   _AssignMenuSprites();
-  TileMap_t* tileMap = _AssignTileMap();
+  TileMap* tileMap = _AssignTileMap();
   Game_SetTileMap(tileMap);
 
   // Game_Start();
@@ -125,7 +125,7 @@ void _AssignSprites() {
   Scene_MoveSpriteTo(scene, treeNearId, 80, 10);
 }
 
-TileMap_t* _AssignTileMap() {
+TileMap* _AssignTileMap() {
   SpriteId locationBackground[] = {
       // line 1
       grassId,

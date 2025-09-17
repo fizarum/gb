@@ -6,7 +6,7 @@
 #include "../sprite/sprite.h"
 
 /**
- * @brief Structure representing map of tiles. Each item of TileMap_t is a
+ * @brief Structure representing map of tiles. Each item of TileMap is a
  * reference to some Sprite_t
  * The real size of map can be calculated (width for example) as:
  * tileSize * width
@@ -15,7 +15,7 @@
  * @param height - number of tiles in height
  * @param tileSize - size of one tile in pixels
  */
-typedef struct TileMap_t {
+typedef struct TileMap {
   _u8 width;
   _u8 height;
 
@@ -24,10 +24,10 @@ typedef struct TileMap_t {
 
   _u16 tilesCount;
   Rectangle_t bounds;
-} TileMap_t;
+} TileMap;
 
-TileMap_t* TileMapCreate(const _u8 tileSize) {
-  TileMap_t* tileMap = (TileMap_t*)malloc(sizeof(TileMap_t));
+TileMap* TileMap_Create(const _u8 tileSize) {
+  TileMap* tileMap = (TileMap*)malloc(sizeof(TileMap));
 
   if (tileMap == NULL) return NULL;
 
@@ -41,7 +41,7 @@ TileMap_t* TileMapCreate(const _u8 tileSize) {
   return tileMap;
 }
 
-void TileMapDestroy(TileMap_t* tileMap) {
+void TileMap_Destroy(TileMap* tileMap) {
   if (tileMap == NULL) return;
 
   free(tileMap->tiles);
@@ -49,8 +49,8 @@ void TileMapDestroy(TileMap_t* tileMap) {
   free(tileMap);
 }
 
-void TileMapSet(TileMap_t* tileMap, SpriteId* tiles, const _u16 count,
-                const _u8 width) {
+void TileMap_Set(TileMap* tileMap, SpriteId* tiles, const _u16 count,
+                 const _u8 width) {
   if (tileMap->tilesCount > 0 && tileMap->tiles != NULL) {
     free(tileMap->tiles);
   }
@@ -78,7 +78,7 @@ void TileMapSet(TileMap_t* tileMap, SpriteId* tiles, const _u16 count,
   Rectangle_Resize(&(tileMap->bounds), widthInPixels, heightInPixels);
 }
 
-SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u16 x, const _u16 y) {
+SpriteId TileMap_GetTile(const TileMap* tileMap, const _u16 x, const _u16 y) {
   _u8 tileSize = tileMap->tileSize;
 
   _u8 tileAddressByX = x / tileSize;
@@ -93,11 +93,11 @@ SpriteId TileMapGetTile(const TileMap_t* tileMap, const _u16 x, const _u16 y) {
   return tileMap->tiles[index];
 }
 
-_ci TileMapGetPixel(const TileMap_t* tileMap, const _u16 x, const _u16 y,
-                    const _ci fallback) {
+_ci TileMap_GetPixel(const TileMap* tileMap, const _u16 x, const _u16 y,
+                     const _ci fallback) {
   if (tileMap == NULL) return fallback;
 
-  SpriteId id = TileMapGetTile(tileMap, x, y);
+  SpriteId id = TileMap_GetTile(tileMap, x, y);
   if (id == OBJECT_ID_NA) return fallback;
 
   Sprite_t* sprite = (Sprite_t*)id;
@@ -107,6 +107,6 @@ _ci TileMapGetPixel(const TileMap_t* tileMap, const _u16 x, const _u16 y,
   return Sprite_GetColorIndex(sprite, xOnSprite, yOnSprite, fallback);
 }
 
-const Rectangle_t* TileMapGetBounds(const TileMap_t* tileMap) {
+const Rectangle_t* TileMap_GetBounds(const TileMap* tileMap) {
   return &(tileMap->bounds);
 }

@@ -13,7 +13,7 @@ typedef struct Sprite_t {
   LayerType_t layer;
 
   // animation part
-  AnimationSpeed_t animationSpeed;
+  AnimationSpeed animationSpeed;
   _u8 frameIndex;
   _i8 remainTicksToUpdateFrame;
   bool frameChanged;
@@ -150,6 +150,6 @@ const bool Sprite_IsFrameChanged(const Sprite_t* sprite) {
   return sprite->frameChanged;
 }
 
-void Sprite_SetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed_t speed) {
+void Sprite_SetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed speed) {
   sprite->animationSpeed = speed;
 }

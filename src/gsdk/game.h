@@ -15,7 +15,7 @@ typedef struct Game Game;
 Game* Game_Create();
 void Game_Destroy(Game* game);
 
-void Game_SetTileMap(TileMap_t* tileMap);
+void Game_SetTileMap(TileMap* tileMap);
 void Game_SetMenuItems(MenuItem_t** items, _u8 itemsCount);
 
 void Game_Pause();

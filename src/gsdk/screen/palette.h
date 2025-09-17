@@ -47,7 +47,7 @@
 
 #define PALETTE_SIZE 16
 
-typedef struct Palette_t {
+typedef struct Palette {
   Color colors[PALETTE_SIZE];
 
   /**
@@ -55,10 +55,9 @@ typedef struct Palette_t {
    */
   _ci background;
   Color backgoundColor;
-} Palette_t;
+} Palette;
 
-static inline void Palette_SetColor(Palette_t* palette, _ci index,
-                                    Color color) {
+static inline void Palette_SetColor(Palette* palette, _ci index, Color color) {
   palette->colors[index] = color;
   if (index == palette->background) {
     palette->backgoundColor = color;

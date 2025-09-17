@@ -17,6 +17,6 @@ typedef enum {
   ANIMATION_SPEED_FAST = 10,
   ANIMATION_SPEED_SUPER_FAST = 5,
   ANIMATION_SPEED_NONE = 0
-} AnimationSpeed_t;
+} AnimationSpeed;
 
 #endif  // GAME_SDK_ANIMATION_SPEED_H

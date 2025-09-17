@@ -5,8 +5,8 @@
 
 #include "../scene/objects_holder.h"
 
-ObjectId CollisionCheckerGetObstacleId(const ObjectsHolder_t *holder,
-                                       const ObjectId id, const _i8 x,
-                                       const _i8 y);
+ObjectId CollisionChecker_GetObstacle(const ObjectsHolder_t *holder,
+                                      const ObjectId id, const _i8 x,
+                                      const _i8 y);
 
 #endif  // GAME_SDK_PHYSICS_WORLD_H
