@@ -7,24 +7,24 @@
 #include "../types/point.h"
 #include "../utils/screen_utils.h"
 
-typedef struct Sprite_t {
-  SpriteData_t* data;
-  Point_t position;
-  LayerType_t layer;
+typedef struct Sprite {
+  SpriteData* data;
+  Point position;
+  LayerType layer;
 
   // animation part
   AnimationSpeed animationSpeed;
   _u8 frameIndex;
   _i8 remainTicksToUpdateFrame;
   bool frameChanged;
-} Sprite_t;
+} Sprite;
 
-Sprite_t* Sprite_Create(const SpriteData_t* data, const LayerType_t layer) {
-  Sprite_t* sprite = (Sprite_t*)malloc(sizeof(Sprite_t));
+Sprite* Sprite_Create(const SpriteData* data, const LayerType layer) {
+  Sprite* sprite = (Sprite*)malloc(sizeof(Sprite));
 
   if (sprite == NULL) return NULL;
 
-  sprite->data = (SpriteData_t*)data;
+  sprite->data = (SpriteData*)data;
   sprite->position.x = 0;
   sprite->position.y = 0;
   sprite->layer = layer;
@@ -43,23 +43,21 @@ Sprite_t* Sprite_Create(const SpriteData_t* data, const LayerType_t layer) {
   return sprite;
 }
 
-void Sprite_Destroy(Sprite_t* sprite) { free(sprite); }
+void Sprite_Destroy(Sprite* sprite) { free(sprite); }
 
-const _u8 Sprite_GetWidth(const Sprite_t* sprite) {
-  return sprite->data->width;
-}
+const _u8 Sprite_GetWidth(const Sprite* sprite) { return sprite->data->width; }
 
-const _u8 Sprite_GetHeight(const Sprite_t* sprite) {
+const _u8 Sprite_GetHeight(const Sprite* sprite) {
   return sprite->data->height;
 }
 
-const Point_t* Sprite_GetPosition(const Sprite_t* sprite) {
+const Point* Sprite_GetPosition(const Sprite* sprite) {
   return &(sprite->position);
 }
 
-const _ci Sprite_GetColorIndex(const Sprite_t* sprite, const _u16 x,
-                               const _u16 y, const _ci fallback) {
-  const Point_t* pos = &(sprite->position);
+const _ci Sprite_GetColorIndex(const Sprite* sprite, const _u16 x, const _u16 y,
+                               const _ci fallback) {
+  const Point* pos = &(sprite->position);
 
   bool inside =
       IsPointInside(x, y, pos->x, pos->y, pos->x + sprite->data->width - 1,
@@ -90,28 +88,26 @@ const _ci Sprite_GetColorIndex(const Sprite_t* sprite, const _u16 x,
   return getFirstIndex(indexes);
 }
 
-const bool Sprite_ContainsPoint(const Sprite_t* sprite, const _u16 x,
+const bool Sprite_ContainsPoint(const Sprite* sprite, const _u16 x,
                                 const _u16 y) {
   return IsPointInside(x, y, sprite->position.x, sprite->position.y,
                        sprite->position.x + sprite->data->width - 1,
                        sprite->position.y + sprite->data->height - 1);
 }
 
-const LayerType_t Sprite_GetLayer(const Sprite_t* sprite) {
-  return sprite->layer;
-}
+const LayerType Sprite_GetLayer(const Sprite* sprite) { return sprite->layer; }
 
-void Sprite_MoveTo(Sprite_t* sprite, const _u16 x, const _u16 y) {
+void Sprite_MoveTo(Sprite* sprite, const _u16 x, const _u16 y) {
   sprite->position.x = x;
   sprite->position.y = y;
 }
 
-void Sprite_MoveBy(Sprite_t* sprite, const _i8 x, const _i8 y) {
+void Sprite_MoveBy(Sprite* sprite, const _i8 x, const _i8 y) {
   sprite->position.x += x;
   sprite->position.y += y;
 }
 
-const bool Sprite_IsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
+const bool Sprite_IsOnDisplay(const Sprite* sprite, _u16 displayWidth,
                               _u16 displayHeight) {
   _i32 l = sprite->position.x;
   _i32 t = sprite->position.y;
@@ -130,7 +126,7 @@ const bool Sprite_IsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
   return true;
 }
 
-void Sprite_UpdateState(Sprite_t* sprite) {
+void Sprite_UpdateState(Sprite* sprite) {
   if (sprite->animationSpeed == ANIMATION_SPEED_NONE) return;
 
   sprite->remainTicksToUpdateFrame--;
@@ -146,10 +142,10 @@ void Sprite_UpdateState(Sprite_t* sprite) {
   }
 }
 
-const bool Sprite_IsFrameChanged(const Sprite_t* sprite) {
+const bool Sprite_IsFrameChanged(const Sprite* sprite) {
   return sprite->frameChanged;
 }
 
-void Sprite_SetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed speed) {
+void Sprite_SetAnimationSpeed(Sprite* sprite, const AnimationSpeed speed) {
   sprite->animationSpeed = speed;
 }

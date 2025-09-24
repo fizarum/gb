@@ -16,7 +16,7 @@ Game* Game_Create();
 void Game_Destroy(Game* game);
 
 void Game_SetTileMap(TileMap* tileMap);
-void Game_SetMenuItems(MenuItem_t** items, _u8 itemsCount);
+void Game_SetMenuItems(MenuItem** items, _u8 itemsCount);
 
 void Game_Pause();
 void Game_Resume();
@@ -25,8 +25,8 @@ void Game_TogglePauseResume();
 void Game_Start();
 void Game_Update();
 
-Menu_t* Game_GetMenu();
-Scene_t* Game_GetScene();
+Menu* Game_GetMenu();
+Scene* Game_GetScene();
 
 #ifdef __cplusplus
 }

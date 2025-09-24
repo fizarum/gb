@@ -11,23 +11,23 @@
 #define SPRITES_NEAR_MAX_COUNT 20
 #define SPRITES_UI_MAX_COUNT 15
 
-typedef struct SpritesHolder_t {
+typedef struct SpritesHolder {
   Array_t* tilemapSprites;
   Array_t* farSprites;
   Array_t* midSprites;
   Array_t* nearSprites;
   Array_t* uiSprites;
-} SpritesHolder_t;
+} SpritesHolder;
 
 static inline void destroySprite(void* sprite) {
-  Sprite_Destroy((Sprite_t*)sprite);
+  Sprite_Destroy((Sprite*)sprite);
 }
 
-static inline Array_t* selectContainer(const SpritesHolder_t* holder,
-                                       const LayerType_t layer);
+static inline Array_t* selectContainer(const SpritesHolder* holder,
+                                       const LayerType layer);
 
-SpritesHolder_t* SpritesHolder_Create() {
-  SpritesHolder_t* holder = (SpritesHolder_t*)malloc(sizeof(SpritesHolder_t));
+SpritesHolder* SpritesHolder_Create() {
+  SpritesHolder* holder = (SpritesHolder*)malloc(sizeof(SpritesHolder));
 
   if (holder == NULL) return NULL;
 
@@ -39,7 +39,7 @@ SpritesHolder_t* SpritesHolder_Create() {
   return holder;
 }
 
-void SpritesHolder_Destroy(SpritesHolder_t* holder) {
+void SpritesHolder_Destroy(SpritesHolder* holder) {
   if (holder == NULL) return;
 
   ArrayForeach(holder->tilemapSprites, destroySprite);
@@ -57,10 +57,9 @@ void SpritesHolder_Destroy(SpritesHolder_t* holder) {
   free(holder);
 }
 
-SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
-                                 const SpriteData_t* data,
-                                 const LayerType_t layer) {
-  Sprite_t* sprite = Sprite_Create(data, layer);
+SpriteId SpritesHolder_AddSprite(SpritesHolder* holder, const SpriteData* data,
+                                 const LayerType layer) {
+  Sprite* sprite = Sprite_Create(data, layer);
 
   Array_t* sprites = selectContainer(holder, layer);
   if (sprites == NULL) return OBJECT_ID_NA;
@@ -74,15 +73,15 @@ SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
   return OBJECT_ID_NA;
 }
 
-_ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
-                                const LayerType_t layer, const _u16 x,
+_ci SpritesHolder_GetColorIndex(const SpritesHolder* holder,
+                                const LayerType layer, const _u16 x,
                                 const _u16 y, _ci fallback) {
   Array_t* sprites = selectContainer(holder, layer);
   if (sprites == NULL || ArrayIsEmpty(sprites) == true) return fallback;
 
-  Sprite_t* sprite = NULL;
+  Sprite* sprite = NULL;
   for (_u16 index = 0; index < ArraySize(sprites); index++) {
-    sprite = (Sprite_t*)ArrayValueAt(sprites, index);
+    sprite = (Sprite*)ArrayValueAt(sprites, index);
     if (Sprite_ContainsPoint(sprite, x, y) == true) {
       return Sprite_GetColorIndex(sprite, x, y, fallback);
     }
@@ -90,8 +89,8 @@ _ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
   return fallback;
 }
 
-void SpritesHolder_ForeachSprite(const SpritesHolder_t* holder,
-                                 const LayerType_t type,
+void SpritesHolder_ForeachSprite(const SpritesHolder* holder,
+                                 const LayerType type,
                                  void (*foreach)(SpriteId spriteId)) {
   Array_t* sprites = selectContainer(holder, type);
   if (sprites == NULL) return;
@@ -104,8 +103,7 @@ void SpritesHolder_ForeachSprite(const SpritesHolder_t* holder,
   }
 }
 
-Array_t* selectContainer(const SpritesHolder_t* holder,
-                         const LayerType_t layer) {
+Array_t* selectContainer(const SpritesHolder* holder, const LayerType layer) {
   switch (layer) {
     case LAYER_TILEMAP:
       return holder->tilemapSprites;

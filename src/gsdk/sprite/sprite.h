@@ -12,13 +12,13 @@ extern "C" {
 #include "animation_speed.h"
 #include "sprite_data.h"
 
-typedef struct Sprite_t Sprite_t;
-Sprite_t* Sprite_Create(const SpriteData_t* data, const LayerType_t layer);
-void Sprite_Destroy(Sprite_t* sprite);
+typedef struct Sprite Sprite;
+Sprite* Sprite_Create(const SpriteData* data, const LayerType layer);
+void Sprite_Destroy(Sprite* sprite);
 
-const Point_t* Sprite_GetPosition(const Sprite_t* sprite);
-const _u8 Sprite_GetWidth(const Sprite_t* sprite);
-const _u8 Sprite_GetHeight(const Sprite_t* sprite);
+const Point* Sprite_GetPosition(const Sprite* sprite);
+const _u8 Sprite_GetWidth(const Sprite* sprite);
+const _u8 Sprite_GetHeight(const Sprite* sprite);
 
 /**
  * @brief Get color index in sprite
@@ -29,23 +29,23 @@ const _u8 Sprite_GetHeight(const Sprite_t* sprite);
  * otained
  * @return ColorIndex
  */
-const _ci Sprite_GetColorIndex(const Sprite_t* sprite, const _u16 x,
-                               const _u16 y, const _ci fallback);
+const _ci Sprite_GetColorIndex(const Sprite* sprite, const _u16 x, const _u16 y,
+                               const _ci fallback);
 
-const bool Sprite_ContainsPoint(const Sprite_t* sprite, const _u16 x,
+const bool Sprite_ContainsPoint(const Sprite* sprite, const _u16 x,
                                 const _u16 y);
 
-const LayerType_t Sprite_GetLayer(const Sprite_t* sprite);
+const LayerType Sprite_GetLayer(const Sprite* sprite);
 
-void Sprite_MoveTo(Sprite_t* sprite, const _u16 x, const _u16 y);
-void Sprite_MoveBy(Sprite_t* sprite, const _i8 x, const _i8 y);
+void Sprite_MoveTo(Sprite* sprite, const _u16 x, const _u16 y);
+void Sprite_MoveBy(Sprite* sprite, const _i8 x, const _i8 y);
 
-const bool Sprite_IsOnDisplay(const Sprite_t* sprite, _u16 displayWidth,
+const bool Sprite_IsOnDisplay(const Sprite* sprite, _u16 displayWidth,
                               _u16 displayHeight);
 
-void Sprite_UpdateState(Sprite_t* sprite);
-const bool Sprite_IsFrameChanged(const Sprite_t* sprite);
-void Sprite_SetAnimationSpeed(Sprite_t* sprite, const AnimationSpeed speed);
+void Sprite_UpdateState(Sprite* sprite);
+const bool Sprite_IsFrameChanged(const Sprite* sprite);
+void Sprite_SetAnimationSpeed(Sprite* sprite, const AnimationSpeed speed);
 
 #ifdef __cplusplus
 }

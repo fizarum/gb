@@ -22,7 +22,7 @@ SpriteId TileMap_GetTile(const TileMap* tileMap, const _u16 x, const _u16 y);
 _ci TileMap_GetPixel(const TileMap* tileMap, const _u16 x, const _u16 y,
                      const _ci fallback);
 
-const Rectangle_t* TileMap_GetBounds(const TileMap* tileMap);
+const Rectangle* TileMap_GetBounds(const TileMap* tileMap);
 
 #ifdef __cplusplus
 }

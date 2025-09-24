@@ -11,7 +11,7 @@
 #define SPRITES_FOREGROUND_MAX_COUNT 50
 #define BUTTONS_MAX_COUNT 10
 
-typedef struct Menu_t {
+typedef struct Menu {
   // TODO: complete
   Array_t* buttons;
   Array_t* backgroundSprites;
@@ -20,16 +20,16 @@ typedef struct Menu_t {
   _u8 totalItems;
   _u8 selectedItem;
 
-  SpriteData_t* btnLeft;
-  SpriteData_t* btnMid;
-  SpriteData_t* btnRight;
-} Menu_t;
+  SpriteData* btnLeft;
+  SpriteData* btnMid;
+  SpriteData* btnRight;
+} Menu;
 
-_u8 _MenuGetHCenterForText(const Menu_t* menu, const _u8 letterSize,
+_u8 _MenuGetHCenterForText(const Menu* menu, const _u8 letterSize,
                            const _u8 lettersCount);
 
-Menu_t* MenuCreate() {
-  Menu_t* menu = (Menu_t*)malloc(sizeof(Menu_t));
+Menu* MenuCreate() {
+  Menu* menu = (Menu*)malloc(sizeof(Menu));
 
   if (menu == NULL) return NULL;
 
@@ -46,7 +46,7 @@ Menu_t* MenuCreate() {
   return menu;
 }
 
-void MenuDestroy(Menu_t* menu) {
+void MenuDestroy(Menu* menu) {
   if (menu == NULL) return;
 
   ArrayDestroy(menu->backgroundSprites);
@@ -55,14 +55,14 @@ void MenuDestroy(Menu_t* menu) {
   free(menu);
 }
 
-void MenuSelectNextItem(Menu_t* menu) {
+void MenuSelectNextItem(Menu* menu) {
   menu->selectedItem++;
   if (menu->selectedItem >= menu->totalItems) {
     menu->selectedItem = 0;
   }
 }
 
-void MenuSelectPreviousItem(Menu_t* menu) {
+void MenuSelectPreviousItem(Menu* menu) {
   if (menu->selectedItem == 0) {
     menu->selectedItem = menu->totalItems - 1;
     return;
@@ -70,9 +70,9 @@ void MenuSelectPreviousItem(Menu_t* menu) {
   menu->selectedItem--;
 }
 
-SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u16 x,
-                       const _u16 y, const LayerType_t layer) {
-  Sprite_t* sprite = Sprite_Create(data, layer);
+SpriteId MenuAddSprite(Menu* menu, const SpriteData* data, const _u16 x,
+                       const _u16 y, const LayerType layer) {
+  Sprite* sprite = Sprite_Create(data, layer);
 
   if (x != 0 || y != 0) {
     Sprite_MoveTo(sprite, x, y);
@@ -87,13 +87,13 @@ SpriteId MenuAddSprite(Menu_t* menu, const SpriteData_t* data, const _u16 x,
   return OBJECT_ID_NA;
 }
 
-_ci MenuGetColorIndex(Menu_t* menu, const _u16 x, const _u16 y, _ci fallback) {
+_ci MenuGetColorIndex(Menu* menu, const _u16 x, const _u16 y, _ci fallback) {
   Array_t* sprites = menu->foregroundSprites;
-  Sprite_t* sprite = NULL;
+  Sprite* sprite = NULL;
   _ci color = fallback;
 
   for (_u16 index = 0; index < ArraySize(sprites); index++) {
-    sprite = (Sprite_t*)ArrayValueAt(sprites, index);
+    sprite = (Sprite*)ArrayValueAt(sprites, index);
     if (Sprite_ContainsPoint(sprite, x, y) == true) {
       color = Sprite_GetColorIndex(sprite, x, y, fallback);
       if (color != fallback) {
@@ -105,7 +105,7 @@ _ci MenuGetColorIndex(Menu_t* menu, const _u16 x, const _u16 y, _ci fallback) {
   // if no sprite found, check background sprites
   sprites = menu->backgroundSprites;
   for (_u16 index = 0; index < ArraySize(sprites); index++) {
-    sprite = (Sprite_t*)ArrayValueAt(sprites, index);
+    sprite = (Sprite*)ArrayValueAt(sprites, index);
     if (Sprite_ContainsPoint(sprite, x, y) == true) {
       return Sprite_GetColorIndex(sprite, x, y, fallback);
     }
@@ -113,15 +113,15 @@ _ci MenuGetColorIndex(Menu_t* menu, const _u16 x, const _u16 y, _ci fallback) {
   return fallback;
 }
 
-void MenuSetupButtonSprites(Menu_t* menu, const SpriteData_t* leftPartSprite,
-                            const SpriteData_t* middlePartSprite,
-                            const SpriteData_t* rightPartSprite) {
-  menu->btnLeft = (SpriteData_t*)leftPartSprite;
-  menu->btnMid = (SpriteData_t*)middlePartSprite;
-  menu->btnRight = (SpriteData_t*)rightPartSprite;
+void MenuSetupButtonSprites(Menu* menu, const SpriteData* leftPartSprite,
+                            const SpriteData* middlePartSprite,
+                            const SpriteData* rightPartSprite) {
+  menu->btnLeft = (SpriteData*)leftPartSprite;
+  menu->btnMid = (SpriteData*)middlePartSprite;
+  menu->btnRight = (SpriteData*)rightPartSprite;
 }
 
-void MenuCreateHCenterButton(Menu_t* menu, const SpriteData_t** letterSprites,
+void MenuCreateHCenterButton(Menu* menu, const SpriteData** letterSprites,
                              const _u8 lettersCount, const _u16 y) {
   const _u8 letterSize = letterSprites[0]->width;
 
@@ -129,7 +129,7 @@ void MenuCreateHCenterButton(Menu_t* menu, const SpriteData_t** letterSprites,
 
   MenuAddSprite(menu, menu->btnLeft, xPos, y, LAYER_MENU_FAR);
   for (_u8 index = 0; index < lettersCount; index++) {
-    const SpriteData_t* spriteData = letterSprites[index];
+    const SpriteData* spriteData = letterSprites[index];
     MenuAddSprite(menu, spriteData, xPos, y, LAYER_MENU_NEAR);
     if (index < lettersCount - 1) {
       MenuAddSprite(menu, menu->btnMid, xPos, y, LAYER_MENU_FAR);
@@ -138,36 +138,36 @@ void MenuCreateHCenterButton(Menu_t* menu, const SpriteData_t** letterSprites,
   }
   MenuAddSprite(menu, menu->btnRight, xPos, y, LAYER_MENU_FAR);
   // TODO: add callback
-  Button_t* button = ButtonCreate(NULL);
+  Button* button = ButtonCreate(NULL);
   ArrayAdd(menu->buttons, button);
 }
 
-void MenuCreateLabel(Menu_t* menu, const SpriteData_t** letterSprites,
+void MenuCreateLabel(Menu* menu, const SpriteData** letterSprites,
                      const _u8 lettersCount, const _u16 x, const _u16 y) {
   const _u8 letterSize = letterSprites[0]->width;
   _u8 xPos = x;
 
   for (_u8 index = 0; index < lettersCount; index++) {
-    const SpriteData_t* spriteData = letterSprites[index];
+    const SpriteData* spriteData = letterSprites[index];
     MenuAddSprite(menu, spriteData, xPos, y, LAYER_MENU_NEAR);
     xPos += letterSize;
   }
 }
 
-void MenuCreateHCenterLabel(Menu_t* menu, const SpriteData_t** letterSprites,
+void MenuCreateHCenterLabel(Menu* menu, const SpriteData** letterSprites,
                             const _u8 lettersCount, const _u16 y) {
   const _u8 letterSize = letterSprites[0]->width;
 
   _u8 xPos = _MenuGetHCenterForText(menu, letterSize, lettersCount);
 
   for (_u8 index = 0; index < lettersCount; index++) {
-    const SpriteData_t* spriteData = letterSprites[index];
+    const SpriteData* spriteData = letterSprites[index];
     MenuAddSprite(menu, spriteData, xPos, y, LAYER_MENU_NEAR);
     xPos += letterSize;
   }
 }
 
-_u8 _MenuGetHCenterForText(const Menu_t* menu, const _u8 letterSize,
+_u8 _MenuGetHCenterForText(const Menu* menu, const _u8 letterSize,
                            const _u8 lettersCount) {
   _u16 stringLength = letterSize * lettersCount;
   return ScreenConfig_GetRealWidth() / 2 - stringLength / 2;

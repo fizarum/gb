@@ -4,25 +4,25 @@
 #include "../sprite/sprite.h"
 #include "collision_calculator.h"
 
-static Point_t __nextPoint1ForCollision, __nextPoint2ForCollision;
+static Point __nextPoint1ForCollision, __nextPoint2ForCollision;
 
-ObjectId CollisionChecker_GetObstacle(const ObjectsHolder_t* holder,
+ObjectId CollisionChecker_GetObstacle(const ObjectsHolder* holder,
                                       const ObjectId id, const _i8 x,
                                       const _i8 y) {
-  GameObject_t* object = (GameObject_t*)id;
+  GameObject* object = (GameObject*)id;
 
   // if object to move isn't collidable, allow movement
   if (GameObjectIsCollidable(object) == false) {
     return OBJECT_ID_NA;
   }
 
-  Sprite_t* sprite = (Sprite_t*)GameObjectGetSpriteId(object);
+  Sprite* sprite = (Sprite*)GameObjectGetSpriteId(object);
 
-  const LayerType_t layer = Sprite_GetLayer(sprite);
+  const LayerType layer = Sprite_GetLayer(sprite);
   // no layer type defined for sprite (probably invisible) - allow movement
   if (layer == LAYER_NONE) return OBJECT_ID_NA;
 
-  const Point_t* position = Sprite_GetPosition(sprite);
+  const Point* position = Sprite_GetPosition(sprite);
   const _u8 width = Sprite_GetWidth(sprite);
   const _u8 height = Sprite_GetHeight(sprite);
 
@@ -41,7 +41,7 @@ ObjectId CollisionChecker_GetObstacle(const ObjectsHolder_t* holder,
     return OBJECT_ID_NA;
   }
 
-  GameObject_t* anotherObject = (GameObject_t*)anotherObjectId;
+  GameObject* anotherObject = (GameObject*)anotherObjectId;
   if (GameObjectIsCollidable(anotherObject) == true) {
     // if anotherObject is obstacle - stop movement
     if (GameObjectIsObstacle(anotherObject) == true) {

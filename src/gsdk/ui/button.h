@@ -9,14 +9,14 @@ extern "C" {
 
 #include "../types/types.h"
 
-typedef struct Button_t Button_t;
+typedef struct Button Button;
 
 typedef void (*ClickListener)(void);
 
-Button_t* ButtonCreate(ClickListener clickListener);
-void ButtonDestroy(Button_t* button);
+Button* ButtonCreate(ClickListener clickListener);
+void ButtonDestroy(Button* button);
 
-void ButtonChangeSelection(Button_t* button, bool selected);
+void ButtonChangeSelection(Button* button, bool selected);
 
 #ifdef __cplusplus
 }

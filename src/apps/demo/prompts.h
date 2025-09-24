@@ -7,7 +7,7 @@
 #include "../../gsdk/sprite/sprite_data.h"
 
 // 8x8
-SpriteData_t btn_left = {
+SpriteData btn_left = {
     .width = 8,
     .height = 8,
     .indicesCount = 32,
@@ -21,7 +21,7 @@ _ci btn_left_indices[] = {0x4,  0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44,
                           0x44, 0x44, 0x44, 0x44, 0x4,  0x44, 0x44, 0x44};
 
 // 8x8
-SpriteData_t btn_mid = {
+SpriteData btn_mid = {
     .width = 8,
     .height = 8,
     .indicesCount = 32,
@@ -35,7 +35,7 @@ _ci btn_mid_indices[] = {0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44,
                          0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44};
 
 // 8x8
-SpriteData_t btn_right = {
+SpriteData btn_right = {
     .width = 8,
     .height = 8,
     .indicesCount = 32,

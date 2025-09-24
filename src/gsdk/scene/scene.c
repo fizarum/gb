@@ -12,36 +12,35 @@
 #include "objects_holder.h"
 #include "sprites_holder.h"
 
-typedef struct Scene_t {
-  SpritesHolder_t* spritesHolder;
-  ObjectsHolder_t* objectsHolder;
+typedef struct Scene {
+  SpritesHolder* spritesHolder;
+  ObjectsHolder* objectsHolder;
   TileMap* tilemap;
 
   // Indicator of changed layer. It helps to understand which layers
   // should be processed during pixel's color calculation
-  LayerType_t layerChanged;
-} Scene_t;
+  LayerType layerChanged;
+} Scene;
 
-Scene_t* _scene = NULL;
+Scene* _scene = NULL;
 
 // TODO: temp workaround to replace complex logic of Tracker
 #define regionsCount 10
-static Rectangle_t* durtyRegions[regionsCount];
+static Rectangle* durtyRegions[regionsCount];
 static bool entireScreenisDurty = false;
 
-void updataAnimatedSprites(Scene_t* scene);
-void setDurtyRegion(Scene_t* scene, const Rectangle_t* region,
-                    const LayerType_t layer);
-static inline void setDurtySprite(Scene_t* scene, const Sprite_t* sprite);
-static inline Rectangle_t* findNextEmptyRegion();
-static inline Rectangle_t* findSameRegion(_u16 l, _u16 t, _u16 r, _u16 b);
+void updataAnimatedSprites(Scene* scene);
+void setDurtyRegion(Scene* scene, const Rectangle* region,
+                    const LayerType layer);
+static inline void setDurtySprite(Scene* scene, const Sprite* sprite);
+static inline Rectangle* findNextEmptyRegion();
+static inline Rectangle* findSameRegion(_u16 l, _u16 t, _u16 r, _u16 b);
 static inline void resetAllRegions();
 static void updateAnimationStateCallback(SpriteId sid);
 
-Scene_t* Scene_Create(SpritesHolder_t* spritesHolder,
-                      ObjectsHolder_t* objectsHolder,
-                      LayerType_t* layerChanged) {
-  Scene_t* scene = (Scene_t*)malloc(sizeof(Scene_t));
+Scene* Scene_Create(SpritesHolder* spritesHolder, ObjectsHolder* objectsHolder,
+                    LayerType* layerChanged) {
+  Scene* scene = (Scene*)malloc(sizeof(Scene));
 
   if (scene == NULL) return NULL;
 
@@ -55,7 +54,7 @@ Scene_t* Scene_Create(SpritesHolder_t* spritesHolder,
   _scene = scene;
 
   for (_u16 index = 0; index < regionsCount; index++) {
-    Rectangle_t* reg = (Rectangle_t*)malloc(sizeof(Rectangle_t));
+    Rectangle* reg = (Rectangle*)malloc(sizeof(Rectangle));
     Rectangle_Reset(reg);
     durtyRegions[index] = reg;
   }
@@ -63,23 +62,23 @@ Scene_t* Scene_Create(SpritesHolder_t* spritesHolder,
   return scene;
 }
 
-void Scene_Destroy(Scene_t* scene) { free(scene); }
+void Scene_Destroy(Scene* scene) { free(scene); }
 
-void Scene_Update(Scene_t* scene) { updataAnimatedSprites(scene); }
+void Scene_Update(Scene* scene) { updataAnimatedSprites(scene); }
 
-void Scene_Pause(Scene_t* scene) {
+void Scene_Pause(Scene* scene) {
   resetAllRegions();
   entireScreenisDurty = true;
   scene->layerChanged = LAYER_UI;
 }
 
-void Scene_Resume(Scene_t* scene) {
+void Scene_Resume(Scene* scene) {
   resetAllRegions();
   entireScreenisDurty = true;
   scene->layerChanged = LAYER_UI;
 }
 
-void Scene_CleanupRegions(Scene_t* scene, OnRegionRedrawRequested callback) {
+void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback) {
   if (scene->layerChanged == LAYER_NONE) {
     return;
   }
@@ -96,7 +95,7 @@ void Scene_CleanupRegions(Scene_t* scene, OnRegionRedrawRequested callback) {
   printf("requested cleanup regions\n");
 
   for (_u8 index = 0; index < regionsCount; index++) {
-    Rectangle_t* reg = durtyRegions[index];
+    Rectangle* reg = durtyRegions[index];
     if (Rectangle_IsEmpty(reg) == false) {
       callback(reg->left, reg->top, reg->right, reg->bottom);
       Rectangle_Reset(reg);
@@ -106,13 +105,13 @@ void Scene_CleanupRegions(Scene_t* scene, OnRegionRedrawRequested callback) {
   scene->layerChanged = LAYER_NONE;
 }
 
-TileMap* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
+TileMap* Scene_SetupTileMap(Scene* scene, SpriteId* tiles, const _u16 count,
                             const _u8 width) {
   if (tiles == NULL || count == 0 || width == 0) return NULL;
 
   // 1. obtain tile size by taking it value from first sprite
-  Sprite_t* sprite = (Sprite_t*)tiles[0];
-  LayerType_t layer = Sprite_GetLayer(sprite);
+  Sprite* sprite = (Sprite*)tiles[0];
+  LayerType layer = Sprite_GetLayer(sprite);
 
   _u8 tileSize = Sprite_GetWidth(sprite);
 
@@ -122,7 +121,7 @@ TileMap* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
   TileMap_Set(tilemap, tiles, count, width);
 
   // 3. and request to refresh
-  Rectangle_t* mapBounds = (Rectangle_t*)TileMap_GetBounds(tilemap);
+  Rectangle* mapBounds = (Rectangle*)TileMap_GetBounds(tilemap);
   setDurtyRegion(scene, mapBounds, layer);
 
   scene->tilemap = tilemap;
@@ -130,11 +129,11 @@ TileMap* Scene_SetupTileMap(Scene_t* scene, SpriteId* tiles, const _u16 count,
   return tilemap;
 }
 
-SpriteId Scene_AddSprite(Scene_t* scene, const SpriteData_t* data,
-                         const LayerType_t layer) {
+SpriteId Scene_AddSprite(Scene* scene, const SpriteData* data,
+                         const LayerType layer) {
   SpriteId sid = SpritesHolder_AddSprite(scene->spritesHolder, data, layer);
   if (sid != OBJECT_ID_NA) {
-    Sprite_t* sprite = (Sprite_t*)sid;
+    Sprite* sprite = (Sprite*)sid;
 
     setDurtySprite(scene, sprite);
 
@@ -146,8 +145,8 @@ SpriteId Scene_AddSprite(Scene_t* scene, const SpriteData_t* data,
   return sid;
 }
 
-ObjectId Scene_AddGameObject(Scene_t* scene, const SpriteData_t* data,
-                             const LayerType_t layer, const bool collidable,
+ObjectId Scene_AddGameObject(Scene* scene, const SpriteData* data,
+                             const LayerType layer, const bool collidable,
                              const bool obstacle, const bool gravitable) {
   SpriteId sid = Scene_AddSprite(scene, data, layer);
 
@@ -155,8 +154,8 @@ ObjectId Scene_AddGameObject(Scene_t* scene, const SpriteData_t* data,
                            obstacle, gravitable);
 }
 
-void Scene_MoveSpriteBy(Scene_t* scene, SpriteId id, _i8 x, _i8 y) {
-  Sprite_t* sprite = (Sprite_t*)id;
+void Scene_MoveSpriteBy(Scene* scene, SpriteId id, _i8 x, _i8 y) {
+  Sprite* sprite = (Sprite*)id;
 
   // set old region as durty
   setDurtySprite(scene, sprite);
@@ -165,8 +164,8 @@ void Scene_MoveSpriteBy(Scene_t* scene, SpriteId id, _i8 x, _i8 y) {
   setDurtySprite(scene, sprite);
 }
 
-void Scene_MoveSpriteTo(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
-  Sprite_t* sprite = (Sprite_t*)id;
+void Scene_MoveSpriteTo(Scene* scene, SpriteId id, _u16 x, _u16 y) {
+  Sprite* sprite = (Sprite*)id;
 
   // set old region as durty
   setDurtySprite(scene, sprite);
@@ -175,8 +174,8 @@ void Scene_MoveSpriteTo(Scene_t* scene, SpriteId id, _u16 x, _u16 y) {
   setDurtySprite(scene, sprite);
 }
 
-void Scene_MoveGameObjectBy(Scene_t* scene, ObjectId id, _i8 x, _i8 y) {
-  GameObject_t* object = (GameObject_t*)id;
+void Scene_MoveGameObjectBy(Scene* scene, ObjectId id, _i8 x, _i8 y) {
+  GameObject* object = (GameObject*)id;
   SpriteId sid = GameObjectGetSpriteId(object);
 
   ObjectId obstacleId =
@@ -188,20 +187,20 @@ void Scene_MoveGameObjectBy(Scene_t* scene, ObjectId id, _i8 x, _i8 y) {
   }
 }
 
-void Scene_MoveGameObjectTo(Scene_t* scene, ObjectId id, _u16 x, _u16 y) {
-  SpriteId sid = GameObjectGetSpriteId((GameObject_t*)id);
+void Scene_MoveGameObjectTo(Scene* scene, ObjectId id, _u16 x, _u16 y) {
+  SpriteId sid = GameObjectGetSpriteId((GameObject*)id);
   Scene_MoveSpriteTo(scene, sid, x, y);
 }
 
 void Scene_ChangeSpriteAnimationSpeed(SpriteId sid,
                                       const AnimationSpeed speed) {
-  Sprite_t* sprite = (Sprite_t*)sid;
+  Sprite* sprite = (Sprite*)sid;
   Sprite_SetAnimationSpeed(sprite, speed);
 }
 
 //------------------------------------------------------- private functions
-void setDurtyRegion(Scene_t* scene, const Rectangle_t* region,
-                    const LayerType_t layer) {
+void setDurtyRegion(Scene* scene, const Rectangle* region,
+                    const LayerType layer) {
   if (entireScreenisDurty) {
     return;
   }
@@ -211,7 +210,7 @@ void setDurtyRegion(Scene_t* scene, const Rectangle_t* region,
   _u16 bottom =
       Rectangle_GetVisibleBottom(region, ScreenConfig_GetRealHeight());
 
-  Rectangle_t* reg = findNextEmptyRegion();
+  Rectangle* reg = findNextEmptyRegion();
   if (reg != NULL) {
     Rectangle_Set(reg, left, top, right, bottom);
   }
@@ -221,7 +220,7 @@ void setDurtyRegion(Scene_t* scene, const Rectangle_t* region,
   }
 }
 
-static inline void setDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
+static inline void setDurtySprite(Scene* scene, const Sprite* sprite) {
   if (entireScreenisDurty) {
     return;
   }
@@ -231,8 +230,8 @@ static inline void setDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
     return;
   }
 
-  const Point_t* position = Sprite_GetPosition(sprite);
-  const LayerType_t layer = Sprite_GetLayer(sprite);
+  const Point* position = Sprite_GetPosition(sprite);
+  const LayerType layer = Sprite_GetLayer(sprite);
 
   const _u8 width = Sprite_GetWidth(sprite);
   const _u8 height = Sprite_GetHeight(sprite);
@@ -248,7 +247,7 @@ static inline void setDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
 
   // TODO: investigate why we still have duplicates here
   //  preventing adding duplicated
-  Rectangle_t* reg = findSameRegion(left, top, right, bottom);
+  Rectangle* reg = findSameRegion(left, top, right, bottom);
   if (reg != NULL) {
     return;
   }
@@ -262,9 +261,9 @@ static inline void setDurtySprite(Scene_t* scene, const Sprite_t* sprite) {
   }
 }
 
-static inline Rectangle_t* findNextEmptyRegion() {
+static inline Rectangle* findNextEmptyRegion() {
   for (_u8 index = 0; index < regionsCount; index++) {
-    Rectangle_t* reg = durtyRegions[index];
+    Rectangle* reg = durtyRegions[index];
     if (Rectangle_IsEmpty(reg)) {
       return reg;
     }
@@ -272,9 +271,9 @@ static inline Rectangle_t* findNextEmptyRegion() {
   return NULL;
 }
 
-static inline Rectangle_t* findSameRegion(_u16 l, _u16 t, _u16 r, _u16 b) {
+static inline Rectangle* findSameRegion(_u16 l, _u16 t, _u16 r, _u16 b) {
   for (_u8 index = 0; index < regionsCount; index++) {
-    Rectangle_t* reg = durtyRegions[index];
+    Rectangle* reg = durtyRegions[index];
     if (Rectangle_isSame(reg, l, t, r, b)) {
       return reg;
     }
@@ -290,7 +289,7 @@ static inline void resetAllRegions() {
 }
 
 static void updateAnimationStateCallback(SpriteId sid) {
-  Sprite_t* sprite = (Sprite_t*)sid;
+  Sprite* sprite = (Sprite*)sid;
 
   Sprite_UpdateState(sprite);
   if (Sprite_IsFrameChanged(sprite) == true) {
@@ -298,7 +297,7 @@ static void updateAnimationStateCallback(SpriteId sid) {
   }
 }
 
-void updataAnimatedSprites(Scene_t* scene) {
+void updataAnimatedSprites(Scene* scene) {
   SpritesHolder_ForeachSprite(scene->spritesHolder, LAYER_FAR,
                               updateAnimationStateCallback);
   SpritesHolder_ForeachSprite(scene->spritesHolder, LAYER_MID,
