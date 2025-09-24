@@ -4,13 +4,13 @@
 
 #include "../collections/array.h"
 
-typedef struct Button_t {
+typedef struct Button {
   ClickListener clickListener;
   bool selected;
-} Button_t;
+} Button;
 
-Button_t* ButtonCreate(ClickListener clickListener) {
-  Button_t* button = malloc(sizeof(Button_t));
+Button* ButtonCreate(ClickListener clickListener) {
+  Button* button = malloc(sizeof(Button));
 
   if (button == NULL) return NULL;
 
@@ -20,8 +20,8 @@ Button_t* ButtonCreate(ClickListener clickListener) {
   return button;
 }
 
-void ButtonDestroy(Button_t* button) { free(button); }
+void ButtonDestroy(Button* button) { free(button); }
 
-void ButtonChangeSelection(Button_t* button, bool selected) {
+void ButtonChangeSelection(Button* button, bool selected) {
   button->selected = selected;
 }

@@ -5,7 +5,7 @@
 
 #include "../scene/objects_holder.h"
 
-ObjectId CollisionChecker_GetObstacle(const ObjectsHolder_t *holder,
+ObjectId CollisionChecker_GetObstacle(const ObjectsHolder *holder,
                                       const ObjectId id, const _i8 x,
                                       const _i8 y);
 

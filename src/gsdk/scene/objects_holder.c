@@ -10,15 +10,15 @@
 #define FAR_OBJECTS_MAX_COUNT 12
 #define MID_OBJECTS_MAX_COUNT 20
 
-typedef struct ObjectsHolder_t {
+typedef struct ObjectsHolder {
   Array_t* farObjects;
   Array_t* midObjects;
-} ObjectsHolder_t;
+} ObjectsHolder;
 
 static inline void DestroyGameObject(void* gameObject);
 
-static inline Array_t* SelectObjectsContainer(const ObjectsHolder_t* holder,
-                                              LayerType_t layer) {
+static inline Array_t* SelectObjectsContainer(const ObjectsHolder* holder,
+                                              LayerType layer) {
   if (layer == LAYER_MID) {
     return holder->midObjects;
   } else {
@@ -26,8 +26,8 @@ static inline Array_t* SelectObjectsContainer(const ObjectsHolder_t* holder,
   }
 }
 
-ObjectsHolder_t* ObjectsHolder_Create() {
-  ObjectsHolder_t* holder = (ObjectsHolder_t*)malloc(sizeof(ObjectsHolder_t));
+ObjectsHolder* ObjectsHolder_Create() {
+  ObjectsHolder* holder = (ObjectsHolder*)malloc(sizeof(ObjectsHolder));
 
   if (holder == NULL) return NULL;
 
@@ -37,7 +37,7 @@ ObjectsHolder_t* ObjectsHolder_Create() {
   return holder;
 }
 
-void ObjectsHolder_Destroy(ObjectsHolder_t* holder) {
+void ObjectsHolder_Destroy(ObjectsHolder* holder) {
   if (holder == NULL) return;
 
   ArrayForeach(holder->farObjects, DestroyGameObject);
@@ -49,10 +49,10 @@ void ObjectsHolder_Destroy(ObjectsHolder_t* holder) {
   free(holder);
 }
 
-ObjectId ObjectsHolder_Add(ObjectsHolder_t* holder, SpriteId spriteId,
-                           LayerType_t layer, bool collidable, bool obstacle,
+ObjectId ObjectsHolder_Add(ObjectsHolder* holder, SpriteId spriteId,
+                           LayerType layer, bool collidable, bool obstacle,
                            bool gravitable) {
-  GameObject_t* object =
+  GameObject* object =
       GameObjectCreate(spriteId, collidable, obstacle, gravitable);
   Array_t* container = SelectObjectsContainer(holder, layer);
 
@@ -62,17 +62,17 @@ ObjectId ObjectsHolder_Add(ObjectsHolder_t* holder, SpriteId spriteId,
   return OBJECT_ID_NA;
 }
 
-ObjectId ObjectsHolder_GetObject(const ObjectsHolder_t* holder,
-                                 const LayerType_t layer, const Point_t* point,
+ObjectId ObjectsHolder_GetObject(const ObjectsHolder* holder,
+                                 const LayerType layer, const Point* point,
                                  const ObjectId excepted) {
   Array_t* container = SelectObjectsContainer(holder, layer);
 
   for (_u16 index = 0; index < ArraySize(container); index++) {
-    GameObject_t* object = ArrayValueAt(container, index);
-    if (object == (GameObject_t*)excepted) {
+    GameObject* object = ArrayValueAt(container, index);
+    if (object == (GameObject*)excepted) {
       continue;
     }
-    Sprite_t* sprite = (Sprite_t*)GameObjectGetSpriteId(object);
+    Sprite* sprite = (Sprite*)GameObjectGetSpriteId(object);
     if (Sprite_ContainsPoint(sprite, point->x, point->y)) {
       return (ObjectId)object;
     }
@@ -81,5 +81,5 @@ ObjectId ObjectsHolder_GetObject(const ObjectsHolder_t* holder,
 }
 
 static inline void DestroyGameObject(void* gameObject) {
-  GameObjectDestroy((GameObject_t*)gameObject);
+  GameObjectDestroy((GameObject*)gameObject);
 }

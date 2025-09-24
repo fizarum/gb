@@ -5,7 +5,7 @@
 #include "prompts.h"
 
 // 8x8
-SpriteData_t bush = {
+SpriteData bush = {
     .width = 8,
     .height = 8,
     .indicesCount = 32,
@@ -19,7 +19,7 @@ _ci bush_indices[] = {0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
                       0xdd, 0xda, 0xd5, 0x50, 0xd,  0xdd, 0x5,  0x50};
 
 // 16x16
-SpriteData_t coast = {
+SpriteData coast = {
     .width = 32,
     .height = 32,
     .indicesCount = 512,
@@ -73,7 +73,7 @@ _ci coast_indices[] = {
     0xee, 0xee, 0xee, 0xee, 0xee, 0xee, 0xee, 0xee};
 
 // 16x16
-SpriteData_t grass = {
+SpriteData grass = {
     .width = 32,
     .height = 32,
     .indicesCount = 512,
@@ -127,7 +127,7 @@ _ci grass_indices[] = {
     0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd};
 
 // 16x16
-SpriteData_t player = {
+SpriteData player = {
     .width = 16,
     .height = 16,
     .indicesCount = 128,
@@ -149,7 +149,7 @@ _ci player_indices[] = {
     0x0,  0x0,  0xbb, 0xb0, 0xb,  0xbb, 0x0,  0x0};
 
 // 16x16
-SpriteData_t sand = {
+SpriteData sand = {
     .width = 16,
     .height = 16,
     .indicesCount = 128,
@@ -171,7 +171,7 @@ _ci sand_indices[] = {
     0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd};
 
 // 16x16
-SpriteData_t tree = {
+SpriteData tree = {
     .width = 32,
     .height = 32,
     .indicesCount = 512,
@@ -225,7 +225,7 @@ _ci tree_indices[] = {
     0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0};
 
 // 32x32
-SpriteData_t water = {
+SpriteData water = {
     .width = 32,
     .height = 32,
     .indicesCount = 512,
@@ -279,7 +279,7 @@ _ci water_indices[] = {
     0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66};
 
 // 32x32
-SpriteData_t water2 = {
+SpriteData water2 = {
     .width = 32,
     .height = 32,
     .indicesCount = 512,
@@ -334,7 +334,7 @@ _ci water2_indices[] = {
     0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66};
 
 // 16x32 - animated
-SpriteData_t fire = {
+SpriteData fire = {
     .width = 16,
     .height = 16,
     .indicesCount = 256,

@@ -7,7 +7,7 @@
 
 /**
  * @brief Structure representing map of tiles. Each item of TileMap is a
- * reference to some Sprite_t
+ * reference to some Sprite
  * The real size of map can be calculated (width for example) as:
  * tileSize * width
  * Also, worth to mention that all tiles should have the same value: tileSize
@@ -23,7 +23,7 @@ typedef struct TileMap {
   SpriteId* tiles;
 
   _u16 tilesCount;
-  Rectangle_t bounds;
+  Rectangle bounds;
 } TileMap;
 
 TileMap* TileMap_Create(const _u8 tileSize) {
@@ -100,13 +100,13 @@ _ci TileMap_GetPixel(const TileMap* tileMap, const _u16 x, const _u16 y,
   SpriteId id = TileMap_GetTile(tileMap, x, y);
   if (id == OBJECT_ID_NA) return fallback;
 
-  Sprite_t* sprite = (Sprite_t*)id;
+  Sprite* sprite = (Sprite*)id;
   _u8 xOnSprite = x % Sprite_GetWidth(sprite);
   _u8 yOnSprite = y % Sprite_GetHeight(sprite);
 
   return Sprite_GetColorIndex(sprite, xOnSprite, yOnSprite, fallback);
 }
 
-const Rectangle_t* TileMap_GetBounds(const TileMap* tileMap) {
+const Rectangle* TileMap_GetBounds(const TileMap* tileMap) {
   return &(tileMap->bounds);
 }

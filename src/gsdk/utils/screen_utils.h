@@ -29,7 +29,7 @@ inline static void GetXYFromIndex(const _u32 index, const _u16 width, _u16* x,
   *x = index % width;
 }
 
-inline const static _u16 GetVisibleRight(const Point_t* position,
+inline const static _u16 GetVisibleRight(const Point* position,
                                          const _u16 width, const _u16 limit) {
   int result = position->x + width - 1;
   result = result >= limit ? limit - 1 : result;
@@ -38,7 +38,7 @@ inline const static _u16 GetVisibleRight(const Point_t* position,
   return (_u16)result;
 }
 
-inline const static _u16 GetVisibleBottom(const Point_t* position,
+inline const static _u16 GetVisibleBottom(const Point* position,
                                           const _u16 height, const _u16 limit) {
   _i32 result = position->y + height - 1;
   result = result >= limit ? limit - 1 : result;
@@ -47,11 +47,11 @@ inline const static _u16 GetVisibleBottom(const Point_t* position,
   return (_u16)result;
 }
 
-inline const static _i32 GetRight(const Point_t* position, const _u16 width) {
+inline const static _i32 GetRight(const Point* position, const _u16 width) {
   return position->x + width - 1;
 }
 
-inline const static _i32 GetBottom(const Point_t* position, const _u16 height) {
+inline const static _i32 GetBottom(const Point* position, const _u16 height) {
   return position->y + height - 1;
 }
 

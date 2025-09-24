@@ -2,16 +2,16 @@
 
 #include <stdlib.h>
 
-typedef struct MenuItem_t {
+typedef struct MenuItem {
   _u16 id;
   const char* name;
   bool selected;
   OnMenuItemClick callback;
-} MenuItem_t;
+} MenuItem;
 
-MenuItem_t* MenuItemCreate(_u16 id, const char* const name,
-                           OnMenuItemClick callback) {
-  MenuItem_t* item = (MenuItem_t*)malloc(sizeof(MenuItem_t));
+MenuItem* MenuItemCreate(_u16 id, const char* const name,
+                         OnMenuItemClick callback) {
+  MenuItem* item = (MenuItem*)malloc(sizeof(MenuItem));
 
   if (item == NULL) return NULL;
 
@@ -23,16 +23,16 @@ MenuItem_t* MenuItemCreate(_u16 id, const char* const name,
   return item;
 }
 
-void MenuItemDestroy(MenuItem_t* item) {
+void MenuItemDestroy(MenuItem* item) {
   if (item == NULL) return;
 
   free(item);
 }
 
-void MenuItemOnSelected(MenuItem_t* item) { item->selected = true; }
+void MenuItemOnSelected(MenuItem* item) { item->selected = true; }
 
-void MenuItemOnUnselected(MenuItem_t* item) { item->selected = false; }
+void MenuItemOnUnselected(MenuItem* item) { item->selected = false; }
 
-bool MenuItemIsSelected(const MenuItem_t* item) { return item->selected; }
+bool MenuItemIsSelected(const MenuItem* item) { return item->selected; }
 
-const char* MenuItemGetName(const MenuItem_t* item) { return item->name; }
+const char* MenuItemGetName(const MenuItem* item) { return item->name; }

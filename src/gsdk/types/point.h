@@ -10,10 +10,10 @@ extern "C" {
  * @brief Structure of point in 2D space.
  *
  */
-typedef struct Point_t {
+typedef struct Point {
   _i32 x;
   _i32 y;
-} Point_t;
+} Point;
 
 #ifdef __cplusplus
 }

@@ -38,9 +38,9 @@
  *			   #  obstacle 2 #
  *         >   ###############
  */
-void CalculateNextPosition(const Point_t* position, const _u8 width,
+void CalculateNextPosition(const Point* position, const _u8 width,
                            const _u8 height, const _i8 moveByX,
-                           const _i8 moveByY, Point_t* corner1Pos,
-                           Point_t* corner2Pos);
+                           const _i8 moveByY, Point* corner1Pos,
+                           Point* corner2Pos);
 
 #endif  // GAME_SDK_COLLISION_CALCULATOR_H

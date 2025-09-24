@@ -53,7 +53,7 @@ static void onAppUpdate(void) {
 
 static void handleKey(const void* keyData) {
   InputDeviceData_t* data = (InputDeviceData_t*)keyData;
-  Scene_t* scene = Game_GetScene();
+  Scene* scene = Game_GetScene();
 
   if (IsButtonLeftPressed(data)) {
     Scene_MoveGameObjectBy(scene, playerId, -1, 0);
@@ -87,11 +87,11 @@ AppSpecification_t* DemoAppSpecification() {
 }
 
 void _AssignSprites() {
-  Scene_t* scene = Game_GetScene();
+  Scene* scene = Game_GetScene();
 
-  const SpriteData_t* playerSd = &player;
-  const SpriteData_t* sandSd = &sand;
-  const SpriteData_t* coastSd = &coast;
+  const SpriteData* playerSd = &player;
+  const SpriteData* sandSd = &sand;
+  const SpriteData* coastSd = &coast;
 
   SpriteId waterSid = Scene_AddSprite(scene, &water, LAYER_FAR);
 
@@ -301,24 +301,24 @@ TileMap* _AssignTileMap() {
 }
 
 void _AssignMenuSprites() {
-  Menu_t* menu = Game_GetMenu();
+  Menu* menu = Game_GetMenu();
   // MenuSetupButtonSprites(menu, SpritesRepo_Set(&btn_left),
   //                        SpritesRepo_Set(&btn_mid),
   //                        SpritesRepo_Set(&btn_right));
 
   MenuSetupButtonSprites(menu, &btn_left, &btn_mid, &btn_right);
 
-  const SpriteData_t* pauseData[] = {&letter_p, &letter_a, &letter_u,
-                                     &letter_s, &letter_e, &letter_d};
-  _u8 lettersCount = sizeof(pauseData) / sizeof(SpriteData_t*);
+  const SpriteData* pauseData[] = {&letter_p, &letter_a, &letter_u,
+                                   &letter_s, &letter_e, &letter_d};
+  _u8 lettersCount = sizeof(pauseData) / sizeof(SpriteData*);
   MenuCreateHCenterLabel(menu, pauseData, lettersCount, 40);
 
-  const SpriteData_t* exitData[] = {&letter_e, &letter_x, &letter_i, &letter_t};
-  lettersCount = sizeof(exitData) / sizeof(SpriteData_t*);
+  const SpriteData* exitData[] = {&letter_e, &letter_x, &letter_i, &letter_t};
+  lettersCount = sizeof(exitData) / sizeof(SpriteData*);
   MenuCreateHCenterButton(menu, exitData, lettersCount, 80);
 
-  const SpriteData_t* resumeData[] = {&letter_r, &letter_e, &letter_s,
-                                      &letter_u, &letter_m, &letter_e};
-  lettersCount = sizeof(resumeData) / sizeof(SpriteData_t*);
+  const SpriteData* resumeData[] = {&letter_r, &letter_e, &letter_s,
+                                    &letter_u, &letter_m, &letter_e};
+  lettersCount = sizeof(resumeData) / sizeof(SpriteData*);
   MenuCreateHCenterButton(menu, resumeData, lettersCount, 100);
 }

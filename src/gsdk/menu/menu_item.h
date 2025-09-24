@@ -9,18 +9,18 @@ extern "C" {
 
 #include "../types/types.h"
 
-typedef struct MenuItem_t MenuItem_t;
+typedef struct MenuItem MenuItem;
 typedef void (*OnMenuItemClick)(void);
 
-MenuItem_t* MenuItemCreate(_u16 id, const char* const name,
-                           OnMenuItemClick callback);
-void MenuItemDestroy(MenuItem_t* item);
+MenuItem* MenuItemCreate(_u16 id, const char* const name,
+                         OnMenuItemClick callback);
+void MenuItemDestroy(MenuItem* item);
 
-void MenuItemOnSelected(MenuItem_t* item);
-void MenuItemOnUnselected(MenuItem_t* item);
+void MenuItemOnSelected(MenuItem* item);
+void MenuItemOnUnselected(MenuItem* item);
 
-bool MenuItemIsSelected(const MenuItem_t* item);
-const char* MenuItemGetName(const MenuItem_t* item);
+bool MenuItemIsSelected(const MenuItem* item);
+const char* MenuItemGetName(const MenuItem* item);
 
 #ifdef __cplusplus
 }

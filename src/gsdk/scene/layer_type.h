@@ -13,7 +13,7 @@ typedef enum {
   LAYER_UI = 4,
   LAYER_MENU_FAR = 5,
   LAYER_MENU_NEAR = 6,
-} LayerType_t;
+} LayerType;
 
 #ifdef __cplusplus
 }

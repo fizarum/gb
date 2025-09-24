@@ -13,13 +13,13 @@ extern "C" {
 #include "../types/types.h"
 #include "layer_type.h"
 
-typedef struct SpritesHolder_t SpritesHolder_t;
+typedef struct SpritesHolder SpritesHolder;
 
-SpritesHolder_t* SpritesHolder_Create();
-void SpritesHolder_Destroy(SpritesHolder_t* holder);
+SpritesHolder* SpritesHolder_Create();
+void SpritesHolder_Destroy(SpritesHolder* holder);
 
 /**
- * @brief Creates Sprite_t instance and add to internal container
+ * @brief Creates Sprite instance and add to internal container
  *
  * @param holder
  * @param data
@@ -28,9 +28,8 @@ void SpritesHolder_Destroy(SpritesHolder_t* holder);
  * @param y
  * @return SpriteId unique id of sprite if it is added or OBJECT_ID_NA otherwise
  */
-SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
-                                 const SpriteData_t* data,
-                                 const LayerType_t layer);
+SpriteId SpritesHolder_AddSprite(SpritesHolder* holder, const SpriteData* data,
+                                 const LayerType layer);
 
 /**
  * @brief Get Color Index by [x,y] coordinates
@@ -44,13 +43,13 @@ SpriteId SpritesHolder_AddSprite(SpritesHolder_t* holder,
  * @return Color Index (_ci) from sprite by [x,y] coords or fallback if sprite
  * cant be found
  */
-_ci SpritesHolder_GetColorIndex(const SpritesHolder_t* holder,
-                                const LayerType_t layer, const _u16 x,
+_ci SpritesHolder_GetColorIndex(const SpritesHolder* holder,
+                                const LayerType layer, const _u16 x,
                                 const _u16 y, _ci fallback);
 
-void SpritesHolder_ForeachSprite(const SpritesHolder_t* holder,
-                                const LayerType_t type,
-                                void (*foreach)(SpriteId spriteId));
+void SpritesHolder_ForeachSprite(const SpritesHolder* holder,
+                                 const LayerType type,
+                                 void (*foreach)(SpriteId spriteId));
 
 #ifdef __cplusplus
 }

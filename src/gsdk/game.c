@@ -14,14 +14,14 @@
 
 static Palette palette;
 static GameState state;
-static LayerType_t layerChanged;
-static Scene_t* scene;
-static Menu_t* menu;
+static LayerType layerChanged;
+static Scene* scene;
+static Menu* menu;
 static TileMap* _tileMap;
 
 typedef struct Game {
-  SpritesHolder_t* spritesHolder;
-  ObjectsHolder_t* objectsHolder;
+  SpritesHolder* spritesHolder;
+  ObjectsHolder* objectsHolder;
 } Game;
 
 static void _Game_SetupDefaultPalette();
@@ -71,7 +71,7 @@ void Game_Destroy(Game* game) {
 
 void Game_SetTileMap(TileMap* tileMap) { _tileMap = tileMap; }
 
-void Game_SetMenuItems(MenuItem_t** items, _u8 itemsCount) {
+void Game_SetMenuItems(MenuItem** items, _u8 itemsCount) {
   // TODO: complete
 }
 
@@ -110,9 +110,9 @@ void Game_Update() {
   }
 }
 
-Menu_t* Game_GetMenu() { return menu; }
+Menu* Game_GetMenu() { return menu; }
 
-Scene_t* Game_GetScene() { return scene; }
+Scene* Game_GetScene() { return scene; }
 
 static Color _color;
 static Color buffer[320] = {COLOR_MAGENTA};

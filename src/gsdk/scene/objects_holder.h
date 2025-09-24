@@ -11,18 +11,18 @@ extern "C" {
 #include "../types/types.h"
 #include "layer_type.h"
 
-typedef struct ObjectsHolder_t ObjectsHolder_t;
+typedef struct ObjectsHolder ObjectsHolder;
 
-ObjectsHolder_t* ObjectsHolder_Create();
-void ObjectsHolder_Destroy(ObjectsHolder_t* holder);
+ObjectsHolder* ObjectsHolder_Create();
+void ObjectsHolder_Destroy(ObjectsHolder* holder);
 
-ObjectId ObjectsHolder_Add(ObjectsHolder_t* holder, SpriteId spriteId,
-                          LayerType_t layer, bool collidable, bool obstacle,
-                          bool gravitable);
+ObjectId ObjectsHolder_Add(ObjectsHolder* holder, SpriteId spriteId,
+                           LayerType layer, bool collidable, bool obstacle,
+                           bool gravitable);
 
-ObjectId ObjectsHolder_GetObject(const ObjectsHolder_t* holder,
-                                const LayerType_t layer, const Point_t* point,
-                                const ObjectId excepted);
+ObjectId ObjectsHolder_GetObject(const ObjectsHolder* holder,
+                                 const LayerType layer, const Point* point,
+                                 const ObjectId excepted);
 #ifdef __cplusplus
 }
 #endif
