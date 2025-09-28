@@ -92,8 +92,6 @@ void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback) {
     return;
   }
 
-  printf("requested cleanup regions\n");
-
   for (_u8 index = 0; index < regionsCount; index++) {
     Rectangle* reg = durtyRegions[index];
     if (Rectangle_IsEmpty(reg) == false) {
@@ -239,6 +237,9 @@ static inline void setDurtySprite(Scene* scene, const Sprite* sprite) {
   _u16 left = normalize(position->x, ScreenConfig_GetRealWidth());
   _u16 top = normalize(position->y, ScreenConfig_GetRealHeight());
 
+  // TODO: right & bottom can be smaller than original, because sprite can be
+  // partially hidden, so width and height should be calculated according to
+  // modified left & top values
   _u16 right = left + width - 1;
   right = normalize(right, ScreenConfig_GetRealHeight());
 
@@ -255,6 +256,7 @@ static inline void setDurtySprite(Scene* scene, const Sprite* sprite) {
   reg = findNextEmptyRegion();
   if (reg != NULL) {
     Rectangle_Set(reg, left, top, right, bottom);
+    reg->id = (SpriteId)sprite;
   }
   if (layer > scene->layerChanged) {
     scene->layerChanged = layer;

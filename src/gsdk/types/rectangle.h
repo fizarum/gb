@@ -8,6 +8,7 @@ extern "C" {
 #include <types.h>
 
 typedef struct Rectangle {
+  _ptr id;
   _i16 left;
   _i16 top;
   _i16 right;
@@ -20,6 +21,7 @@ static inline bool Rectangle_IsEmpty(Rectangle* rectangle) {
 }
 
 static inline void Rectangle_Reset(Rectangle* rectangle) {
+  rectangle->id = NULL;
   rectangle->left = 0;
   rectangle->top = 0;
   rectangle->right = 0;
