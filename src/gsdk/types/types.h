@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define OBJECT_ID_NA 0
+#define ID_NA 0
 
 typedef uint8_t _u8;
 typedef int8_t _i8;

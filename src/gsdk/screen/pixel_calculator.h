@@ -12,13 +12,11 @@ extern "C" {
 #include "palette.h"
 
 static _ci _index;
-SpriteId id = OBJECT_ID_NA;
 
 static inline Color CalculatePixel(Palette* palette, _u16 x, _u16 y,
                                    SpritesHolder* sprites, TileMap* tilemap,
                                    LayerType layerChanged, _ci fallbackCI) {
   _index = fallbackCI;
-  id = OBJECT_ID_NA;
 
   if (layerChanged == LAYER_UI) {
     _index = SpritesHolder_GetColorIndex(sprites, LAYER_UI, x, y, fallbackCI);
@@ -53,7 +51,7 @@ static inline Color CalculatePixel(Palette* palette, _u16 x, _u16 y,
     }
   }
 
-  return palette->backgoundColor;
+  return palette->colors[fallbackCI];
 }
 
 static inline Color CalculatePixelForMenu(Palette* palette, _u8 x, _u8 y,

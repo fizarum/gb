@@ -88,19 +88,15 @@ AppSpecification_t* DemoAppSpecification() {
 
 void _AssignSprites() {
   Scene* scene = Game_GetScene();
-
-  const SpriteData* playerSd = &player;
-  const SpriteData* sandSd = &sand;
-  const SpriteData* coastSd = &coast;
-
+  
   SpriteId waterSid = Scene_AddSprite(scene, &water, LAYER_FAR);
 
   grassId = Scene_AddSprite(scene, &grass, LAYER_TILEMAP);
   waterId = Scene_AddSprite(scene, &water, LAYER_TILEMAP);
   water2Id = Scene_AddSprite(scene, &water2, LAYER_TILEMAP);
-  sandId = Scene_AddSprite(scene, sandSd, LAYER_TILEMAP);
-  coastId = Scene_AddSprite(scene, coastSd, LAYER_TILEMAP);
-  playerId = Scene_AddGameObject(scene, playerSd, LAYER_MID, true, true, false);
+  sandId = Scene_AddSprite(scene, &sand, LAYER_TILEMAP);
+  coastId = Scene_AddSprite(scene, &coast, LAYER_TILEMAP);
+  playerId = Scene_AddGameObject(scene, &player, LAYER_MID, true, true, false);
 
   SpriteId animatedFire = Scene_AddSprite(scene, &fire, LAYER_NEAR);
   Scene_ChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_SUPER_FAST);
