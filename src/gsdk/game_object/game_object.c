@@ -29,8 +29,8 @@ typedef struct GameObject {
 
 } GameObject;
 
-GameObject* GameObjectCreate(SpriteId spriteId, const bool collidable,
-                             const bool obstacle, const bool gravitable) {
+GameObject* GameObject_Create(SpriteId spriteId, const bool collidable,
+                              const bool obstacle, const bool gravitable) {
   GameObject* object = (GameObject*)malloc(sizeof(GameObject));
 
   if (object == NULL) return NULL;
@@ -42,47 +42,49 @@ GameObject* GameObjectCreate(SpriteId spriteId, const bool collidable,
   return object;
 }
 
-void GameObjectDestroy(GameObject* object) { free(object); }
+void GameObject_Destroy(GameObject* object) { free(object); }
 
-SpriteId GameObjectGetSpriteId(const GameObject* object) {
+SpriteId GameObject_GetSpriteId(const GameObject* object) {
   return object->spriteId;
 }
 
-bool GameObjectIsCollidable(const GameObject* object) {
+bool GameObject_IsCollidable(const GameObject* object) {
   return object->collidable;
 }
 
-bool GameObjectIsObstacle(const GameObject* object) { return object->obstacle; }
+bool GameObject_IsObstacle(const GameObject* object) {
+  return object->obstacle;
+}
 
-const Point* GameObjectGetNextPositionOfCorner1(const GameObject* object) {
+const Point* GameObject_GetNextPositionOfCorner1(const GameObject* object) {
   return &(object->nextPositionOfCorner1);
 }
 
-const Point* GameObjectGetNextPositionOfCorner2(const GameObject* object) {
+const Point* GameObject_GetNextPositionOfCorner2(const GameObject* object) {
   return &(object->nextPositionOfCorner2);
 }
 
-void GameObjectSetNextPositionForCorner1(GameObject* object, const int16_t x,
-                                         const int16_t y) {
+void GameObject_SetNextPositionForCorner1(GameObject* object, const _i16 x,
+                                          const _i16 y) {
   Point* point = &(object->nextPositionOfCorner1);
   point->x = x;
   point->y = y;
 }
 
-void GameObjectSetNextPositionForCorner2(GameObject* object, const int16_t x,
-                                         const int16_t y) {
+void GameObject_SetNextPositionForCorner2(GameObject* object, const _i16 x,
+                                          const _i16 y) {
   Point* point = &(object->nextPositionOfCorner2);
   point->x = x;
   point->y = y;
 }
 
-void GameObjectResetNextPositionOfCorner1(GameObject* object) {
+void GameObject_ResetNextPositionOfCorner1(GameObject* object) {
   Point* point = &(object->nextPositionOfCorner1);
   point->x = 0;
   point->y = 0;
 }
 
-void GameObjectResetNextPositionOfCorner2(GameObject* object) {
+void GameObject_ResetNextPositionOfCorner2(GameObject* object) {
   Point* point = &(object->nextPositionOfCorner2);
   point->x = 0;
   point->y = 0;

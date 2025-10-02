@@ -53,7 +53,7 @@ ObjectId ObjectsHolder_Add(ObjectsHolder* holder, SpriteId spriteId,
                            LayerType layer, bool collidable, bool obstacle,
                            bool gravitable) {
   GameObject* object =
-      GameObjectCreate(spriteId, collidable, obstacle, gravitable);
+      GameObject_Create(spriteId, collidable, obstacle, gravitable);
   Array_t* container = SelectObjectsContainer(holder, layer);
 
   if (ArrayAdd(container, object) == true) {
@@ -72,7 +72,7 @@ ObjectId ObjectsHolder_GetObject(const ObjectsHolder* holder,
     if (object == (GameObject*)excepted) {
       continue;
     }
-    Sprite* sprite = (Sprite*)GameObjectGetSpriteId(object);
+    Sprite* sprite = (Sprite*)GameObject_GetSpriteId(object);
     if (Sprite_ContainsPoint(sprite, point->x, point->y)) {
       return (ObjectId)object;
     }
@@ -81,5 +81,5 @@ ObjectId ObjectsHolder_GetObject(const ObjectsHolder* holder,
 }
 
 static inline void DestroyGameObject(void* gameObject) {
-  GameObjectDestroy((GameObject*)gameObject);
+  GameObject_Destroy((GameObject*)gameObject);
 }
