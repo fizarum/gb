@@ -12,25 +12,25 @@ extern "C" {
 
 typedef struct GameObject GameObject;
 
-GameObject *GameObjectCreate(SpriteId spriteId, const bool collidable,
-                             const bool obstacle, const bool gravitable);
-void GameObjectDestroy(GameObject *object);
+GameObject* GameObject_Create(SpriteId spriteId, const bool collidable,
+                              const bool obstacle, const bool gravitable);
+void GameObject_Destroy(GameObject* object);
 
-SpriteId GameObjectGetSpriteId(const GameObject *object);
+SpriteId GameObject_GetSpriteId(const GameObject* object);
 
-bool GameObjectIsCollidable(const GameObject *object);
-bool GameObjectIsObstacle(const GameObject *object);
+bool GameObject_IsCollidable(const GameObject* object);
+bool GameObject_IsObstacle(const GameObject* object);
 
-const Point *GameObjectGetNextPositionOfCorner1(const GameObject *object);
-const Point *GameObjectGetNextPositionOfCorner2(const GameObject *object);
+const Point* GameObject_GetNextPositionOfCorner1(const GameObject* object);
+const Point* GameObject_GetNextPositionOfCorner2(const GameObject* object);
 
-void GameObjectSetNextPositionForCorner1(GameObject *object, const int16_t x,
-                                         const int16_t y);
-void GameObjectSetNextPositionForCorner2(GameObject *object, const int16_t x,
-                                         const int16_t y);
+void GameObject_SetNextPositionForCorner1(GameObject* object, const _i16 x,
+                                          const _i16 y);
+void GameObject_SetNextPositionForCorner2(GameObject* object, const _i16 x,
+                                          const _i16 y);
 
-void GameObjectResetNextPositionOfCorner1(GameObject *object);
-void GameObjectResetNextPositionOfCorner2(GameObject *object);
+void GameObject_ResetNextPositionOfCorner1(GameObject* object);
+void GameObject_ResetNextPositionOfCorner2(GameObject* object);
 
 #ifdef __cplusplus
 }

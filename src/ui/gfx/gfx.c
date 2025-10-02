@@ -11,13 +11,13 @@
 // 8-bit version
 #define GFX_IS_BIT_SET8(source, position) (source & (0x80 >> position))
 
-static Font_t *activeFont = NULL;
+static Font_t* activeFont = NULL;
 static _u16 backgroundColor;
 static GFX_CanvasUpdated canvasCallback;
 static _u16 canvasWidth = 0;
 static _u16 canvasHeight = 0;
 static _u32 canvasSize = 0;
-static _u16 *canvas;
+static _u16* canvas;
 
 void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback) {
   canvasWidth = width;
@@ -34,10 +34,10 @@ void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback) {
 
 void GFX_Redraw() { canvasCallback(); }
 
-_u16 *GFX_GetCanvas() { return canvas; }
+_u16* GFX_GetCanvas() { return canvas; }
 
-void GFX_SetFont(Font_t *font) { activeFont = font; }
-Font_t *GFX_GetFont() { return activeFont; }
+void GFX_SetFont(Font_t* font) { activeFont = font; }
+Font_t* GFX_GetFont() { return activeFont; }
 
 void GFX_SetBackgroundColor(_u16 color) { backgroundColor = color; }
 
@@ -49,8 +49,8 @@ _u32 GFX_CanvasSize() { return canvasSize; }
  * @brief Draws symbol
  * @return pixels (by width) drawn for provided symbol
  */
-_u8 GFX_DrawSymbol(SymbolData_t *symbol, const _u16 left, const _u16 top,
-                   const Font_t *font) {
+_u8 GFX_DrawSymbol(SymbolData_t* symbol, const _u16 left, const _u16 top,
+                   const Font_t* font) {
   if (font == NULL || font->scale == 0) {
     return 0;
   }
@@ -94,8 +94,8 @@ _u8 GFX_DrawSymbol(SymbolData_t *symbol, const _u16 left, const _u16 top,
  * @return pixels (by width) drawn for provided char
  */
 _u8 GFX_DrawChar(_u8 asciiSymbol, const _u16 left, const _u16 top,
-                 const Font_t *font) {
-  SymbolData_t *symbol = SymbolsGet(asciiSymbol);
+                 const Font_t* font) {
+  SymbolData_t* symbol = SymbolsGet(asciiSymbol);
   if (symbol == NULL) {
     return 0;
   }
@@ -107,8 +107,8 @@ _u8 GFX_DrawChar(_u8 asciiSymbol, const _u16 left, const _u16 top,
  * @brief Draws string
  * @return pixels (by width) drawn for provided string
  */
-_u16 GFX_DrawString(const char *string, const _u16 left, const _u16 top,
-                    const Font_t *font) {
+_u16 GFX_DrawString(const char* string, const _u16 left, const _u16 top,
+                    const Font_t* font) {
   if (string == NULL) {
     return 0;
   }
@@ -133,21 +133,20 @@ _u16 GFX_DrawString(const char *string, const _u16 left, const _u16 top,
 }
 static _u32 start, end;
 
-void GFX_DrawPixel(const _u16 left, const _u16 top, _u16 color) {
-  if (left >= canvasWidth || top > canvasHeight) {
+void GFX_DrawPixel(const _u16 x, const _u16 y, _u16 color) {
+  if (x >= canvasWidth || y > canvasHeight) {
     return;
   }
-  start = GFX_GetIndexIn2DSpace(left, top, canvasWidth);
+  start = GFX_GetIndexIn2DSpace(x, y, canvasWidth);
   canvas[start] = color;
 }
 
-void GFX_DrawPixels(const _u16 left, const _u16 top, _u16 *colors,
-                    _u8 colorsCount) {
-  if (left >= canvasWidth || top > canvasHeight) {
+void GFX_DrawPixels(const _u16 x, const _u16 y, _u16* colors, _u8 colorsCount) {
+  if (x >= canvasWidth || y > canvasHeight) {
     return;
   }
 
-  start = GFX_GetIndexIn2DSpace(left, top, canvasWidth);
+  start = GFX_GetIndexIn2DSpace(x, y, canvasWidth);
   for (_u8 index = 0; index < colorsCount; ++index) {
     if (start + index >= canvasSize) {
       return;
@@ -156,7 +155,7 @@ void GFX_DrawPixels(const _u16 left, const _u16 top, _u16 *colors,
   }
 }
 
-void GFX_DrawPixelsInBuffer(const _u32 start, _u16 *colors, _u16 colorsCount) {
+void GFX_DrawPixelsInBuffer(const _u32 start, _u16* colors, _u16 colorsCount) {
   if (start >= canvasSize) {
     return;
   }

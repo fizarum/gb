@@ -30,8 +30,8 @@ static Rectangle* durtyRegions[regionsCount];
 static bool entireScreenisDurty = false;
 
 void updataAnimatedSprites(Scene* scene);
-void setDurtyRegion(Scene* scene, const Rectangle* region,
-                    const LayerType layer);
+static inline void setDurtyRegion(Scene* scene, const Rectangle* region,
+                                  const LayerType layer);
 static inline void setDurtySprite(Scene* scene, const Sprite* sprite);
 static inline Rectangle* findNextEmptyRegion();
 static inline Rectangle* findSameRegion(_u16 l, _u16 t, _u16 r, _u16 b);
@@ -174,7 +174,7 @@ void Scene_MoveSpriteTo(Scene* scene, SpriteId id, _u16 x, _u16 y) {
 
 void Scene_MoveGameObjectBy(Scene* scene, ObjectId id, _i8 x, _i8 y) {
   GameObject* object = (GameObject*)id;
-  SpriteId sid = GameObjectGetSpriteId(object);
+  SpriteId sid = GameObject_GetSpriteId(object);
 
   ObjectId obstacleId =
       CollisionChecker_GetObstacle(scene->objectsHolder, id, x, y);
@@ -186,7 +186,7 @@ void Scene_MoveGameObjectBy(Scene* scene, ObjectId id, _i8 x, _i8 y) {
 }
 
 void Scene_MoveGameObjectTo(Scene* scene, ObjectId id, _u16 x, _u16 y) {
-  SpriteId sid = GameObjectGetSpriteId((GameObject*)id);
+  SpriteId sid = GameObject_GetSpriteId((GameObject*)id);
   Scene_MoveSpriteTo(scene, sid, x, y);
 }
 
@@ -197,8 +197,8 @@ void Scene_ChangeSpriteAnimationSpeed(SpriteId sid,
 }
 
 //------------------------------------------------------- private functions
-void setDurtyRegion(Scene* scene, const Rectangle* region,
-                    const LayerType layer) {
+static inline void setDurtyRegion(Scene* scene, const Rectangle* region,
+                                  const LayerType layer) {
   if (entireScreenisDurty) {
     return;
   }

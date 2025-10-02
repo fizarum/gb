@@ -12,11 +12,11 @@ ObjectId CollisionChecker_GetObstacle(const ObjectsHolder* holder,
   GameObject* object = (GameObject*)id;
 
   // if object to move isn't collidable, allow movement
-  if (GameObjectIsCollidable(object) == false) {
+  if (GameObject_IsCollidable(object) == false) {
     return OBJECT_ID_NA;
   }
 
-  Sprite* sprite = (Sprite*)GameObjectGetSpriteId(object);
+  Sprite* sprite = (Sprite*)GameObject_GetSpriteId(object);
 
   const LayerType layer = Sprite_GetLayer(sprite);
   // no layer type defined for sprite (probably invisible) - allow movement
@@ -42,9 +42,9 @@ ObjectId CollisionChecker_GetObstacle(const ObjectsHolder* holder,
   }
 
   GameObject* anotherObject = (GameObject*)anotherObjectId;
-  if (GameObjectIsCollidable(anotherObject) == true) {
+  if (GameObject_IsCollidable(anotherObject) == true) {
     // if anotherObject is obstacle - stop movement
-    if (GameObjectIsObstacle(anotherObject) == true) {
+    if (GameObject_IsObstacle(anotherObject) == true) {
       return (ObjectId)anotherObject;
     }
   }
