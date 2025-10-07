@@ -9,6 +9,7 @@ extern "C" {
 
 #include "../types/layer_type.h"
 #include "../types/point.h"
+#include "../types/rectangle.h"
 #include "animation_speed.h"
 #include "sprite_data.h"
 
@@ -19,6 +20,7 @@ void Sprite_Destroy(Sprite* sprite);
 const Point* Sprite_GetPosition(const Sprite* sprite);
 const _u8 Sprite_GetWidth(const Sprite* sprite);
 const _u8 Sprite_GetHeight(const Sprite* sprite);
+void Sprite_GetBounds(const Sprite* sprite, Rectangle* bounds);
 
 /**
  * @brief Get color index in sprite

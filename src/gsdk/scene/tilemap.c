@@ -50,7 +50,7 @@ void TileMap_Destroy(TileMap* tileMap) {
 }
 
 void TileMap_Set(TileMap* tileMap, SpriteId* tiles, const _u16 count,
-                 const _u8 width) {
+                 const _u8 widthInTiles) {
   if (tileMap->tilesCount > 0 && tileMap->tiles != NULL) {
     free(tileMap->tiles);
   }
@@ -64,7 +64,7 @@ void TileMap_Set(TileMap* tileMap, SpriteId* tiles, const _u16 count,
   }
   tileMap->tilesCount = count;
 
-  tileMap->width = width;
+  tileMap->width = widthInTiles;
   tileMap->height = count / tileMap->width;
 
   if (count % tileMap->width > 0) {

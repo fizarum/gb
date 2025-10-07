@@ -51,6 +51,14 @@ const _u8 Sprite_GetHeight(const Sprite* sprite) {
   return sprite->data->height;
 }
 
+void Sprite_GetBounds(const Sprite* sprite, Rectangle* bounds) {
+  // TODO: recheck limits (Rectangle has _i16, Point - _i32)
+  bounds->left = sprite->position.x;
+  bounds->top = sprite->position.y;
+  bounds->right = bounds->left + sprite->data->width;
+  bounds->bottom = bounds->top + sprite->data->height;
+}
+
 const Point* Sprite_GetPosition(const Sprite* sprite) {
   return &(sprite->position);
 }
