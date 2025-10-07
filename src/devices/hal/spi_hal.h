@@ -9,7 +9,7 @@ extern "C" {
 #include <esp_err.h>
 #include <hal/spi_types.h>
 
-static esp_err_t SPI_Init(spi_device_handle_t *handle, spi_host_device_t host,
+static esp_err_t SPI_Init(spi_device_handle_t* handle, spi_host_device_t host,
                           const uint8_t mosi, const uint8_t sclk,
                           const uint8_t cs) {
   spi_bus_config_t busConfig = {
@@ -18,9 +18,10 @@ static esp_err_t SPI_Init(spi_device_handle_t *handle, spi_host_device_t host,
       .miso_io_num = -1,
       .quadwp_io_num = -1,
       .quadhd_io_num = -1,
-      // transfer 80 lines of pixels (assume pixel is RGB565)
+      // transfer 16 lines of pixels (assume pixel is RGB565)
       // at most in one SPI transaction
-      .max_transfer_sz = 320 * 80 * sizeof(uint16_t),
+      // A bit larger than buffer for safety
+      .max_transfer_sz = 320 * 16 * sizeof(uint16_t) + 4,
   };
 
   esp_err_t result = spi_bus_initialize(host, &busConfig, SPI_DMA_CH_AUTO);

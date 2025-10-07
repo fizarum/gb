@@ -14,10 +14,10 @@
 
 static Palette palette;
 static GameState state;
-static LayerType layerChanged;
 static Scene* scene;
 static Menu* menu;
 static TileMap* _tileMap;
+static _u8 scale = 1;
 
 typedef struct Game {
   SpritesHolder* spritesHolder;
@@ -25,7 +25,7 @@ typedef struct Game {
 } Game;
 
 static void _Game_SetupDefaultPalette();
-void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b);
+void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b, LayerType layer);
 
 static Game* _game;
 
@@ -34,6 +34,7 @@ Game* Game_Create() {
   if (game == NULL) return NULL;
 
   palette.background = COLOR_BLACK;
+  scale = ScreenConfig_GetScale();
 
   game->spritesHolder = SpritesHolder_Create();
   game->objectsHolder = ObjectsHolder_Create();
@@ -42,11 +43,9 @@ Game* Game_Create() {
 
   menu = MenuCreate();
   state = STOPPED;
-  layerChanged = LAYER_NONE;
   _tileMap = NULL;
 
-  scene =
-      Scene_Create(game->spritesHolder, game->objectsHolder, &(layerChanged));
+  scene = Scene_Create(game->spritesHolder, game->objectsHolder);
 
   if (scene == NULL) {
     return NULL;
@@ -77,7 +76,6 @@ void Game_SetMenuItems(MenuItem** items, _u8 itemsCount) {
 
 void Game_Pause() {
   state = PAUSED;
-  layerChanged = LAYER_UI;
 
   printf("game state: PAUSED\n");
   Scene_Pause(scene);
@@ -85,7 +83,6 @@ void Game_Pause() {
 
 void Game_Resume() {
   state = RUNNING;
-  layerChanged = LAYER_UI;
 
   printf("game state: RUNNING\n");
   Scene_Resume(scene);
@@ -115,33 +112,26 @@ Menu* Game_GetMenu() { return menu; }
 Scene* Game_GetScene() { return scene; }
 
 static Color _color;
-static Color buffer[320] = {COLOR_MAGENTA};
 
-void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b) {
-  _u16 lineLength = r - l + 1;
-  _u16 lines = b - t + 1;
-
-  _u16 pixelIndex = 0;
-  _u16 lineIndex = 0;
+void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b, LayerType layer) {
+  static _u16 xScaled, yScaled;
 
   for (_u16 y = t; y <= b; y++) {
-    pixelIndex = 0;
-    _color = COLOR_MAGENTA;
+    yScaled = y * scale;
 
     for (_u16 x = l; x <= r; x++) {
+      xScaled = x * scale;
+
       if (state == RUNNING) {
         _color = CalculatePixel(&palette, x, y, _game->spritesHolder, _tileMap,
-                                layerChanged, 0);
+                                layer, 0);
       } else {
         _color = CalculatePixelForMenu(&palette, x, y, menu, 0);
       }
 
-      buffer[pixelIndex] = _color;
-      pixelIndex++;
+      GFX_DrawFilledRect(xScaled, yScaled, xScaled + scale, yScaled + scale,
+                         _color);
     }
-
-    _u32 index = GetIndexIn2DSpace(l, y, ScreenConfig_GetRealWidth());
-    GFX_DrawPixelsInBuffer(index, buffer, lineLength);
   }
 }
 

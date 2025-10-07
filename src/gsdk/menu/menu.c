@@ -170,5 +170,5 @@ void MenuCreateHCenterLabel(Menu* menu, const SpriteData** letterSprites,
 _u8 _MenuGetHCenterForText(const Menu* menu, const _u8 letterSize,
                            const _u8 lettersCount) {
   _u16 stringLength = letterSize * lettersCount;
-  return ScreenConfig_GetRealWidth() / 2 - stringLength / 2;
+  return ScreenConfig_GetWidth() / 2 - stringLength / 2;
 }

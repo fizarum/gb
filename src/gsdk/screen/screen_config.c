@@ -2,21 +2,23 @@
 
 #include <stdlib.h>
 
-typedef struct ScreenConfig {
-  _u16 width;
-  _u16 height;
-} ScreenConfig;
+static _u16 realWidth;
+static _u16 realHeight;
+static _u16 screenWidth;
+static _u16 screenHeight;
 
-static ScreenConfig *_config = NULL;
+static _u8 screenScale;
 
-void ScreenConfig_Create(const _u16 width, const _u16 height) {
-  _config = (ScreenConfig *)malloc(sizeof(ScreenConfig));
-
-  assert(_config != NULL);
-
-  _config->width = width;
-  _config->height = height;
+void ScreenConfig_Set(const _u16 width, const _u16 height, const _u8 scale) {
+  realWidth = width;
+  realHeight = height;
+  screenScale = scale;
+  screenWidth = width / scale;
+  screenHeight = height / scale;
 }
 
-_u16 ScreenConfig_GetRealWidth() { return _config->width; }
-_u16 ScreenConfig_GetRealHeight() { return _config->height; }
+_u16 ScreenConfig_GetRealWidth() { return realWidth; }
+_u16 ScreenConfig_GetRealHeight() { return realHeight; }
+_u16 ScreenConfig_GetWidth() { return screenWidth; }
+_u16 ScreenConfig_GetHeight() { return screenHeight; }
+_u8 ScreenConfig_GetScale() { return screenScale; }

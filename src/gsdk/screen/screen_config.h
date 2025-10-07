@@ -7,12 +7,13 @@ extern "C" {
 
 #include <types.h>
 
-typedef struct ScreenConfig ScreenConfig;
-
-void ScreenConfig_Create(const _u16 width, const _u16 height);
+void ScreenConfig_Set(const _u16 width, const _u16 height, const _u8 scale);
 
 _u16 ScreenConfig_GetRealWidth();
 _u16 ScreenConfig_GetRealHeight();
+_u16 ScreenConfig_GetWidth();
+_u16 ScreenConfig_GetHeight();
+_u8 ScreenConfig_GetScale();
 
 #ifdef __cplusplus
 }

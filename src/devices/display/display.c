@@ -16,8 +16,6 @@
 
 #define DISPLAY_WIDTH 240
 #define DISPLAY_HEIGHT 320
-#define CONFIG_OFFSETX 0
-#define CONFIG_OFFSETY 0
 
 #define DISPLAY_SCLK 12
 #define DISPLAY_MOSI 11
@@ -30,8 +28,8 @@
 #define DC_C 0
 #define DC_D 1
 
-#define SPI_BYTE_BUFF_MAX_SIZE 1024
-static _u8 buffer[SPI_BYTE_BUFF_MAX_SIZE];
+#define SPI_BYTE_BUFF_MAX_SIZE 4096
+DMA_ATTR static _u8 buffer[SPI_BYTE_BUFF_MAX_SIZE];
 
 static bool transmitCommand(const _u8 command);
 static bool transmitData(const _u8* data, const size_t length);
@@ -47,8 +45,6 @@ static DeviceSpecification_t specs = {
 static ILI9341_t dev = {
     .width = DISPLAY_WIDTH,
     .height = DISPLAY_HEIGHT,
-    .offsetx = CONFIG_OFFSETX,
-    .offsety = CONFIG_OFFSETY,
     .rotation = Angle0,
     .fontRotaion = Angle0,
     .colorMode = ModeBGR,

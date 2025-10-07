@@ -11,12 +11,12 @@
 #include "sprites_holder.h"
 #include "tilemap.h"
 
-typedef void (*OnRegionRedrawRequested)(_u16 l, _u16 t, _u16 r, _u16 b);
+typedef void (*OnRegionRedrawRequested)(_u16 l, _u16 t, _u16 r, _u16 b,
+                                        LayerType layer);
 
 typedef struct Scene Scene;
 
-Scene* Scene_Create(SpritesHolder* spritesHolder, ObjectsHolder* objectsHolder,
-                    LayerType* layerChanged);
+Scene* Scene_Create(SpritesHolder* spritesHolder, ObjectsHolder* objectsHolder);
 void Scene_Destroy(Scene* scene);
 
 void Scene_Update(Scene* scene);
@@ -25,7 +25,7 @@ void Scene_Resume(Scene* scene);
 void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback);
 
 TileMap* Scene_SetupTileMap(Scene* scene, SpriteId* tiles, const _u16 count,
-                            const _u8 width);
+                            const _u8 widthInTiles);
 
 SpriteId Scene_AddSprite(Scene* scene, const SpriteData* data,
                          const LayerType spriteType);

@@ -28,6 +28,7 @@ Scene* _scene = NULL;
 #define regionsCount 10
 static Rectangle* durtyRegions[regionsCount];
 static bool entireScreenisDurty = false;
+static Rectangle tempRegion;
 
 void updataAnimatedSprites(Scene* scene);
 static inline void setDurtyRegion(Scene* scene, const Rectangle* region,
@@ -38,8 +39,8 @@ static inline Rectangle* findSameRegion(_u16 l, _u16 t, _u16 r, _u16 b);
 static inline void resetAllRegions();
 static void updateAnimationStateCallback(SpriteId sid);
 
-Scene* Scene_Create(SpritesHolder* spritesHolder, ObjectsHolder* objectsHolder,
-                    LayerType* layerChanged) {
+Scene* Scene_Create(SpritesHolder* spritesHolder,
+                    ObjectsHolder* objectsHolder) {
   Scene* scene = (Scene*)malloc(sizeof(Scene));
 
   if (scene == NULL) return NULL;
@@ -48,7 +49,7 @@ Scene* Scene_Create(SpritesHolder* spritesHolder, ObjectsHolder* objectsHolder,
 
   scene->spritesHolder = spritesHolder;
   scene->objectsHolder = objectsHolder;
-  scene->layerChanged = *layerChanged;
+  scene->layerChanged = LAYER_NONE;
 
   // TODO: rework this! we need to eliminate _scene reference
   _scene = scene;
@@ -85,8 +86,12 @@ void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback) {
 
   // redraw entire screen
   if (entireScreenisDurty) {
-    callback(0, 0, ScreenConfig_GetRealWidth() - 1,
-             ScreenConfig_GetRealHeight() - 1);
+    callback(0, 0, ScreenConfig_GetWidth() - 1, ScreenConfig_GetHeight() - 1,
+             // TODO: rework layer select logic. Currently we're not updating
+             //  upper level's sprite
+             //  thus update is incorrect
+             // scene->layerChanged);
+             LAYER_UI);
     entireScreenisDurty = false;
     scene->layerChanged = LAYER_NONE;
     return;
@@ -95,7 +100,13 @@ void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback) {
   for (_u8 index = 0; index < regionsCount; index++) {
     Rectangle* reg = durtyRegions[index];
     if (Rectangle_IsEmpty(reg) == false) {
-      callback(reg->left, reg->top, reg->right, reg->bottom);
+      callback(reg->left, reg->top, reg->right, reg->bottom,
+               // TODO: rework layer select logic. Currently we're not updating
+               //  upper level's sprite
+               //  thus update is incorrect
+               // scene->layerChanged);
+               // scene->layerChanged);
+               LAYER_UI);
       Rectangle_Reset(reg);
     }
   }
@@ -104,8 +115,8 @@ void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback) {
 }
 
 TileMap* Scene_SetupTileMap(Scene* scene, SpriteId* tiles, const _u16 count,
-                            const _u8 width) {
-  if (tiles == NULL || count == 0 || width == 0) return NULL;
+                            const _u8 widthInTiles) {
+  if (tiles == NULL || count == 0 || widthInTiles == 0) return NULL;
 
   // 1. obtain tile size by taking it value from first sprite
   Sprite* sprite = (Sprite*)tiles[0];
@@ -116,7 +127,7 @@ TileMap* Scene_SetupTileMap(Scene* scene, SpriteId* tiles, const _u16 count,
   TileMap* tilemap = TileMap_Create(tileSize);
 
   // 2. fill data into tilemap
-  TileMap_Set(tilemap, tiles, count, width);
+  TileMap_Set(tilemap, tiles, count, widthInTiles);
 
   // 3. and request to refresh
   Rectangle* mapBounds = (Rectangle*)TileMap_GetBounds(tilemap);
@@ -204,9 +215,8 @@ static inline void setDurtyRegion(Scene* scene, const Rectangle* region,
   }
   _u16 left = Rectangle_GetVisibleLeft(region);
   _u16 top = Rectangle_GetVisibleTop(region);
-  _u16 right = Rectangle_GetVisibleRight(region, ScreenConfig_GetRealWidth());
-  _u16 bottom =
-      Rectangle_GetVisibleBottom(region, ScreenConfig_GetRealHeight());
+  _u16 right = Rectangle_GetVisibleRight(region, ScreenConfig_GetWidth());
+  _u16 bottom = Rectangle_GetVisibleBottom(region, ScreenConfig_GetHeight());
 
   Rectangle* reg = findNextEmptyRegion();
   if (reg != NULL) {
@@ -219,48 +229,11 @@ static inline void setDurtyRegion(Scene* scene, const Rectangle* region,
 }
 
 static inline void setDurtySprite(Scene* scene, const Sprite* sprite) {
-  if (entireScreenisDurty) {
-    return;
-  }
+  LayerType layer = Sprite_GetLayer(sprite);
 
-  if (Sprite_IsOnDisplay(sprite, ScreenConfig_GetRealWidth(),
-                         ScreenConfig_GetRealHeight()) == false) {
-    return;
-  }
-
-  const Point* position = Sprite_GetPosition(sprite);
-  const LayerType layer = Sprite_GetLayer(sprite);
-
-  const _u8 width = Sprite_GetWidth(sprite);
-  const _u8 height = Sprite_GetHeight(sprite);
-
-  _u16 left = normalize(position->x, ScreenConfig_GetRealWidth());
-  _u16 top = normalize(position->y, ScreenConfig_GetRealHeight());
-
-  // TODO: right & bottom can be smaller than original, because sprite can be
-  // partially hidden, so width and height should be calculated according to
-  // modified left & top values
-  _u16 right = left + width - 1;
-  right = normalize(right, ScreenConfig_GetRealHeight());
-
-  _u16 bottom = top + height - 1;
-  bottom = normalize(bottom, ScreenConfig_GetRealHeight());
-
-  // TODO: investigate why we still have duplicates here
-  //  preventing adding duplicated
-  Rectangle* reg = findSameRegion(left, top, right, bottom);
-  if (reg != NULL) {
-    return;
-  }
-
-  reg = findNextEmptyRegion();
-  if (reg != NULL) {
-    Rectangle_Set(reg, left, top, right, bottom);
-    reg->id = (SpriteId)sprite;
-  }
-  if (layer > scene->layerChanged) {
-    scene->layerChanged = layer;
-  }
+  // set old region as durty
+  Sprite_GetBounds(sprite, &tempRegion);
+  setDurtyRegion(scene, &tempRegion, layer);
 }
 
 static inline Rectangle* findNextEmptyRegion() {

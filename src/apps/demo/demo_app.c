@@ -28,11 +28,12 @@ static SpriteId sandId;
 static SpriteId coastId;
 static SpriteId waterId;
 static SpriteId water2Id;
+static SpriteId fishId;
 
 static void onAppStart() {
   ESP_LOGI(specs.name, "on app start...");
   GFX_SetBackgroundColor(specs.background);
-  ScreenConfig_Create(320, 240);
+  ScreenConfig_Set(320, 240, 2);
   game = Game_Create();
 
   PrepareSprites();
@@ -47,6 +48,9 @@ static void onAppStart() {
 static void onAppStop() { Game_Destroy(game); }
 
 static void onAppUpdate(void) {
+  Scene* scene = Game_GetScene();
+
+  Scene_MoveSpriteBy(scene, fishId, -1, 0);
   Game_Update();
   GFX_Redraw();
 }
@@ -88,8 +92,6 @@ AppSpecification_t* DemoAppSpecification() {
 
 void _AssignSprites() {
   Scene* scene = Game_GetScene();
-  
-  SpriteId waterSid = Scene_AddSprite(scene, &water, LAYER_FAR);
 
   grassId = Scene_AddSprite(scene, &grass, LAYER_TILEMAP);
   waterId = Scene_AddSprite(scene, &water, LAYER_TILEMAP);
@@ -98,14 +100,14 @@ void _AssignSprites() {
   coastId = Scene_AddSprite(scene, &coast, LAYER_TILEMAP);
   playerId = Scene_AddGameObject(scene, &player, LAYER_MID, true, true, false);
 
+  fishId = Scene_AddSprite(scene, &fish, LAYER_MID);
+
   SpriteId animatedFire = Scene_AddSprite(scene, &fire, LAYER_NEAR);
   Scene_ChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_SUPER_FAST);
   Scene_MoveSpriteTo(scene, animatedFire, 100, 40);
 
   // stop animation
   // Scene_ChangeSpriteAnimationSpeed(animatedFire, ANIMATION_SPEED_NONE);
-
-  Scene_MoveSpriteTo(scene, waterSid, 100, 100);
 
   // tree sprite, 8x8 pixels
   ObjectId treeObjectId =
@@ -119,10 +121,12 @@ void _AssignSprites() {
   // tree used as foreground sprite
   SpriteId treeNearId = Scene_AddSprite(scene, &tree, LAYER_NEAR);
   Scene_MoveSpriteTo(scene, treeNearId, 80, 10);
+
+  Scene_MoveSpriteTo(scene, fishId, 160, 100);
 }
 
 TileMap* _AssignTileMap() {
-  SpriteId locationBackground[] = {
+  SpriteId tiles[] = {
       // line 1
       grassId,
       grassId,
@@ -182,16 +186,6 @@ TileMap* _AssignTileMap() {
       coastId,
       coastId,
       coastId,
-      coastId,
-      coastId,
-      coastId,
-      coastId,
-      coastId,
-      coastId,
-      coastId,
-      coastId,
-      coastId,
-      coastId,
 
       // water
       // line 1
@@ -241,59 +235,11 @@ TileMap* _AssignTileMap() {
       water2Id,
       water2Id,
       water2Id,
-
-      // line 5
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-
-      // line 6
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-
-      // line 7
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-
-      // line 8
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
-      water2Id,
   };
 
-  _u16 tilesCount = sizeof(locationBackground) / sizeof(SpriteId);
-  return Scene_SetupTileMap(Game_GetScene(), locationBackground, tilesCount,
-                            20);
+  _u16 tilesCount = sizeof(tiles) / sizeof(SpriteId);
+  Scene* scene = Game_GetScene();
+  return Scene_SetupTileMap(scene, tiles, tilesCount, 10);
 }
 
 void _AssignMenuSprites() {
