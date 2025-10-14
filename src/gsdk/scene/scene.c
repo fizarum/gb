@@ -86,12 +86,7 @@ void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback) {
 
   // redraw entire screen
   if (entireScreenisDurty) {
-    callback(0, 0, ScreenConfig_GetWidth() - 1, ScreenConfig_GetHeight() - 1,
-             // TODO: rework layer select logic. Currently we're not updating
-             //  upper level's sprite
-             //  thus update is incorrect
-             // scene->layerChanged);
-             LAYER_UI);
+    callback(0, 0, ScreenConfig_GetWidth() - 1, ScreenConfig_GetHeight() - 1);
     entireScreenisDurty = false;
     scene->layerChanged = LAYER_NONE;
     return;
@@ -100,13 +95,7 @@ void Scene_CleanupRegions(Scene* scene, OnRegionRedrawRequested callback) {
   for (_u8 index = 0; index < regionsCount; index++) {
     Rectangle* reg = durtyRegions[index];
     if (Rectangle_IsEmpty(reg) == false) {
-      callback(reg->left, reg->top, reg->right, reg->bottom,
-               // TODO: rework layer select logic. Currently we're not updating
-               //  upper level's sprite
-               //  thus update is incorrect
-               // scene->layerChanged);
-               // scene->layerChanged);
-               LAYER_UI);
+      callback(reg->left, reg->top, reg->right, reg->bottom);
       Rectangle_Reset(reg);
     }
   }

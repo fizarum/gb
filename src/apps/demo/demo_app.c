@@ -7,6 +7,8 @@
 #include "../../gsdk/game.h"
 #include "../../gsdk/screen/screen_config.h"
 #include "../apps_utils.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "resources.h"
 
 static AppSpecification_t specs = {
@@ -17,9 +19,12 @@ static AppSpecification_t specs = {
     .onUpdate = &App_StubFunction,
 };
 
+static TaskHandle_t updateTaskHandler = NULL;
+
 static void _AssignMenuSprites();
 static void _AssignSprites();
 static TileMap* _AssignTileMap();
+static void _GameUpdate(void* arg);
 
 static Game* game;
 static ObjectId playerId;
@@ -41,16 +46,33 @@ static void onAppStart() {
   _AssignMenuSprites();
   TileMap* tileMap = _AssignTileMap();
   Game_SetTileMap(tileMap);
-
+  // lower number for priority - lower priority in system
+  xTaskCreate(&_GameUpdate, "gameUpdateTask", 2048, NULL, 6,
+              &updateTaskHandler);
   // Game_Start();
 }
 
-static void onAppStop() { Game_Destroy(game); }
+// TODO: refactor to minimize functions
+static void _GameUpdate(void* arg) {
+  Scene* scene = Game_GetScene();
+  while (1) {
+    // TODO: move game's logic update here
+
+    // TODO: test animation
+    Scene_MoveSpriteBy(scene, fishId, -1, 0);
+    vTaskDelay(pdMS_TO_TICKS(20));
+  }
+}
+
+static void onAppStop() {
+  if (updateTaskHandler != NULL) {
+    vTaskDelete(updateTaskHandler);
+  }
+
+  Game_Destroy(game);
+}
 
 static void onAppUpdate(void) {
-  Scene* scene = Game_GetScene();
-
-  Scene_MoveSpriteBy(scene, fishId, -1, 0);
   Game_Update();
   GFX_Redraw();
 }
