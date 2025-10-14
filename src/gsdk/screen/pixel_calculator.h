@@ -15,40 +15,30 @@ static _ci _index;
 
 static inline Color CalculatePixel(Palette* palette, _u16 x, _u16 y,
                                    SpritesHolder* sprites, TileMap* tilemap,
-                                   LayerType layerChanged, _ci fallbackCI) {
-  _index = fallbackCI;
-
-  if (layerChanged == LAYER_UI) {
-    _index = SpritesHolder_GetColorIndex(sprites, LAYER_UI, x, y, fallbackCI);
-    if (_index != fallbackCI) {
-      return palette->colors[_index];
-    }
+                                   _ci fallbackCI) {
+  _index = SpritesHolder_GetColorIndex(sprites, LAYER_UI, x, y, fallbackCI);
+  if (_index != fallbackCI) {
+    return palette->colors[_index];
   }
 
-  if (layerChanged >= LAYER_NEAR) {
-    _index = SpritesHolder_GetColorIndex(sprites, LAYER_NEAR, x, y, fallbackCI);
-    if (_index != fallbackCI) {
-      return palette->colors[_index];
-    }
+  _index = SpritesHolder_GetColorIndex(sprites, LAYER_NEAR, x, y, fallbackCI);
+  if (_index != fallbackCI) {
+    return palette->colors[_index];
   }
 
-  if (layerChanged >= LAYER_MID) {
-    _index = SpritesHolder_GetColorIndex(sprites, LAYER_MID, x, y, fallbackCI);
-    if (_index != fallbackCI) {
-      return palette->colors[_index];
-    }
+  _index = SpritesHolder_GetColorIndex(sprites, LAYER_MID, x, y, fallbackCI);
+  if (_index != fallbackCI) {
+    return palette->colors[_index];
   }
 
-  if (layerChanged >= LAYER_FAR) {
-    _index = SpritesHolder_GetColorIndex(sprites, LAYER_FAR, x, y, fallbackCI);
-    if (_index != fallbackCI) {
-      return palette->colors[_index];
-    }
+  _index = SpritesHolder_GetColorIndex(sprites, LAYER_FAR, x, y, fallbackCI);
+  if (_index != fallbackCI) {
+    return palette->colors[_index];
+  }
 
-    _index = TileMap_GetPixel(tilemap, x, y, fallbackCI);
-    if (_index != fallbackCI) {
-      return palette->colors[_index];
-    }
+  _index = TileMap_GetPixel(tilemap, x, y, fallbackCI);
+  if (_index != fallbackCI) {
+    return palette->colors[_index];
   }
 
   return palette->colors[fallbackCI];

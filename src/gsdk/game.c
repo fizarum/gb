@@ -25,7 +25,7 @@ typedef struct Game {
 } Game;
 
 static void _Game_SetupDefaultPalette();
-void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b, LayerType layer);
+void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b);
 
 static Game* _game;
 
@@ -113,7 +113,7 @@ Scene* Game_GetScene() { return scene; }
 
 static Color _color;
 
-void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b, LayerType layer) {
+void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b) {
   static _u16 xScaled, yScaled;
 
   for (_u16 y = t; y <= b; y++) {
@@ -123,10 +123,10 @@ void _OnRegionRedrawRequested(_u16 l, _u16 t, _u16 r, _u16 b, LayerType layer) {
       xScaled = x * scale;
 
       if (state == RUNNING) {
-        _color = CalculatePixel(&palette, x, y, _game->spritesHolder, _tileMap,
-                                layer, 0);
+        _color =
+            CalculatePixel(&palette, x, y, _game->spritesHolder, _tileMap, 0);
       } else {
-        _color = CalculatePixelForMenu(&palette, x, y, menu, 0);
+        _color = CalculatePixelForMenu(&palette, x, y, menu, 15);
       }
 
       GFX_DrawFilledRect(xScaled, yScaled, xScaled + scale, yScaled + scale,

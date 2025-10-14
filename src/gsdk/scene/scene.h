@@ -11,8 +11,7 @@
 #include "sprites_holder.h"
 #include "tilemap.h"
 
-typedef void (*OnRegionRedrawRequested)(_u16 l, _u16 t, _u16 r, _u16 b,
-                                        LayerType layer);
+typedef void (*OnRegionRedrawRequested)(_u16 l, _u16 t, _u16 r, _u16 b);
 
 typedef struct Scene Scene;
 
