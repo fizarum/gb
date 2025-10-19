@@ -13,7 +13,6 @@
 
 static AppSpecification_t specs = {
     .name = "Demo GSDK",
-    .background = COLOR_BLACK,
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
@@ -37,7 +36,9 @@ static SpriteId fishId;
 
 static void onAppStart() {
   ESP_LOGI(specs.name, "on app start...");
-  GFX_SetBackgroundColor(specs.background);
+  // TODO: make this part as external option
+  GFX_SetApplicationColorMode(RGB565);
+
   ScreenConfig_Set(320, 240, 2);
   game = Game_Create();
 
@@ -68,7 +69,8 @@ static void onAppStop() {
   if (updateTaskHandler != NULL) {
     vTaskDelete(updateTaskHandler);
   }
-
+  // TODO: make this call as bart of any application
+  GFX_ResetApplicationColorMode();
   Game_Destroy(game);
 }
 
@@ -95,9 +97,6 @@ static void handleKey(const void* keyData) {
 }
 
 static void onAppRedraw(RedrawType_t redrawType) {
-  if (redrawType == RedrawFull) {
-    App_DrawBackgroundAndTitle(specs.name, specs.background);
-  }
   Game_Resume();
   GFX_Redraw();
 }

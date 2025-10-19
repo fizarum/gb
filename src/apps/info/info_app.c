@@ -35,11 +35,15 @@ static char osStr[24];
 
 static AppSpecification_t specs = {
     .name = "Info",
-    .background = COLOR_DARKGREEN,
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
     .onStop = &App_StubFunction,
+};
+
+static Theme theme = {
+    .primaryColor = COLOR_ORANGE,
+    .backgroundColor = COLOR_DARKGREEN,
 };
 
 static BatteryDeviceData_t* batteryData;
@@ -60,7 +64,7 @@ static void AddLabel(const _u16 rootBoxId, const char* text);
 
 static void onAppStart(void) {
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
-  GFX_SetBackgroundColor(specs.background);
+  GFX_SetTheme(&theme);
 
   _u16 rootId = Composer_GetRootId(composer);
   if (rootId == TREE_INDEX_NONE) {
@@ -143,7 +147,7 @@ static void handleKey(const void* keyData) {}
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    GFX_FillScreen(specs.background);
+    GFX_FillScreen(GFX_GetTheme()->backgroundColor);
   }
   Composer_Draw(composer);
   GFX_Redraw();

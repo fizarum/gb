@@ -30,14 +30,19 @@ _u16 percentage = 0;
 
 static AppSpecification_t specs = {
     .name = "Menu",
-    .background = COLOR_DARKCYAN,
     .onPause = &App_StubFunction,
     .onStop = &App_StubFunction,
     .onUpdate = &App_StubFunction,
 };
 
+static Theme theme = {
+    .primaryColor = COLOR_ORANGE,
+    .backgroundColor = COLOR_DARKCYAN,
+};
+
 static void onAppStart() {
   ESP_LOGI(specs.name, "on app started...");
+  GFX_SetTheme(&theme);
 
   if (_appsManager != NULL) {
     allApps = AppsManagerGetAllApps(_appsManager);
@@ -70,11 +75,12 @@ static void onAppRedraw(RedrawType_t redrawType) {
       DrawScreen();
       const char* appName = AppGetName(selectedApp);
 
-      GFX_DrawFilledRect(40, 120, 190, 130, specs.background);
+      GFX_DrawFilledRect(40, 120, 190, 130, GFX_GetTheme()->backgroundColor);
       GFX_DrawString(appName, 40, 120, GFX_GetFont());
 
       GFX_DrawFilledRect(250, 7, 250 + _batteryWidgetWidth,
-                         7 + _batteryWidgetHeight, specs.background);
+                         7 + _batteryWidgetHeight,
+                         GFX_GetTheme()->backgroundColor);
       DrawBattery(isCharging, percentage, 250, 7, GFX_GetFont());
 
       ESP_LOGI(specs.name, "selected app: %s", appName);
@@ -83,7 +89,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     case RedrawPartial: {
       const char* appName = AppGetName(selectedApp);
 
-      GFX_DrawFilledRect(40, 120, 190, 130, specs.background);
+      GFX_DrawFilledRect(40, 120, 190, 130, GFX_GetTheme()->backgroundColor);
       GFX_DrawString(appName, 40, 120, GFX_GetFont());
 
       ESP_LOGI(specs.name, "selected app: %s", appName);
@@ -92,7 +98,8 @@ static void onAppRedraw(RedrawType_t redrawType) {
     // test part
     case RedrawCustom: {
       GFX_DrawFilledRect(250, 7, 250 + _batteryWidgetWidth,
-                         7 + _batteryWidgetHeight, specs.background);
+                         7 + _batteryWidgetHeight,
+                         GFX_GetTheme()->backgroundColor);
       DrawBattery(isCharging, percentage, 250, 7, GFX_GetFont());
       break;
     }
@@ -105,6 +112,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 int64_t start, period;
 static void onAppResume(void) {
   ESP_LOGI(specs.name, "on app resume...");
+  GFX_SetTheme(&theme);
 
   if (selectedAppIndex == UINT8_MAX) {
     SelectNextApp();
@@ -180,7 +188,7 @@ void SelectPreviousApp() {
 }
 
 void DrawScreen() {
-  GFX_FillScreen(specs.background);
+  GFX_FillScreen(GFX_GetTheme()->backgroundColor);
   // time placeholder
   GFX_DrawString("23:59", 30, 7, GFX_GetFont());
 
