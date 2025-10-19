@@ -11,17 +11,17 @@ typedef struct ListFocus_t {
   _u8 selectedItem;
   _u16 itemHeight;
 
-  View_t *view;
+  View_t* view;
 } ListFocus_t;
 
-static void ListFocus_RecalculateSize(ListFocus_t *listFocus);
-static void ListFocus_Draw(View_t *view, const _u16 left, const _u16 top,
+static void ListFocus_RecalculateSize(ListFocus_t* listFocus);
+static void ListFocus_Draw(View_t* view, const _u16 left, const _u16 top,
                            const _u16 right, const _u16 bottom);
-static void ListFocus_Destroy(void *listFocusArg);
-static void OnResize(View_t *view, const _u16 width, const _u16 height);
+static void ListFocus_Destroy(void* listFocusArg);
+static void OnResize(View_t* view, const _u16 width, const _u16 height);
 
-View_t *ListFocus_Create(_u8 items) {
-  ListFocus_t *listFocus = (ListFocus_t *)malloc(sizeof(ListFocus_t));
+View_t* ListFocus_Create(_u8 items) {
+  ListFocus_t* listFocus = (ListFocus_t*)malloc(sizeof(ListFocus_t));
   if (listFocus == NULL) {
     return NULL;
   }
@@ -46,13 +46,13 @@ static const _u8 width = 20;
 static const _u8 mediumPadding = 5;
 static const _u8 indicatorWidth = 6;
 
-static void ListFocus_RecalculateSize(ListFocus_t *listFocus) {
+static void ListFocus_RecalculateSize(ListFocus_t* listFocus) {
   View_SetWidth(listFocus->view, width);
   View_SetHeight(listFocus->view, 1);
 }
 
-void ListFocus_SelectItemIndex(View_t *view, _u8 index) {
-  ListFocus_t *listFocus = (ListFocus_t *)View_GetCustomView(view);
+void ListFocus_SelectItemIndex(View_t* view, _u8 index) {
+  ListFocus_t* listFocus = (ListFocus_t*)View_GetCustomView(view);
   if (index < listFocus->items) {
     listFocus->selectedItem = index;
     View_SetUpdated(view);
@@ -61,11 +61,11 @@ void ListFocus_SelectItemIndex(View_t *view, _u8 index) {
 
 // private part
 
-static void ListFocus_Draw(View_t *view, const _u16 left, const _u16 top,
+static void ListFocus_Draw(View_t* view, const _u16 left, const _u16 top,
                            const _u16 right, const _u16 bottom) {
-  GFX_DrawFilledRect(left, top, right, bottom, GFX_GetBackgroundColor());
+  GFX_DrawFilledRect(left, top, right, bottom, GFX_GetTheme()->backgroundColor);
 
-  ListFocus_t *focus = (ListFocus_t *)View_GetCustomView(view);
+  ListFocus_t* focus = (ListFocus_t*)View_GetCustomView(view);
 
   // indicator
   _u16 topPadding = focus->itemHeight * focus->selectedItem;
@@ -80,22 +80,22 @@ static void ListFocus_Draw(View_t *view, const _u16 left, const _u16 top,
                      /*bottom*/ bottomPos, GFX_GetFontColor());
 }
 
-static void ListFocus_Destroy(void *listFocusArg) {
+static void ListFocus_Destroy(void* listFocusArg) {
   if (listFocusArg == NULL) {
     return;
   }
 
-  ListFocus_t *listFocus = (ListFocus_t *)listFocusArg;
+  ListFocus_t* listFocus = (ListFocus_t*)listFocusArg;
 
   free(listFocus);
 }
 
-static void OnResize(View_t *view, const _u16 width, const _u16 height) {
+static void OnResize(View_t* view, const _u16 width, const _u16 height) {
   if (height == 0) {
     return;
   }
 
-  ListFocus_t *focus = (ListFocus_t *)View_GetCustomView(view);
+  ListFocus_t* focus = (ListFocus_t*)View_GetCustomView(view);
   focus->itemHeight = height / (focus->items);
   ESP_LOGI("Focus", "[resize] view height: %d item height: %d", height,
            focus->itemHeight);

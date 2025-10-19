@@ -60,9 +60,16 @@ static ILI9341_t dev = {
 Font_t font = {
     .height = 5,
     .width = 8,
-    .color = COLOR_ORANGE,
     .scale = 2,
     .spacing = 2,
+};
+
+// simple monochrome theme
+Theme theme = {
+    .primaryColor = COLOR_ORANGE,
+    .secondaryColor = COLOR_BLACK,
+    .tertiaryColor = COLOR_BLACK,
+    .backgroundColor = COLOR_BLACK,
 };
 
 typedef struct UpdateTransaction_t {
@@ -111,7 +118,9 @@ static bool onInit(void) {
 
   displayUpdatedQueue = xQueueCreate(1, sizeof(_u16*));
 
-  GFX_Init(deviceData.width, deviceData.height, &canvasUpdated);
+  GFX_Init(deviceData.width, deviceData.height, Monochrome,
+           //  RGB565,
+           &canvasUpdated);
 
   return true;
 }
@@ -128,6 +137,7 @@ static bool onEnable(bool enable) {
     xTaskCreate(&drawingTask, "drawingTask", 2048, NULL, 12,
                 &displayTaskHandle);
     GFX_SetFont(&font);
+    GFX_SetTheme(&theme);
   } else {
     dev.lighten(0);
     if (displayTaskHandle != NULL) {

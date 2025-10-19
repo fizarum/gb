@@ -7,14 +7,14 @@ extern "C" {
 
 #include <types.h>
 
-typedef struct Theme_t {
+typedef struct Theme {
   _u16 primaryColor;
   _u16 secondaryColor;
   _u16 tertiaryColor;
-  
+
   _u16 backgroundColor;
 
-} Theme_t;
+} Theme;
 
 #ifdef __cplusplus
 }

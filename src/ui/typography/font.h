@@ -5,21 +5,20 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include <types.h>
 
 /**
  * @brief General font description, should be used
  * with SymbolData_t to define font size
  */
 typedef struct Font_t {
-  uint8_t width;
-  uint8_t height;
-  uint8_t scale;
-  uint8_t spacing;
-  uint16_t color;
+  _u8 width;
+  _u8 height;
+  _u8 scale;
+  _u8 spacing;
 } Font_t;
 
-static uint8_t Font_GetWidth(Font_t *font) {
+static _u8 Font_GetWidth(Font_t* font) {
   //  height is taken because for font smaller than 8x8
   //  height will contain actual size, when width is still 8 pt
   //  for example, for 5x5 font its 8x5 (width x height).
@@ -27,7 +26,7 @@ static uint8_t Font_GetWidth(Font_t *font) {
   return font->height * font->scale + font->spacing;
 }
 
-static uint8_t Font_GetHeight(Font_t *font) {
+static _u8 Font_GetHeight(Font_t* font) {
   // we have to apply spacing * 2 for correct top and bottom spacing
   return font->height * font->scale + font->spacing * 2;
 }

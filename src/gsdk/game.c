@@ -33,7 +33,6 @@ Game* Game_Create() {
   Game* game = (Game*)malloc(sizeof(Game));
   if (game == NULL) return NULL;
 
-  palette.background = COLOR_BLACK;
   scale = ScreenConfig_GetScale();
 
   game->spritesHolder = SpritesHolder_Create();

@@ -19,11 +19,15 @@ static void OnStop();
 
 static AppSpecification_t specs = {
     .name = "Settings",
-    .background = COLOR_INDIGO,
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
     .onStop = &OnStop,
+};
+
+static Theme theme = {
+    .primaryColor = COLOR_ORANGE,
+    .backgroundColor = COLOR_INDIGO,
 };
 
 static _u8 focusedItemIndex = 0;
@@ -108,7 +112,7 @@ static const _u8 padding = 20;
 
 static void onAppStart() {
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
-  GFX_SetBackgroundColor(specs.background);
+  GFX_SetTheme(&theme);
 
   _u16 rootId = Composer_GetRootId(composer);
   if (rootId == TREE_INDEX_NONE) {
@@ -167,7 +171,7 @@ static void onAppStart() {
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    GFX_FillScreen(specs.background);
+    GFX_FillScreen(GFX_GetTheme()->backgroundColor);
   }
   Composer_Draw(composer);
   GFX_Redraw();

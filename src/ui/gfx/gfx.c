@@ -12,18 +12,39 @@
 #define GFX_IS_BIT_SET8(source, position) (source & (0x80 >> position))
 
 static Font_t* activeFont = NULL;
-static _u16 backgroundColor;
+static Theme* activeTheme = NULL;
 static GFX_CanvasUpdated canvasCallback;
 static _u16 canvasWidth = 0;
 static _u16 canvasHeight = 0;
 static _u32 canvasSize = 0;
+// Color mode of entire system (info, menu, all system apps)
+static ColorMode systemColorMode;
+
+/**
+ * @brief  Color mode of particular application. It overrides systemColorMode
+ * for particular application at runtime. Application should request it manually
+ */
+static ColorMode applicationColorMode;
 static _u16* canvas;
 
-void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback) {
+static inline _u16 normalizePrimaryColor(_u16 color) {
+  // if we're in monochrome color mode - only foreground or background color are
+  // accepted
+  if (applicationColorMode == Monochrome &&
+      color != activeTheme->primaryColor) {
+    return COLOR_BLACK;
+  }
+  return color;
+}
+
+void GFX_Init(const _u16 width, const _u16 height, const ColorMode mode,
+              GFX_CanvasUpdated callback) {
   canvasWidth = width;
   canvasHeight = height;
   canvasSize = width * height;
   canvasCallback = callback;
+  systemColorMode = mode;
+  applicationColorMode = mode;
 
   canvas = calloc(canvasSize, sizeof(_u16));
   for (_u32 index = 0; index < canvasSize; index++) {
@@ -36,10 +57,18 @@ void GFX_Redraw() { canvasCallback(); }
 
 _u16* GFX_GetCanvas() { return canvas; }
 
+void GFX_SetSystemColorMode(const ColorMode mode) { systemColorMode = mode; }
+void GFX_SetApplicationColorMode(const ColorMode mode) {
+  applicationColorMode = mode;
+}
+
+void GFX_ResetApplicationColorMode() { applicationColorMode = systemColorMode; }
+
 void GFX_SetFont(Font_t* font) { activeFont = font; }
 Font_t* GFX_GetFont() { return activeFont; }
 
-void GFX_SetBackgroundColor(_u16 color) { backgroundColor = color; }
+void GFX_SetTheme(Theme* theme) { activeTheme = theme; }
+Theme* GFX_GetTheme() { return activeTheme; }
 
 _u16 GFX_GetCanwasWidth() { return canvasWidth; }
 _u16 GFX_GetCanvasHeight() { return canvasHeight; }
@@ -58,7 +87,6 @@ _u8 GFX_DrawSymbol(SymbolData_t* symbol, const _u16 left, const _u16 top,
   _u8 symbolWidth = font->width;
   _u8 symbolHeight = font->height;
   _u8 scale = font->scale;
-  _u16 color = font->color;
 
   _u16 scaledX = 0;
   _u16 scaledY = 0;
@@ -78,10 +106,10 @@ _u8 GFX_DrawSymbol(SymbolData_t* symbol, const _u16 left, const _u16 top,
         if (scale > 1) {
           // draw rectangle as scaled pixel
           GFX_DrawFilledRect(scaledX, scaledY, scaledX + scale, scaledY + scale,
-                             color);
+                             activeTheme->primaryColor);
         } else {
           // draw one pixel
-          canvas[scaledY * canvasWidth + scaledX] = color;
+          GFX_DrawPixel(scaledX, scaledY, activeTheme->primaryColor);
         }
       }
     }
@@ -131,6 +159,7 @@ _u16 GFX_DrawString(const char* string, const _u16 left, const _u16 top,
 
   return letterWidth * length;
 }
+
 static _u32 start, end;
 
 void GFX_DrawPixel(const _u16 x, const _u16 y, _u16 color) {
@@ -172,8 +201,10 @@ void GFX_DrawPixelsInBuffer(const _u32 start, _u16* colors, _u16 colorsCount) {
 // TODO: rework to left, top, right, bottom sequence
 void GFX_DrawFilledRect(const _u16 left, const _u16 top, const _u16 right,
                         const _u16 bottom, const _u16 color) {
+  _u16 colorToApply = normalizePrimaryColor(color);
+
   for (_u32 index = top; index < bottom; index++) {
-    GFX_DrawHLine(left, index, right - left, 1, color);
+    GFX_DrawHLine(left, index, right - left, 1, colorToApply);
   }
 }
 
@@ -199,6 +230,8 @@ void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
   start = top * canvasWidth + left;
   end = (start + normalizedLength);
 
+  _u16 colorToApply = normalizePrimaryColor(color);
+
   // iterate from top to bottom with iterations = lineWidth
   for (_u8 lineIndex = 0; lineIndex < lineWidth; lineIndex++) {
     for (_u32 index = start; index < end; index++) {
@@ -222,8 +255,10 @@ void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
 }
 
 void GFX_FillScreen(const _u16 color) {
+  _u16 colorToApply = normalizePrimaryColor(color);
+
   for (_u32 index = 0; index < canvasSize; index++) {
-    canvas[index] = color;
+    canvas[index] = colorToApply;
   }
 }
 
@@ -239,12 +274,4 @@ _u8 GFX_FontGetWidth() {
   return activeFont->height * activeFont->scale + activeFont->spacing;
 }
 
-_u16 GFX_GetFontColor() {
-  if (activeFont == NULL) {
-    return 0;
-  }
-
-  return activeFont->color;
-}
-
-_u16 GFX_GetBackgroundColor() { return backgroundColor; }
+_u16 GFX_GetFontColor() { return activeTheme->primaryColor; }

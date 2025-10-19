@@ -18,10 +18,14 @@ static StorageDeviceData_t* storageData;
 
 static AppSpecification_t specs = {
     .name = "File Manager",
-    .background = COLOR_DARK_CHARCOAL,
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
+};
+
+static Theme theme = {
+    .primaryColor = COLOR_ORANGE,
+    .backgroundColor = COLOR_DARK_CHARCOAL,
 };
 
 const _u8 startVPadding = 40;
@@ -90,7 +94,7 @@ static void handleKey(const void* keyData) {
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
-  GFX_SetBackgroundColor(specs.background);
+  GFX_SetTheme(&theme);
 
   DeviceManager_t* deviceManger = DeviceManagerGetInstance();
   Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
@@ -122,7 +126,7 @@ static void onAppStart(void) {
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    App_DrawBackgroundAndTitle(specs.name, specs.background);
+    App_DrawBackgroundAndTitle(specs.name, GFX_GetTheme()->backgroundColor);
   }
   vPosOfText = startVPadding;
   _u16 vPosOfTextBox = vPosOfText + vSpacing;
@@ -140,7 +144,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
     // redraw file item
     GFX_DrawFilledRect(startHPadding, vPosOfText, GFX_GetCanwasWidth() - 1,
-                       vPosOfTextBox, specs.background);
+                       vPosOfTextBox, GFX_GetTheme()->backgroundColor);
     if (fileItem->initialized == true) {
       GFX_DrawString(fileItem->name, startHPadding, vPosOfText, GFX_GetFont());
     }
@@ -160,7 +164,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
   // draw scroll bar
   DrawScrollBar(currentPage, pages, GFX_GetCanwasWidth() - 1,
                 GFX_GetCanvasHeight() - 1, GFX_GetFontColor(),
-                specs.background);
+                GFX_GetTheme()->backgroundColor);
   GFX_Redraw();
 }
 

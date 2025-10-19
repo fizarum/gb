@@ -15,7 +15,7 @@ extern "C" {
 #define TITLE_X_POS 30
 #define TITLE_Y_POS 7
 
-static const char *const osVersion = "0.0.1";
+static const char* const osVersion = "0.0.1";
 
 #define PROGRESS_BAR_MIN_HEIGH 14
 
@@ -28,7 +28,7 @@ static const char *const osVersion = "0.0.1";
 #define FOCUS_SMALL_PADDING 2
 #define FOCUS_MIDDLE_PADDING 4
 
-static inline void App_DrawBackgroundAndTitle(const char *title,
+static inline void App_DrawBackgroundAndTitle(const char* title,
                                               const _u16 backgroundColor) {
   GFX_FillScreen(backgroundColor);
   GFX_DrawString(title, TITLE_X_POS, TITLE_Y_POS, GFX_GetFont());
@@ -72,7 +72,8 @@ static inline void App_DrawProgress(const _u16 left, const _u16 top,
 static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
                                           const _u8 focusHeight) {
   GFX_DrawFilledRect(left, 0, left + FOCUS_AREA_WIDTH,
-                     GFX_GetCanvasHeight() - 1, GFX_GetBackgroundColor());
+                     GFX_GetCanvasHeight() - 1,
+                     GFX_GetTheme()->backgroundColor);
 
   _u16 leftPos = left + FOCUS_SMALL_PADDING;
   _u16 topPos = top - FOCUS_MIDDLE_PADDING;
@@ -87,7 +88,7 @@ static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
 
 static inline void App_DrawOnOffButton(const _u16 left, const _u16 top,
                                        bool isOn) {
-  const char *text = isOn == true ? "ON" : "OFF";
+  const char* text = isOn == true ? "ON" : "OFF";
   if (isOn) {
     GFX_DrawFilledRect(left, top, left + ON_OFF_INDICATOR_SIZE,
                        top + ON_OFF_INDICATOR_SIZE, GFX_GetFontColor());
@@ -100,7 +101,7 @@ static inline void App_DrawOnOffButton(const _u16 left, const _u16 top,
 }
 
 static inline void App_DrawHorizontalPicker(const _u16 left, const _u16 top,
-                                            const char *text, _u8 textLength) {
+                                            const char* text, _u8 textLength) {
   _u16 textLengthInPx = GFX_FontGetWidth() * textLength;
   _u8 spacing = GFX_FontGetWidth();
 
@@ -123,7 +124,7 @@ static const _u8 batteryWidgetWidth = 30;
 static const _u8 batteryWidgetHeight = 10;
 static _u8 filledPart = 0;
 static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y,
-                               Font_t *font) {
+                               Font_t* font) {
   GFX_DrawRect(x, y, x + batteryWidgetWidth, y + batteryWidgetHeight, 1,
                GFX_GetFontColor());
   if (charging == true) {

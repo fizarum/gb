@@ -8,19 +8,31 @@ extern "C" {
 #include <types.h>
 
 #include "../resources/symbol_data.h"
+#include "../theming/theme.h"
 #include "../typography/font.h"
 
 typedef void (*GFX_CanvasUpdated)();
 
-void GFX_Init(const _u16 width, const _u16 height, GFX_CanvasUpdated callback);
+typedef enum ColorMode {
+  Monochrome,
+  RGB565,
+} ColorMode;
+
+void GFX_Init(const _u16 width, const _u16 height, const ColorMode mode,
+              GFX_CanvasUpdated callback);
 void GFX_Redraw();
 
 _u16* GFX_GetCanvas();
 
+void GFX_SetSystemColorMode(const ColorMode mode);
+void GFX_SetApplicationColorMode(const ColorMode mode);
+void GFX_ResetApplicationColorMode();
+
 void GFX_SetFont(Font_t* font);
 Font_t* GFX_GetFont();
 
-void GFX_SetBackgroundColor(_u16 color);
+void GFX_SetTheme(Theme* theme);
+Theme* GFX_GetTheme();
 
 _u16 GFX_GetCanwasWidth();
 _u16 GFX_GetCanvasHeight();
@@ -58,8 +70,6 @@ void GFX_FillScreen(const _u16 color);
 
 _u8 GFX_FontGetWidth();
 _u16 GFX_GetFontColor();
-
-_u16 GFX_GetBackgroundColor();
 
 #ifdef __cplusplus
 }
