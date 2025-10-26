@@ -12,21 +12,26 @@
 #include "devices/audio/audio.h"
 #include "devices/battery/battery.h"
 #include "devices/display/display.h"
+#include "devices/hal/gpio_hal.h"
 #include "devices/joystick/joystick.h"
 #include "devices/storage/storage.h"
+#include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
+#include "system/power/power_managment.h"
+
+#define WAKEUP_PIN GPIO_NUM_9
 
 static const char* const SYS_TAG = "System";
 static const char* const DEV_TAG = "Devices";
 
-TaskHandle_t systemTaskHandle = NULL;
+TaskHandle_t sysTaskHandle = NULL;
+TaskHandle_t appsTaskHandle = NULL;
 TaskHandle_t driverTaskHandle = NULL;
 
-TaskHandle_t testHandler = NULL;
 QueueHandle_t inputDataQueue;
 
 AppsManager_t* appsManager = NULL;
@@ -35,28 +40,59 @@ DeviceManager_t* deviceManager = NULL;
 TickType_t _500 = pdMS_TO_TICKS(500);
 TickType_t _200 = pdMS_TO_TICKS(200);
 TickType_t _100 = pdMS_TO_TICKS(100);
+TickType_t _50 = pdMS_TO_TICKS(50);
 TickType_t _20 = pdMS_TO_TICKS(20);
 TickType_t _10 = pdMS_TO_TICKS(10);
 TickType_t _5 = pdMS_TO_TICKS(5);
 TickType_t _2 = pdMS_TO_TICKS(2);
 const _u8 inputDataSize = 2;
 
-void systemTask(void* arg);
+volatile bool powerUpPressed = false;
+volatile bool sleeping = false;
+
+void sysTask(void* arg);
+void appsTask(void* arg);
 void driverTask(void* arg);
 
 static _u16 RegisterDevice(DeviceManager_t* deviceManager,
                            DeviceSpecification_t* deviceSpecification);
 
+static void IRAM_ATTR powerButtonHandler(void* args) { powerUpPressed = true; }
+
 void app_main() {
-  vTaskDelay(_100);
+  vTaskDelay(_50);
 
   inputDataQueue = xQueueCreate(inputDataSize, sizeof(InputDeviceData_t));
 
   xTaskCreate(driverTask, "driverTask", 4096, NULL, 11, &driverTaskHandle);
-  xTaskCreate(systemTask, "systemTask", 4096, NULL, 10, &systemTaskHandle);
+  xTaskCreate(appsTask, "appsTask", 4096, NULL, 10, &appsTaskHandle);
+
+  // Just to make sure that device manager is initialized properly
+  vTaskDelay(_50);
+  xTaskCreate(sysTask, "sysTask", 4096, NULL, 12, &sysTaskHandle);
 }
 
-void systemTask(void* arg) {
+void sysTask(void* arg) {
+  GPIO_SetInterrupt(WAKEUP_PIN, GPIO_INTR_POSEDGE, powerButtonHandler);
+  PowerManager_Init(WAKEUP_PIN);
+
+  while (1) {
+    if (powerUpPressed) {
+      powerUpPressed = false;
+      sleeping = !sleeping;
+
+      ESP_LOGI(SYS_TAG, "should start sleeping: %d", sleeping);
+      if (sleeping) {
+        PowerManager_SetPowerMode(Nap);
+      } else {
+        PowerManager_ResetPowerMode();
+      }
+    }
+    vTaskDelay(_20);
+  }
+}
+
+void appsTask(void* arg) {
   // added delay to let hadrware init properly(better log), can be removed
   vTaskDelay(pdMS_TO_TICKS(300));
 
