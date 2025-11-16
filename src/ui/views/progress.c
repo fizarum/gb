@@ -3,21 +3,23 @@
 #include <stdlib.h>
 
 #include "../gfx/gfx.h"
+#include "esp_log.h"
 
 typedef struct Progress_t {
   _u8 value;
   _u8 maxValue;
 
-  View_t *view;
+  View_t* view;
 } Progress_t;
 
-static void RecalculateSize(Progress_t *progress);
-static void Draw(View_t *view, const uint16_t left, const uint16_t top,
+static void RecalculateSize(Progress_t* progress);
+static void Draw(View_t* view, const uint16_t left, const uint16_t top,
                  const uint16_t right, const uint16_t bottom);
-static void Destroy(void *progressArg);
+static void HandleInput(View_t* view, InputEvent* event);
+static void Destroy(void* progressArg);
 
-View_t *Progress_Create(_u8 value, _u8 maxValue) {
-  Progress_t *progress = (Progress_t *)malloc(sizeof(Progress_t));
+View_t* Progress_Create(_u8 value, _u8 maxValue) {
+  Progress_t* progress = (Progress_t*)malloc(sizeof(Progress_t));
 
   if (progress == NULL) {
     return NULL;
@@ -27,8 +29,8 @@ View_t *Progress_Create(_u8 value, _u8 maxValue) {
   progress->maxValue = maxValue;
   SizePolicy_t widthPolicy = {.type = MatchParent, .weight = 0};
   SizePolicy_t heightpolicy = {.type = WrapContent, .weight = 0};
-  progress->view = View_Create(progress, false, &Draw, &Destroy, NULL,
-                               widthPolicy, heightpolicy);
+  progress->view = View_Create(progress, false, &Draw, &HandleInput, &Destroy,
+                               NULL, widthPolicy, heightpolicy);
 
   RecalculateSize(progress);
 
@@ -37,14 +39,14 @@ View_t *Progress_Create(_u8 value, _u8 maxValue) {
 
 // private part
 static const _u8 height = 14;
-static void RecalculateSize(Progress_t *progress) {
+static void RecalculateSize(Progress_t* progress) {
   View_SetWidth(progress->view, 1);
   View_SetHeight(progress->view, height);
 }
 
-static void Draw(View_t *view, const uint16_t left, const uint16_t top,
+static void Draw(View_t* view, const uint16_t left, const uint16_t top,
                  const uint16_t right, const uint16_t bottom) {
-  Progress_t *progress = (Progress_t *)View_GetCustomView(view);
+  Progress_t* progress = (Progress_t*)View_GetCustomView(view);
   if (progress->value > progress->maxValue) {
     return;
   }
@@ -76,12 +78,16 @@ static void Draw(View_t *view, const uint16_t left, const uint16_t top,
   }
 }
 
-static void Destroy(void *progressArg) {
+static void HandleInput(View_t* view, InputEvent* event) {
+  ESP_LOGW("Progress", "handle input not yet implemented!");
+}
+
+static void Destroy(void* progressArg) {
   if (progressArg == NULL) {
     return;
   }
 
-  Progress_t *progress = (Progress_t *)progressArg;
+  Progress_t* progress = (Progress_t*)progressArg;
 
   free(progress);
 }

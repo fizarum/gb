@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 typedef enum {
   KEY_NONE,
   KEY_LEFT_TRIGGER,
@@ -20,6 +21,7 @@ typedef enum {
   KEY_START,
   KEY_MENU,
 } KeyCode;
+
 #ifdef __cplusplus
 }
 #endif

@@ -26,8 +26,8 @@ View_t* Label_Create(char* text, Font_t* font) {
   label->text = text;
   label->font = font;
   SizePolicy_t sizePolicy = {.type = WrapContent, .weight = 0};
-  label->view = View_Create(label, false, &Label_Draw, &Label_Destroy, NULL,
-                            sizePolicy, sizePolicy);
+  label->view = View_Create(label, false, &Label_Draw, NULL, &Label_Destroy,
+                            NULL, sizePolicy, sizePolicy);
 
   Label_RecalculateSize(label);
 

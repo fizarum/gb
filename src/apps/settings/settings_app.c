@@ -30,33 +30,65 @@ static Theme theme = {
     .backgroundColor = COLOR_INDIGO,
 };
 
-static _u8 focusedItemIndex = 0;
-
-const static _u8 maxItems = 4;
-
 static Composer_t* composer;
 static View_t* listFocus;
+static View_t* brightnessPicker;
+static View_t* volumePicker;
+static View_t* powerSaveSwitch;
+static View_t* sleepInOptionPicker;
+static InputEvent inputEvent;
+
+static View_t* selectOptionViewByIndex(_u8 index) {
+  switch (index) {
+    case 0:
+      return brightnessPicker;
+    case 1:
+      return volumePicker;
+    case 2:
+      return powerSaveSwitch;
+    case 3:
+      return sleepInOptionPicker;
+    default:
+      return NULL;
+  }
+}
 
 static void handleKey(const void* keyData) {
   InputDeviceData_t* data = (InputDeviceData_t*)keyData;
+  static _u8 selectedIndex = 0;
+  inputEvent.keycode = KEY_NONE;
+  inputEvent.type = Cancelled;
+
   if (IsButtonUpReleased(data) == true) {
-    focusedItemIndex--;
-    if (focusedItemIndex >= maxItems) {
-      focusedItemIndex = maxItems - 1;
-    }
-    ListFocus_SelectItemIndex(listFocus, focusedItemIndex);
+    inputEvent.keycode = KEY_UP;
+    inputEvent.type = Released;
+    View_HandleInput(listFocus, &inputEvent);
+
     specs.redrawNeeded = RedrawPartial;
   } else if (IsButtonDownReleased(data) == true) {
-    focusedItemIndex++;
-    if (focusedItemIndex >= maxItems) {
-      focusedItemIndex = 0;
-    }
+    inputEvent.keycode = KEY_DOWN;
+    inputEvent.type = Released;
+    View_HandleInput(listFocus, &inputEvent);
+
     specs.redrawNeeded = RedrawPartial;
-    ListFocus_SelectItemIndex(listFocus, focusedItemIndex);
   } else if (IsButtonRightReleased(data) == true) {
-    // TODO: complete menu switching
+    inputEvent.keycode = KEY_RIGHT;
+    inputEvent.type = Released;
+
+    selectedIndex = ListFocus_GetSelectedItemIndex(listFocus);
+    View_t* view = selectOptionViewByIndex(selectedIndex);
+    View_HandleInput(view, &inputEvent);
+
+    specs.redrawNeeded = RedrawPartial;
   } else if (IsButtonLeftReleased(data) == true) {
-    // TODO: complete menu switching
+    inputEvent.keycode = KEY_LEFT;
+    inputEvent.type = Released;
+
+    selectedIndex = ListFocus_GetSelectedItemIndex(listFocus);
+    View_t* view = selectOptionViewByIndex(selectedIndex);
+    View_HandleInput(view, &inputEvent);
+
+    specs.redrawNeeded = RedrawPartial;
   }
 }
 
@@ -136,33 +168,33 @@ static void onAppStart() {
   Composer_AddView(composer, settingsItem1, VSpacer_Create(padding));
   _u16 brItemBoxId = Composer_AddHBox(composer, settingsItem1);
   View_t* brLabel = Label_Create("Brightness:", GFX_GetFont());
-  View_t* brProgress = CreateBrightnessOptionsPicker();
+  brightnessPicker = CreateBrightnessOptionsPicker();
   Composer_AddView(composer, brItemBoxId, brLabel);
-  Composer_AddView(composer, brItemBoxId, brProgress);
+  Composer_AddView(composer, brItemBoxId, brightnessPicker);
   Composer_AddView(composer, brItemBoxId, VSpacer_Create(settingItemHeight));
 
   // 2. volume
   _u16 volumeBoxId = Composer_AddHBox(composer, settingsBoxId);
   View_t* vlLabel = Label_Create("volume:", GFX_GetFont());
-  View_t* vlProgress = CreateVolumeOptionsPicker();
+  volumePicker = CreateVolumeOptionsPicker();
   Composer_AddView(composer, volumeBoxId, vlLabel);
-  Composer_AddView(composer, volumeBoxId, vlProgress);
+  Composer_AddView(composer, volumeBoxId, volumePicker);
   Composer_AddView(composer, volumeBoxId, VSpacer_Create(settingItemHeight));
 
   // 3. power save mode
   _u16 powerSaveBoxId = Composer_AddHBox(composer, settingsBoxId);
   View_t* psLabel = Label_Create("power save: ", GFX_GetFont());
-  View_t* psSwitch = SwitchButton_Create(false, GFX_GetFont());
+  powerSaveSwitch = SwitchButton_Create(false, GFX_GetFont());
   Composer_AddView(composer, powerSaveBoxId, psLabel);
-  Composer_AddView(composer, powerSaveBoxId, psSwitch);
+  Composer_AddView(composer, powerSaveBoxId, powerSaveSwitch);
   Composer_AddView(composer, powerSaveBoxId, VSpacer_Create(settingItemHeight));
 
   // 4. "sleep in" option
   _u16 sleepOptionBoxId = Composer_AddHBox(composer, settingsBoxId);
   View_t* slLabel = Label_Create("sleep in: ", GFX_GetFont());
-  View_t* slOptionPicker = CreateSleepOptionsPicker();
+  sleepInOptionPicker = CreateSleepOptionsPicker();
   Composer_AddView(composer, sleepOptionBoxId, slLabel);
-  Composer_AddView(composer, sleepOptionBoxId, slOptionPicker);
+  Composer_AddView(composer, sleepOptionBoxId, sleepInOptionPicker);
   Composer_AddView(composer, sleepOptionBoxId,
                    VSpacer_Create(settingItemHeight));
 

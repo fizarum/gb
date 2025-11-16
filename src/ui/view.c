@@ -30,13 +30,18 @@ typedef struct View_t {
   void* customView;
 
   DrawCallback drawCallback;
+  InputCallback inputCallback;
   ViewCallback destroyCallback;
   ViewSizeChangedCallback onSizeChangedCallback;
 } View_t;
 
-View_t* View_Create(void* customView, bool isBox, DrawCallback drawCallback,
-                    ViewCallback onDestroyCallback,
+View_t* View_Create(void* customView, bool isBox,
+                    // callbacks part
+                    DrawCallback drawCallback,       // drawnig
+                    InputCallback inputCallback,     // input
+                    ViewCallback onDestroyCallback,  // detroy
                     ViewSizeChangedCallback onSizeChangedCallback,
+                    // size policy part
                     const SizePolicy_t widthPolicy,
                     const SizePolicy_t heightPolicy) {
   View_t* view = (View_t*)malloc(sizeof(View_t));
@@ -47,6 +52,7 @@ View_t* View_Create(void* customView, bool isBox, DrawCallback drawCallback,
   view->id = VIEW_ID_NONE;
   view->customView = customView;
   view->drawCallback = drawCallback;
+  view->inputCallback = inputCallback;
   view->destroyCallback = onDestroyCallback;
   view->onSizeChangedCallback = onSizeChangedCallback;
   view->isBox = isBox;
@@ -184,3 +190,9 @@ void* View_GetCustomView(const View_t* view) { return view->customView; }
 
 void View_SetUpdated(View_t* view) { view->needsRedraw = true; }
 bool View_IsUpdated(const View_t* view) { return view->needsRedraw; }
+
+void View_HandleInput(View_t* view, InputEvent* inputEvent) {
+  if (view != NULL && inputEvent != NULL && view->inputCallback != NULL) {
+    view->inputCallback(view, inputEvent);
+  }
+}

@@ -5,10 +5,10 @@
 extern "C" {
 #endif
 
+#include "../system/input/keycode.h"
 #include "menu/menu.h"
 #include "scene/scene.h"
 #include "screen/screen_config.h"
-#include "types/keycode.h"
 #include "types/types.h"
 
 typedef struct Game Game;

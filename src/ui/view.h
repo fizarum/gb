@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <system/input/input_event.h>
 #include <types.h>
 
 typedef enum SizePolicyType_t {
@@ -49,10 +50,15 @@ typedef void (*DrawCallback)(View_t* view, const _u16 left, const _u16 top,
 typedef void (*ViewCallback)(void* customView);
 typedef void (*ViewSizeChangedCallback)(View_t* view, const _u16 width,
                                         const _u16 height);
+typedef void (*InputCallback)(View_t* view, InputEvent* event);
 
-View_t* View_Create(void* customView, bool isBox, DrawCallback drawCallback,
-                    ViewCallback onDestroyCallback,
+View_t* View_Create(void* customView, bool isBox,
+                    // callbacks part
+                    DrawCallback drawCallback,       // drawnig
+                    InputCallback inputCallback,     // input
+                    ViewCallback onDestroyCallback,  // detroy
                     ViewSizeChangedCallback onSizeChangedCallback,
+                    // size policy part
                     const SizePolicy_t widthPolicy,
                     const SizePolicy_t heightPolicy);
 void View_Destroy(View_t* node);
@@ -112,6 +118,8 @@ void* View_GetCustomView(const View_t* view);
  */
 void View_SetUpdated(View_t* view);
 bool View_IsUpdated(const View_t* view);
+
+void View_HandleInput(View_t* view, InputEvent* inputEvent);
 
 #ifdef __cplusplus
 }
