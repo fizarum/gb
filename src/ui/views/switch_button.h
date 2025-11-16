@@ -10,9 +10,9 @@ extern "C" {
 
 typedef struct SwitchButton_t SwitchButton_t;
 
-View_t *SwitchButton_Create(bool on, Font_t *font);
-void SwitchButton_Toggle(SwitchButton_t *button);
-bool SwitchBuitton_IsOn(const SwitchButton_t *button);
+View_t* SwitchButton_Create(_u8 on, Font_t* font);
+void SwitchButton_Toggle(SwitchButton_t* button);
+bool SwitchBuitton_IsOn(const SwitchButton_t* button);
 
 #ifdef __cplusplus
 }

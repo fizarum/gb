@@ -161,7 +161,7 @@ static View_t *Box_Create(const Direction_t direction) {
   box->direction = direction;
   SizePolicy_t sizePolicy = {.type = MatchParent, .weight = 0};
   box->view =
-      View_Create(box, true, NULL, &Box_Destroy, NULL, sizePolicy, sizePolicy);
+      View_Create(box, true, NULL, NULL, &Box_Destroy, NULL, sizePolicy, sizePolicy);
 
   return box->view;
 }

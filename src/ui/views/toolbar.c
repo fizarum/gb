@@ -5,19 +5,20 @@
 #include "../gfx/gfx.h"
 
 typedef struct Toolbar_t {
-  char *title;
-  Font_t *font;
+  char* title;
+  Font_t* font;
 
-  View_t *view;
+  View_t* view;
 } Toolbar_t;
 
-static void Toolbar_RecalculateSize(Toolbar_t *toolbar);
-static void Toolbar_Draw(View_t *view, const _u16 left, const _u16 top,
+static void Toolbar_RecalculateSize(Toolbar_t* toolbar);
+static void Toolbar_Draw(View_t* view, const _u16 left, const _u16 top,
                          const _u16 right, const _u16 bottom);
-static void Toolbar_Destroy(void *toolbarArg);
 
-View_t *Toolbar_Create(char *text, Font_t *font) {
-  Toolbar_t *toolbar = (Toolbar_t *)malloc(sizeof(Toolbar_t));
+static void Toolbar_Destroy(void* toolbarArg);
+
+View_t* Toolbar_Create(char* text, Font_t* font) {
+  Toolbar_t* toolbar = (Toolbar_t*)malloc(sizeof(Toolbar_t));
   if (toolbar == NULL) {
     return NULL;
   }
@@ -26,8 +27,9 @@ View_t *Toolbar_Create(char *text, Font_t *font) {
   toolbar->font = font;
   SizePolicy_t widthPolicy = {.type = MatchParent, .weight = 0};
   SizePolicy_t heightPolicy = {.type = WrapContent, .weight = 0};
-  toolbar->view = View_Create(toolbar, false, &Toolbar_Draw, &Toolbar_Destroy,
-                              NULL, widthPolicy, heightPolicy);
+  toolbar->view =
+      View_Create(toolbar, false, &Toolbar_Draw, NULL, &Toolbar_Destroy, NULL,
+                  widthPolicy, heightPolicy);
 
   Toolbar_RecalculateSize(toolbar);
 
@@ -39,10 +41,10 @@ static const _u8 titleStartPadding = 30;
 static const _u8 titleBottomPadding = 3;
 static const _u8 lineSidePadding = 20;
 
-static void Toolbar_Draw(View_t *view, const _u16 left, const _u16 top,
+static void Toolbar_Draw(View_t* view, const _u16 left, const _u16 top,
                          const _u16 right, const _u16 bottom) {
-  Toolbar_t *toolbar = (Toolbar_t *)View_GetCustomView(view);
-  Font_t *activeFont = GFX_GetFont();
+  Toolbar_t* toolbar = (Toolbar_t*)View_GetCustomView(view);
+  Font_t* activeFont = GFX_GetFont();
   _u16 yPosForNextView = top + titleTopPadding;
 
   GFX_DrawString(toolbar->title, left + titleStartPadding, yPosForNextView,
@@ -57,16 +59,16 @@ static void Toolbar_Draw(View_t *view, const _u16 left, const _u16 top,
 }
 
 // private part
-static void Toolbar_RecalculateSize(Toolbar_t *toolbar) {
+static void Toolbar_RecalculateSize(Toolbar_t* toolbar) {
   View_SetWidth(toolbar->view, GFX_GetCanwasWidth());
   View_SetHeight(toolbar->view, 30);
 }
 
-static void Toolbar_Destroy(void *toolbarArg) {
+static void Toolbar_Destroy(void* toolbarArg) {
   if (toolbarArg == NULL) {
     return;
   }
-  Toolbar_t *toolbar = (Toolbar_t *)toolbarArg;
+  Toolbar_t* toolbar = (Toolbar_t*)toolbarArg;
 
   free(toolbar);
 }

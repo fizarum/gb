@@ -9,8 +9,9 @@ extern "C" {
 
 typedef struct ListFocus_t ListFocus_t;
 
-View_t *ListFocus_Create(_u8 items);
-void ListFocus_SelectItemIndex(View_t *view, _u8 index);
+View_t* ListFocus_Create(_u8 items);
+void ListFocus_SelectItemIndex(View_t* view, _u8 index);
+_u8 ListFocus_GetSelectedItemIndex(View_t* view);
 #ifdef __cplusplus
 }
 #endif
