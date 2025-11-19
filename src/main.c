@@ -27,6 +27,8 @@
 
 static const char* const SYS_TAG = "System";
 static const char* const DEV_TAG = "Devices";
+// 300 millis
+static const int64_t thresholdMicrosForPowerModeChange = 300000;
 
 TaskHandle_t sysTaskHandle = NULL;
 TaskHandle_t appsTaskHandle = NULL;
@@ -47,6 +49,10 @@ TickType_t _5 = pdMS_TO_TICKS(5);
 TickType_t _2 = pdMS_TO_TICKS(2);
 const _u8 inputDataSize = 2;
 
+volatile bool newPowerModeApplied = true;
+volatile int64_t micros = 0;
+volatile int64_t whenUpdatedPowerModeInMicros = 0;
+
 volatile bool powerUpPressed = false;
 volatile bool sleeping = false;
 
@@ -57,7 +63,15 @@ void driverTask(void* arg);
 static _u16 RegisterDevice(DeviceManager_t* deviceManager,
                            DeviceSpecification_t* deviceSpecification);
 
-static void IRAM_ATTR powerButtonHandler(void* args) { powerUpPressed = true; }
+static void IRAM_ATTR powerButtonHandler(void* args) {
+  micros = esp_timer_get_time();
+  if (micros - whenUpdatedPowerModeInMicros >
+      thresholdMicrosForPowerModeChange) {
+    powerUpPressed = true;
+    newPowerModeApplied = false;
+    whenUpdatedPowerModeInMicros = micros;
+  }
+}
 
 void app_main() {
   vTaskDelay(_50);
@@ -77,15 +91,18 @@ void sysTask(void* arg) {
   PowerManager_Init(WAKEUP_PIN);
 
   while (1) {
-    if (powerUpPressed) {
-      powerUpPressed = false;
-      sleeping = !sleeping;
+    if (!newPowerModeApplied) {
+      if (powerUpPressed) {
+        powerUpPressed = false;
+        sleeping = !sleeping;
 
-      ESP_LOGI(SYS_TAG, "should start sleeping: %d", sleeping);
-      if (sleeping) {
-        PowerManager_SetPowerMode(Nap);
-      } else {
-        PowerManager_ResetPowerMode();
+        ESP_LOGI(SYS_TAG, "should start sleeping: %d", sleeping);
+        newPowerModeApplied = true;
+        if (sleeping) {
+          PowerManager_SetPowerMode(Nap);
+        } else {
+          PowerManager_ResetPowerMode();
+        }
       }
     }
     vTaskDelay(_20);

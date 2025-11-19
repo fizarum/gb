@@ -56,7 +56,7 @@ static void handleKey(const void* keyData) {
   }
 
   InputDeviceData_t* data = (InputDeviceData_t*)keyData;
-  ESP_LOGI(specs.name, "[specs] handle input: %d", data->keymap);
+  // ESP_LOGI(specs.name, "[specs] handle input: %d", data->keymap);
 
   if (IsButtonLeftReleased(data)) {
     SelectPreviousApp();

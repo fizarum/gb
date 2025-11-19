@@ -113,6 +113,8 @@ static bool onInit(void) {
 
   Ili9341Init(&dev);
 
+  Ili9341SetInversion(&dev, false);
+
   deviceData.width = dev.width;
   deviceData.height = dev.height;
 
