@@ -61,7 +61,7 @@ static void SwitchNextPage();
 static void OpenFile();
 
 static void handleKey(const void* keyData) {
-  InputDeviceData_t* data = (InputDeviceData_t*)keyData;
+  InputDeviceData* data = (InputDeviceData*)keyData;
 
   // ESP_LOGI(specs.name, "provided keydata: %u", data->keymap);
   if (IsButtonUpReleased(data) == true) {
@@ -96,8 +96,8 @@ static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
   GFX_SetTheme(&theme);
 
-  DeviceManager_t* deviceManger = DeviceManagerGetInstance();
-  Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
+  DeviceManager* deviceManger = DeviceManagerGetInstance();
+  Device* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
   storageData = (StorageDeviceData_t*)DeviceGetData(storageDevice);
 
   totalFiles = 0;

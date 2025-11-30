@@ -6,8 +6,9 @@ extern "C" {
 #endif
 
 #include <device.h>
+#include <extensions/display_extensions.h>
 
-DeviceSpecification_t *DislplaySpecification();
+DeviceSpecification* DislplaySpecification();
 
 #ifdef __cplusplus
 }

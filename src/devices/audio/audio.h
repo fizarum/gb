@@ -7,7 +7,7 @@ extern "C" {
 
 #include <device.h>
 
-DeviceSpecification_t* AudioSpecification();
+DeviceSpecification* AudioSpecification();
 
 void playSystemSound(_u16 type);
 

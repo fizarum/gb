@@ -24,12 +24,12 @@ typedef struct SystemSoundInfo {
   size_t length;
 } SystemSoundInfo;
 
-static DeviceSpecification_t specs = {
+static DeviceSpecification specs = {
     .name = "Sound",
     .type = TypeAudio,
 };
 
-static AudioDeviceData_t data = {
+static AudioDeviceData data = {
     .volume = 1.0,
 };
 
@@ -137,7 +137,7 @@ static bool onEnable(bool enable) {
 
 static void onUpdate(void) {}
 
-DeviceSpecification_t* AudioSpecification() {
+DeviceSpecification* AudioSpecification() {
   specs.data = &data;
 
   specs.onInit = &onInit;

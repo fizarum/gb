@@ -37,9 +37,14 @@ static bool transmitDataTimes(const _u16 value, const _u16 times);
 static bool transmit(const _u8* data, const size_t length);
 static bool lighten(const _u8 percents);
 
-static DeviceSpecification_t specs = {
+static DisplayExtension extension = {
+    .changeBrightness = &lighten,
+};
+
+static DeviceSpecification specs = {
     .name = "Display",
     .type = TypeDisplay,
+    .extension = &extension,
 };
 
 static ILI9341_t dev = {
@@ -85,7 +90,7 @@ QueueHandle_t displayUpdatedQueue;
 UpdateTransaction_t updateTransaction;
 
 spi_device_handle_t spiHandle;
-static DisplayDeviceData_t deviceData;
+static DisplayDeviceData deviceData;
 static _u8 brightness = 30;
 
 void drawingTask(void* arg);
@@ -152,7 +157,7 @@ static bool onEnable(bool enable) {
 
 static void onUpdate(void) {}
 
-DeviceSpecification_t* DislplaySpecification() {
+DeviceSpecification* DislplaySpecification() {
   specs.data = &deviceData;
 
   specs.onInit = &onInit;

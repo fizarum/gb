@@ -7,7 +7,7 @@ extern "C" {
 
 #include <device.h>
 
-DeviceSpecification_t *BatterySpecification();
+DeviceSpecification* BatterySpecification();
 
 #ifdef __cplusplus
 }

@@ -37,7 +37,7 @@ TaskHandle_t driverTaskHandle = NULL;
 QueueHandle_t inputDataQueue;
 
 AppsManager_t* appsManager = NULL;
-DeviceManager_t* deviceManager = NULL;
+DeviceManager* deviceManager = NULL;
 
 TickType_t _500 = pdMS_TO_TICKS(500);
 TickType_t _200 = pdMS_TO_TICKS(200);
@@ -60,8 +60,8 @@ void sysTask(void* arg);
 void appsTask(void* arg);
 void driverTask(void* arg);
 
-static _u16 RegisterDevice(DeviceManager_t* deviceManager,
-                           DeviceSpecification_t* deviceSpecification);
+static _u16 RegisterDevice(DeviceManager* deviceManager,
+                           DeviceSpecification* deviceSpecification);
 
 static void IRAM_ATTR powerButtonHandler(void* args) {
   micros = esp_timer_get_time();
@@ -76,7 +76,7 @@ static void IRAM_ATTR powerButtonHandler(void* args) {
 void app_main() {
   vTaskDelay(_50);
 
-  inputDataQueue = xQueueCreate(inputDataSize, sizeof(InputDeviceData_t));
+  inputDataQueue = xQueueCreate(inputDataSize, sizeof(InputDeviceData));
 
   xTaskCreate(driverTask, "driverTask", 4096, NULL, 11, &driverTaskHandle);
   xTaskCreate(appsTask, "appsTask", 4096, NULL, 10, &appsTaskHandle);
@@ -113,7 +113,7 @@ void appsTask(void* arg) {
   // added delay to let hadrware init properly(better log), can be removed
   vTaskDelay(pdMS_TO_TICKS(300));
 
-  InputDeviceData_t inputDataToReceive;
+  InputDeviceData inputDataToReceive;
 
   ESP_LOGI(SYS_TAG, "start!");
   BroadcastManager_Init();
@@ -168,16 +168,16 @@ void driverTask(void* arg) {
   while (1) {
     DeviceManagerUpdate(deviceManager);
 
-    Device_t* device = DeviceManagerGet(deviceManager, joystickId);
-    const InputDeviceData_t* data = (InputDeviceData_t*)DeviceGetData(device);
+    Device* device = DeviceManagerGet(deviceManager, joystickId);
+    const InputDeviceData* data = (InputDeviceData*)DeviceGetData(device);
 
     if (IsAnyButtonPressed(data) == true) {
       xQueueSend(inputDataQueue, data, _2);
     }
 
-    Device_t* batteryDevice = DeviceManagerGet(deviceManager, batteryId);
-    BatteryDeviceData_t* batteryData =
-        (BatteryDeviceData_t*)DeviceGetData(batteryDevice);
+    Device* batteryDevice = DeviceManagerGet(deviceManager, batteryId);
+    BatteryDeviceData* batteryData =
+        (BatteryDeviceData*)DeviceGetData(batteryDevice);
 
     if (batteryData->charginStatusChanged == true) {
       batteryData->charginStatusChanged = false;
@@ -202,10 +202,10 @@ void driverTask(void* arg) {
   }
 }
 
-static _u16 RegisterDevice(DeviceManager_t* deviceManager,
-                           DeviceSpecification_t* deviceSpecification) {
+static _u16 RegisterDevice(DeviceManager* deviceManager,
+                           DeviceSpecification* deviceSpecification) {
   _u16 id = DeviceManagerNextDeviceId(deviceManager);
-  Device_t* device = DeviceCreate(id, deviceSpecification);
+  Device* device = DeviceCreate(id, deviceSpecification);
   _u16 addedDeviceId = DeviceManagerAdd(deviceManager, device);
   const char* name = DeviceGetName(device);
 

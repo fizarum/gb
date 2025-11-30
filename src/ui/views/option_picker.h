@@ -11,8 +11,10 @@ extern "C" {
 #include "../view.h"
 
 typedef struct OptionPicker_t OptionPicker_t;
+typedef void (*OptionChangedCallback)(OptionPicker_t* picker, void* option);
 
-View_t* OptionPicker_Create(Array_t* options, Font_t* font);
+View_t* OptionPicker_Create(Array_t* options, Font_t* font,
+                            OptionChangedCallback callback);
 
 #ifdef __cplusplus
 }

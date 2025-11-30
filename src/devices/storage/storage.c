@@ -15,7 +15,7 @@
 
 #define MOUNT_POINT "/sdcard"
 
-static DeviceSpecification_t specs = {
+static DeviceSpecification specs = {
     .name = "SD Card",
     .type = TypeStorage,
 };
@@ -103,7 +103,7 @@ static bool onEnable(bool enable) {
 
 static void onUpdate(void) {}
 
-DeviceSpecification_t* StorageSpecification() {
+DeviceSpecification* StorageSpecification() {
   specs.data = &deviceData;
 
   specs.onInit = &onInit;

@@ -12,9 +12,9 @@
 #include "power_managment_utils.h"
 #include "soc/rtc.h"
 
-static DeviceManager_t* _deviceManager = NULL;
-static Device_t* _displayDevice = NULL;
-static Device_t* _keyboardDevice = NULL;
+static DeviceManager* _deviceManager = NULL;
+static Device* _displayDevice = NULL;
+static Device* _keyboardDevice = NULL;
 static gpio_num_t _wakeupPin;
 
 void PowerManager_Init(gpio_num_t wakeupPin) {
