@@ -13,7 +13,7 @@
 static bool joystickEnabled = false;
 static _u16 joystickData = 0;
 
-static DeviceSpecification_t specs = {
+static DeviceSpecification specs = {
     .name = "Joystick",
     .type = TypeInput,
 };
@@ -25,7 +25,7 @@ static MCPDevice_t mcp23017 = {
     .address = MCP_ADDRESS,
 };
 
-static InputDeviceData_t deviceData;
+static InputDeviceData deviceData;
 
 static bool onInit(void) {
   bool initOk = MCPInit(&mcp23017);
@@ -66,7 +66,7 @@ static void onUpdate(void) {
   }
 }
 
-DeviceSpecification_t* JoystickSpecification() {
+DeviceSpecification* JoystickSpecification() {
   specs.data = &deviceData;
 
   specs.onInit = &onInit;

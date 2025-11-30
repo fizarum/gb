@@ -46,7 +46,7 @@ static Theme theme = {
     .backgroundColor = COLOR_DARKGREEN,
 };
 
-static BatteryDeviceData_t* batteryData;
+static BatteryDeviceData* batteryData;
 static StorageDeviceData_t* storageData;
 
 static esp_chip_info_t chipInfo;
@@ -71,11 +71,11 @@ static void onAppStart(void) {
     return;
   }
 
-  DeviceManager_t* deviceManger = DeviceManagerGetInstance();
-  Device_t* powerDevice = DeviceManagerGetByType(deviceManger, TypePower);
-  batteryData = (BatteryDeviceData_t*)DeviceGetData(powerDevice);
+  DeviceManager* deviceManger = DeviceManagerGetInstance();
+  Device* powerDevice = DeviceManagerGetByType(deviceManger, TypePower);
+  batteryData = (BatteryDeviceData*)DeviceGetData(powerDevice);
 
-  Device_t* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
+  Device* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
   storageData = (StorageDeviceData_t*)DeviceGetData(storageDevice);
   sdSizeInMB = StorageGetTotalSizeInMBs(storageData->mountPoint);
   sdUsedSizeInMB = StorageGetUsedSizeInMBs(storageData->mountPoint);
@@ -162,7 +162,7 @@ AppSpecification_t* InfoAppSpecification() {
   specs.onStop = &onAppStop;
 
   return &specs;
-};
+}
 
 static void AddLabel(const _u16 rootBoxId, const char* text) {
   View_t* label = Label_Create(text, GFX_GetFont());

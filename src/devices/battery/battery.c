@@ -32,12 +32,12 @@ const uint32_t delayBetweenUpdatesInMicroSeconds = 2 * 1000000;
 static int lastUpdatedTimeAt, now = 0;
 int voltage = 0;
 
-static DeviceSpecification_t specs = {
+static DeviceSpecification specs = {
     .name = "Battery",
     .type = TypePower,
 };
 
-static BatteryDeviceData_t deviceData;
+static BatteryDeviceData deviceData;
 
 bool isCalibrated = false;
 
@@ -100,7 +100,7 @@ static void onUpdate(void) {
   }
 }
 
-DeviceSpecification_t* BatterySpecification() {
+DeviceSpecification* BatterySpecification() {
   specs.data = &deviceData;
 
   specs.onInit = &onInit;

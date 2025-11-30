@@ -13,6 +13,8 @@ typedef struct OptionPicker_t {
 
   Font_t* font;
 
+  OptionChangedCallback callback;
+
   View_t* view;
 } OptionPicker_t;
 
@@ -22,7 +24,8 @@ static void HandleInput(View_t* view, InputEvent* event);
 static void Destroy(void* optionPickerArg);
 static void RecalculateSize(OptionPicker_t* picker);
 
-View_t* OptionPicker_Create(Array_t* options, Font_t* font) {
+View_t* OptionPicker_Create(Array_t* options, Font_t* font,
+                            OptionChangedCallback callback) {
   OptionPicker_t* picker = (OptionPicker_t*)malloc(sizeof(OptionPicker_t));
 
   if (picker == NULL) {
@@ -36,6 +39,7 @@ View_t* OptionPicker_Create(Array_t* options, Font_t* font) {
   picker->optionsCount = ArrayCapacity(options);
   picker->selecedOptionIndex = 0;
   picker->font = font;
+  picker->callback = callback;
   picker->view = View_Create(picker, false, &Draw, &HandleInput, &Destroy, NULL,
                              widthPolicy, heightpolicy);
 
@@ -92,6 +96,11 @@ static void HandleInput(View_t* view, InputEvent* event) {
       if (picker->selecedOptionIndex >= picker->optionsCount) {
         picker->selecedOptionIndex = picker->optionsCount - 1;
       }
+      if (picker->callback != NULL) {
+        void* data = ArrayValueAt(picker->options, picker->selecedOptionIndex);
+        picker->callback(picker, data);
+      }
+
       View_SetUpdated(view);
       break;
 
@@ -100,6 +109,11 @@ static void HandleInput(View_t* view, InputEvent* event) {
       if (picker->selecedOptionIndex >= picker->optionsCount) {
         picker->selecedOptionIndex = 0;
       }
+      if (picker->callback != NULL) {
+        void* data = ArrayValueAt(picker->options, picker->selecedOptionIndex);
+        picker->callback(picker, data);
+      }
+
       View_SetUpdated(view);
       break;
 

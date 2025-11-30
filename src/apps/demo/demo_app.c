@@ -80,7 +80,7 @@ static void onAppUpdate(void) {
 }
 
 static void handleKey(const void* keyData) {
-  InputDeviceData_t* data = (InputDeviceData_t*)keyData;
+  InputDeviceData* data = (InputDeviceData*)keyData;
   Scene* scene = Game_GetScene();
 
   if (IsButtonLeftPressed(data)) {

@@ -7,7 +7,7 @@ extern "C" {
 
 #include "joystick_utils.h"
 
-DeviceSpecification_t *JoystickSpecification();
+DeviceSpecification* JoystickSpecification();
 
 #ifdef __cplusplus
 }
