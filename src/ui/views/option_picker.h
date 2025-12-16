@@ -13,8 +13,16 @@ extern "C" {
 typedef struct OptionPicker_t OptionPicker_t;
 typedef void (*OptionChangedCallback)(OptionPicker_t* picker, void* option);
 
+/**
+ * @brief map option to string value for drawing on
+ * @param option - option to convert
+ * @param buff - to store string value from option
+ */
+typedef bool (*OptionMapItem)(void* option, char* buff);
+
 View_t* OptionPicker_Create(Array_t* options, Font_t* font,
-                            OptionChangedCallback callback);
+                            OptionChangedCallback callback,
+                            OptionMapItem mapItemCallback);
 
 #ifdef __cplusplus
 }

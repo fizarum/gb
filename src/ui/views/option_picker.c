@@ -1,5 +1,6 @@
 #include "option_picker.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -14,9 +15,12 @@ typedef struct OptionPicker_t {
   Font_t* font;
 
   OptionChangedCallback callback;
+  OptionMapItem mapItemCallback;
 
   View_t* view;
 } OptionPicker_t;
+
+char _buff[8];
 
 static void Draw(View_t* view, const _u16 left, const _u16 top,
                  const _u16 right, const _u16 bottom);
@@ -25,7 +29,8 @@ static void Destroy(void* optionPickerArg);
 static void RecalculateSize(OptionPicker_t* picker);
 
 View_t* OptionPicker_Create(Array_t* options, Font_t* font,
-                            OptionChangedCallback callback) {
+                            OptionChangedCallback callback,
+                            OptionMapItem mapItemCallback) {
   OptionPicker_t* picker = (OptionPicker_t*)malloc(sizeof(OptionPicker_t));
 
   if (picker == NULL) {
@@ -40,6 +45,7 @@ View_t* OptionPicker_Create(Array_t* options, Font_t* font,
   picker->selecedOptionIndex = 0;
   picker->font = font;
   picker->callback = callback;
+  picker->mapItemCallback = mapItemCallback;
   picker->view = View_Create(picker, false, &Draw, &HandleInput, &Destroy, NULL,
                              widthPolicy, heightpolicy);
 
@@ -57,9 +63,13 @@ static void Draw(View_t* view, const _u16 left, const _u16 top,
                  const _u16 right, const _u16 bottom) {
   OptionPicker_t* picker = GetPicker(view);
 
-  const char* text =
-      (const char*)ArrayValueAt(picker->options, picker->selecedOptionIndex);
-  _u8 textLength = strlen(text);
+  const _u8 value = ArrayValueAt(picker->options, picker->selecedOptionIndex);
+  if (picker->mapItemCallback != NULL &&
+      picker->mapItemCallback(value, _buff)) {
+  } else {
+    snprintf(_buff, 7, "%d", value);
+  }
+  _u8 textLength = strlen(_buff);
   _u8 symbolWidth = GFX_FontGetWidth();
 
   // size can change based on text of option so its length is text length +
@@ -69,7 +79,7 @@ static void Draw(View_t* view, const _u16 left, const _u16 top,
   // total size for extra safety
   _u16 newRight = left + symbolWidth * textLength + 4 * symbolWidth +
                   // extra space for cleaning text from longer to shorter
-                  2 * symbolWidth;
+                  3 * symbolWidth;
   // clear old value
   GFX_DrawFilledRect(left, top, newRight, bottom,
                      GFX_GetTheme()->backgroundColor);
@@ -80,7 +90,7 @@ static void Draw(View_t* view, const _u16 left, const _u16 top,
 
   // middle text
   leftPos += symbolWidth * 2;
-  GFX_DrawString(text, leftPos, top, GFX_GetFont());
+  GFX_DrawString(_buff, leftPos, top, GFX_GetFont());
 
   // draw right arrow
   leftPos += symbolWidth * textLength + symbolWidth;

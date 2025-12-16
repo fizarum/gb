@@ -71,7 +71,7 @@ Font_t font = {
 
 // simple monochrome theme
 Theme theme = {
-    .primaryColor = COLOR_ORANGE,
+    .primaryColor = COLOR_SUNRAY,
     .secondaryColor = COLOR_BLACK,
     .tertiaryColor = COLOR_BLACK,
     .backgroundColor = COLOR_BLACK,
@@ -126,7 +126,7 @@ static bool onInit(void) {
   displayUpdatedQueue = xQueueCreate(1, sizeof(_u16*));
 
   GFX_Init(deviceData.width, deviceData.height, Monochrome,
-           //  RGB565,
+           // RGB565,
            &canvasUpdated);
 
   return true;

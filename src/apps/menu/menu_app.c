@@ -3,6 +3,7 @@
 #include <palette.h>
 #include <specifications/input_data.h>
 #include <stddef.h>
+#include <string.h>
 
 #include "../../devices/joystick/joystick.h"
 #include "../../ui/gfx/gfx.h"
@@ -10,8 +11,7 @@
 #include "devices/audio/audio.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-
-#define ACCENT_COLOR COLOR_ORANGE
+#include "menu_resources.h"
 
 void SelectNextApp();
 void SelectPreviousApp();
@@ -36,7 +36,7 @@ static AppSpecification_t specs = {
 };
 
 static Theme theme = {
-    .primaryColor = COLOR_ORANGE,
+    .primaryColor = COLOR_SUNRAY,
     .backgroundColor = COLOR_DARKCYAN,
 };
 
@@ -70,42 +70,43 @@ static void handleKey(const void* keyData) {
 }
 
 static void onAppRedraw(RedrawType_t redrawType) {
+  const _u16 displayHCenter = GFX_GetCanwasWidth() / 2;
+
+  const char* appName = AppGetName(selectedApp);
+
+  // just added one GFX_FontGetWidth() to make it centered
+  const _u16 textLength = (strlen(appName) + 1) * GFX_FontGetWidth();
+  const _u16 textStart = displayHCenter - textLength / 2;
+
   switch (redrawType) {
     case RedrawFull: {
       DrawScreen();
-      const char* appName = AppGetName(selectedApp);
 
-      GFX_DrawFilledRect(40, 120, 190, 130, GFX_GetTheme()->backgroundColor);
-      GFX_DrawString(appName, 40, 120, GFX_GetFont());
+      GFX_DrawString(appName, textStart, 120, GFX_GetFont());
 
-      GFX_DrawFilledRect(250, 7, 250 + _batteryWidgetWidth,
-                         7 + _batteryWidgetHeight,
-                         GFX_GetTheme()->backgroundColor);
-      DrawBattery(isCharging, percentage, 250, 7, GFX_GetFont());
+      DrawBattery(isCharging, percentage, 250, 7);
 
       ESP_LOGI(specs.name, "selected app: %s", appName);
       break;
     }
     case RedrawPartial: {
-      const char* appName = AppGetName(selectedApp);
+      GFX_DrawFilledRect(40, 120, 240, 130, GFX_GetTheme()->backgroundColor);
 
-      GFX_DrawFilledRect(40, 120, 190, 130, GFX_GetTheme()->backgroundColor);
-      GFX_DrawString(appName, 40, 120, GFX_GetFont());
+      GFX_DrawString(appName, textStart, 120, GFX_GetFont());
 
       ESP_LOGI(specs.name, "selected app: %s", appName);
       break;
     }
-    // test part
+    // test part - redrawing only battery status (when device is on battery
+    // only)
     case RedrawCustom: {
-      GFX_DrawFilledRect(250, 7, 250 + _batteryWidgetWidth,
-                         7 + _batteryWidgetHeight,
-                         GFX_GetTheme()->backgroundColor);
-      DrawBattery(isCharging, percentage, 250, 7, GFX_GetFont());
+      DrawBattery(isCharging, percentage, 250, 7);
       break;
     }
     default:
       break;
   }
+
   GFX_Redraw();
 }
 
@@ -195,9 +196,6 @@ void DrawScreen() {
   // battery placeholder
   // used DrawBattery() instead
 
-  // top status line
-  GFX_DrawFilledRect(20, 20, 300, 22, ACCENT_COLOR);
-
   // test content
   // GFX_DrawString("Hello world", 40, 120);
   // start = esp_timer_get_time();
@@ -210,13 +208,21 @@ void DrawScreen() {
   // ESP_LOGI(specs.name, "elapsed time: %lld uSeconds", period);
 
   // left arrow
-  GFX_DrawFilledRect(15, 110, 17, 130, ACCENT_COLOR);
-  GFX_DrawFilledRect(23, 100, 25, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(15, 110, 17, 130, GFX_GetTheme()->primaryColor);
+  GFX_DrawFilledRect(23, 100, 25, 140, GFX_GetTheme()->primaryColor);
 
   // right arrow
-  GFX_DrawFilledRect(304, 110, 306, 130, ACCENT_COLOR);
-  GFX_DrawFilledRect(296, 100, 298, 140, ACCENT_COLOR);
+  GFX_DrawFilledRect(304, 110, 306, 130, GFX_GetTheme()->primaryColor);
+  GFX_DrawFilledRect(296, 100, 298, 140, GFX_GetTheme()->primaryColor);
 
   // bottom status line
-  GFX_DrawFilledRect(20, 220, 300, 222, ACCENT_COLOR);
+  // GFX_DrawFilledRect(20, 220, 300, 222, GFX_GetTheme()->primaryColor);
+
+  // nav icon
+  GFX_DrawImageIndexes(20, 220, 16, 16, leftRightNavIcon, false);
+  GFX_DrawString(" move", 40, 220, GFX_GetFont());
+
+  // command icon
+  GFX_DrawImageIndexes(160, 220, 16, 16, xButton, false);
+  GFX_DrawString(" start", 180, 220, GFX_GetFont());
 }

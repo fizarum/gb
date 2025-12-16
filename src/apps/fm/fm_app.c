@@ -23,11 +23,6 @@ static AppSpecification_t specs = {
     .onUpdate = &App_StubFunction,
 };
 
-static Theme theme = {
-    .primaryColor = COLOR_ORANGE,
-    .backgroundColor = COLOR_DARK_CHARCOAL,
-};
-
 const _u8 startVPadding = 40;
 const _u8 vSpacing = 18;
 const _u8 startHPadding = 20;
@@ -94,7 +89,6 @@ static void handleKey(const void* keyData) {
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
-  GFX_SetTheme(&theme);
 
   DeviceManager* deviceManger = DeviceManagerGetInstance();
   Device* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
