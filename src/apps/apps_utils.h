@@ -11,6 +11,7 @@ extern "C" {
 
 #include "../ui/gfx/gfx.h"
 #include "esp_log.h"
+#include "menu/menu_resources.h"
 
 #define TITLE_X_POS 30
 #define TITLE_Y_POS 7
@@ -119,21 +120,13 @@ static inline void App_DrawHorizontalPicker(const _u16 left, const _u16 top,
 }
 
 // battery part
-static char percentageStr[8];
-static const _u8 batteryWidgetWidth = 30;
-static const _u8 batteryWidgetHeight = 10;
-static _u8 filledPart = 0;
-static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y,
-                               Font_t* font) {
-  GFX_DrawRect(x, y, x + batteryWidgetWidth, y + batteryWidgetHeight, 1,
-               GFX_GetFontColor());
-  if (charging == true) {
-    GFX_DrawString("++", x, y, font);
+static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y) {
+  GFX_DrawImageIndexes(x, y, 16, 16, batteryLeftPart, true);
+  GFX_DrawImageIndexes(x + 16, y, 16, 16, batteryRightPart, true);
+  if (charging) {
+    GFX_DrawImageIndexes(x + 8, y, 16, 16, chargingIcon, false);
   } else {
-    filledPart = (((float)batteryWidgetWidth) / 100.0) * level;
-
-    GFX_DrawFilledRect(x, y, x + filledPart, y + batteryWidgetHeight,
-                       GFX_GetFontColor());
+    // calculate battery staus based on [level] param
   }
 }
 

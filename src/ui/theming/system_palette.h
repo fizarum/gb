@@ -1,10 +1,8 @@
-#ifndef GAME_SDK_PALETTE_H
-#define GAME_SDK_PALETTE_H
+#pragma once
 
 #include <types.h>
 
-#include "../types/color.h"
-
+// color definitions
 #define COLOR_BLACK 0x0000           ///<   0,   0,   0 #000000
 #define COLOR_NAVY 0x000F            ///<   0,   0, 123 #00007b
 #define COLOR_DARKGREEN 0x03E0       ///<   0, 125,   0 #007d00
@@ -47,42 +45,17 @@
 
 #define PALETTE_SIZE 16
 
-typedef struct Palette {
-  Color colors[PALETTE_SIZE];
+typedef struct SystemPalette {
+  _u16 colors[PALETTE_SIZE];
 
   /**
    * @brief Index of color in palette which is used as background
    */
-  _ci background;
-  Color backgoundColor;
-} Palette;
+  _u8 backgroundColorIndex;
+  _u16 backgoundColor;
+} SystemPalette;
 
-static inline void Palette_SetColor(Palette* palette, _ci index, Color color) {
+static inline void Palette_SetColor(SystemPalette* palette, _u8 index,
+                                    _u16 color) {
   palette->colors[index] = color;
-  if (index == palette->background) {
-    palette->backgoundColor = color;
-  }
 }
-
-/**
- * @brief Get the First ColorIndex from ColorIndexes
- *
- * @param indexes index which have 2 indexes
- * @return first index from ColorIndexes
- */
-const static inline _ci getFirstIndex(ColorIndexes indexes) {
-  return indexes >> 4;
-}
-
-/**
- * @brief Get the Second ColorIndex from ColorIndexes
- *
- * @param indexes index which have 2 indexes
- * @return second index from ColorIndexes
- */
-const static inline _ci getSecondIndex(ColorIndexes indexes) {
-  // return values which are ok with 0b0001111 mask and '&' operator
-  return indexes & 0xf;
-}
-
-#endif  // GAME_SDK_PALETTE_H

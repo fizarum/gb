@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "../resources/symbols_res.h"
+#include "../theming/system_palette.h"
 #include "gfx_utils.h"
 
 // check is bit set, starting from most significant bit
@@ -17,6 +18,9 @@ static GFX_CanvasUpdated canvasCallback;
 static _u16 canvasWidth = 0;
 static _u16 canvasHeight = 0;
 static _u32 canvasSize = 0;
+
+static SystemPalette systemPalette;
+static _u8 backgroundColorIndex;
 // Color mode of entire system (info, menu, all system apps)
 static ColorMode systemColorMode;
 
@@ -26,6 +30,8 @@ static ColorMode systemColorMode;
  */
 static ColorMode applicationColorMode;
 static _u16* canvas;
+
+void SystemPaletteInit();
 
 static inline _u16 normalizePrimaryColor(_u16 color) {
   // if we're in monochrome color mode - only foreground or background color are
@@ -51,6 +57,7 @@ void GFX_Init(const _u16 width, const _u16 height, const ColorMode mode,
     canvas[index] = 0;
   }
   SymbolsResInit();
+  SystemPaletteInit();
 }
 
 void GFX_Redraw() { canvasCallback(); }
@@ -166,7 +173,7 @@ void GFX_DrawPixel(const _u16 x, const _u16 y, _u16 color) {
   if (x >= canvasWidth || y > canvasHeight) {
     return;
   }
-  start = GFX_GetIndexIn2DSpace(x, y, canvasWidth);
+  start = GFX_GetIndexFromXY(x, y, canvasWidth);
   canvas[start] = color;
 }
 
@@ -175,7 +182,7 @@ void GFX_DrawPixels(const _u16 x, const _u16 y, _u16* colors, _u8 colorsCount) {
     return;
   }
 
-  start = GFX_GetIndexIn2DSpace(x, y, canvasWidth);
+  start = GFX_GetIndexFromXY(x, y, canvasWidth);
   for (_u8 index = 0; index < colorsCount; ++index) {
     if (start + index >= canvasSize) {
       return;
@@ -185,16 +192,54 @@ void GFX_DrawPixels(const _u16 x, const _u16 y, _u16* colors, _u8 colorsCount) {
 }
 
 void GFX_DrawPixelsInBuffer(const _u32 start, _u16* colors, _u16 colorsCount) {
-  if (start >= canvasSize) {
-    return;
-  }
-
   if (start + colorsCount >= canvasSize) {
     return;
   }
 
   for (_u16 index = 0; index < colorsCount; ++index) {
     canvas[start + index] = colors[index];
+  }
+}
+
+void GFX_DrawColorIndeces(const _u32 start, _u8* colorIndeces, _u16 count,
+                          bool clearBackground) {
+  if (start + count >= canvasSize) {
+    return;
+  }
+
+  _u16 colorIndex;
+  for (_u16 index = 0; index < count; ++index) {
+    colorIndex = colorIndeces[index];
+    if (clearBackground) {
+      canvas[start + index] = GFX_GetColor(colorIndex);
+    } else {
+      if (colorIndex != backgroundColorIndex) {
+        canvas[start + index] = GFX_GetColor(colorIndex);
+      }
+    }
+  }
+}
+
+void GFX_DrawImagePixels(const _u16 x, const _u16 y, const _u16 width,
+                         const _u16 height, _u16* pixels) {
+  _u16 offset = 0;
+
+  for (_u16 top = y; top < y + height; top++) {
+    start = GFX_GetIndexFromXY(x, top, canvasWidth);
+    GFX_DrawPixelsInBuffer(start, pixels + offset, width);
+    offset += width;
+  }
+}
+
+void GFX_DrawImageIndexes(const _u16 x, const _u16 y, const _u16 width,
+                          const _u16 height, _u8* indexes,
+                          bool clearBackground) {
+  _u16 offset = 0;
+
+  for (_u16 top = y; top < y + height; top++) {
+    start = GFX_GetIndexFromXY(x, top, canvasWidth);
+    GFX_DrawColorIndeces(start, indexes + offset, width, clearBackground);
+    offset += width;
   }
 }
 
@@ -254,6 +299,13 @@ void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
   }
 }
 
+_u16 GFX_GetColor(const _u8 colorIndex) {
+  if (colorIndex > PALETTE_SIZE) {
+    return systemPalette.backgoundColor;
+  }
+  return systemPalette.colors[colorIndex];
+}
+
 void GFX_FillScreen(const _u16 color) {
   _u16 colorToApply = normalizePrimaryColor(color);
 
@@ -275,3 +327,27 @@ _u8 GFX_FontGetWidth() {
 }
 
 _u16 GFX_GetFontColor() { return activeTheme->primaryColor; }
+
+void SystemPaletteInit() {
+  Palette_SetColor(&systemPalette, 0, COLOR_BLACK);
+  Palette_SetColor(&systemPalette, 1, COLOR_PEARL);
+  Palette_SetColor(&systemPalette, 2, COLOR_WATERMELON_RED);
+  Palette_SetColor(&systemPalette, 3, COLOR_PEWTER_BLUE);
+  Palette_SetColor(&systemPalette, 4, COLOR_PURPLE_TAUPE);
+  Palette_SetColor(&systemPalette, 5, COLOR_FOREST_GREEN);
+  Palette_SetColor(&systemPalette, 6, COLOR_INDIGO);
+  Palette_SetColor(&systemPalette, 7, COLOR_SUNRAY);
+  Palette_SetColor(&systemPalette, 8, COLOR_LIGHT_TAUPE);
+  Palette_SetColor(&systemPalette, 9, COLOR_FELDGRAU);
+  Palette_SetColor(&systemPalette, 10, COLOR_CEDAR_CHEST);
+  Palette_SetColor(&systemPalette, 11, COLOR_DARK_CHARCOAL);
+  Palette_SetColor(&systemPalette, 12, COLOR_SONIC_SILVER);
+  Palette_SetColor(&systemPalette, 13, COLOR_ASPARAGUS);
+  Palette_SetColor(&systemPalette, 14, COLOR_SEA_SERPENT);
+  Palette_SetColor(&systemPalette, 15, COLOR_GRAY);
+
+  systemPalette.backgroundColorIndex = 0;
+  systemPalette.backgoundColor = systemPalette.colors[0];
+
+  backgroundColorIndex = systemPalette.backgroundColorIndex;
+}

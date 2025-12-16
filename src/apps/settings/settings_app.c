@@ -27,11 +27,6 @@ static AppSpecification_t specs = {
     .onStop = &OnStop,
 };
 
-static Theme theme = {
-    .primaryColor = COLOR_ORANGE,
-    .backgroundColor = COLOR_INDIGO,
-};
-
 static Composer_t* composer;
 static View_t* listFocus;
 static View_t* brightnessPicker;
@@ -102,88 +97,83 @@ static Array_t* brightnessOptions;
 static Array_t* volumeOptions;
 
 static void OnSleepTimeoutChanged(OptionPicker_t* picker, void* option) {
-  ESP_LOGI("Sleep timeout", "option changed to: %s !", (const char*)option);
+  const _u8 value = (_u8)option;
+  ESP_LOGI("Sleep timeout", "option changed to: %d !", value);
 }
 
 static inline View_t* CreateSleepOptionsPicker() {
-  sleepOptions = ArrayCreate(6);
-  ArrayAdd(sleepOptions, "5 sec");
-  ArrayAdd(sleepOptions, "10 sec");
-  ArrayAdd(sleepOptions, "30 sec");
-  ArrayAdd(sleepOptions, "1 min");
-  ArrayAdd(sleepOptions, "5 min");
-  ArrayAdd(sleepOptions, "15 min");
-  ArrayAdd(sleepOptions, "never");
+  sleepOptions = ArrayCreate(4);
+  ArrayAdd(sleepOptions, 1);
+  ArrayAdd(sleepOptions, 2);
+  ArrayAdd(sleepOptions, 5);
+  ArrayAdd(sleepOptions, 10);
 
-  return OptionPicker_Create(sleepOptions, GFX_GetFont(),
-                             OnSleepTimeoutChanged);
+  return OptionPicker_Create(sleepOptions, GFX_GetFont(), OnSleepTimeoutChanged,
+                             NULL);
 }
 
 static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
-  const char* value = (const char*)option;
-  ESP_LOGI("Brightness", "option changed to: %s !", value);
+  const _u8 value = (_u8)option;
+  ESP_LOGI("Brightness", "option changed to: %d !", value);
   DeviceSpecification* specs = Device_GetSpecification(displayDevice);
-  static _u8 brightness = 1;
-  // TODO: change values to _u8 or some int like type
-  if (strcmp(value, "10%") == 0) {
-    brightness = 10;
-  } else if (strcmp(value, "20%") == 0) {
-    brightness = 20;
-  } else if (strcmp(value, "30%") == 0) {
-    brightness = 30;
-  } else if (strcmp(value, "40%") == 0) {
-    brightness = 40;
-  } else if (strcmp(value, "50%") == 0) {
-    brightness = 50;
-  } else if (strcmp(value, "60%") == 0) {
-    brightness = 60;
-  } else if (strcmp(value, "70%") == 0) {
-    brightness = 70;
-  } else if (strcmp(value, "80%") == 0) {
-    brightness = 80;
-  } else if (strcmp(value, "90%") == 0) {
-    brightness = 90;
-  } else if (strcmp(value, "100%") == 0) {
-    brightness = 100;
-  }
+  const _u8 brightness = value * 10;
 
   if (specs != NULL) {
     ((DisplayExtension*)specs->extension)->changeBrightness(brightness);
   }
 }
 
+static bool OnBrightnessItemMap(void* option, char* buff) {
+  _u8 value = (_u8)option;
+  snprintf(buff, 7, "%d", value);
+  return true;
+}
+
 static inline View_t* CreateBrightnessOptionsPicker() {
   brightnessOptions = ArrayCreate(10);
-  ArrayAdd(brightnessOptions, "10%");
-  ArrayAdd(brightnessOptions, "20%");
-  ArrayAdd(brightnessOptions, "30%");
-  ArrayAdd(brightnessOptions, "40%");
-  ArrayAdd(brightnessOptions, "50%");
-  ArrayAdd(brightnessOptions, "60%");
-  ArrayAdd(brightnessOptions, "70%");
-  ArrayAdd(brightnessOptions, "80%");
-  ArrayAdd(brightnessOptions, "90%");
-  ArrayAdd(brightnessOptions, "100%");
+  ArrayAdd(brightnessOptions, 1);
+  ArrayAdd(brightnessOptions, 2);
+  ArrayAdd(brightnessOptions, 3);
+  ArrayAdd(brightnessOptions, 4);
+  ArrayAdd(brightnessOptions, 5);
+  ArrayAdd(brightnessOptions, 6);
+  ArrayAdd(brightnessOptions, 7);
+  ArrayAdd(brightnessOptions, 8);
+  ArrayAdd(brightnessOptions, 9);
+  ArrayAdd(brightnessOptions, 10);
 
   return OptionPicker_Create(brightnessOptions, GFX_GetFont(),
-                             OnBrightnessChanged);
+                             OnBrightnessChanged, OnBrightnessItemMap);
 }
 
 static void OnVolumeChanged(OptionPicker_t* picker, void* option) {
-  ESP_LOGI("Volume", "option changed to: %s !", (const char*)option);
+  const _u8 value = (_u8)option;
+  ESP_LOGI("Volume", "option changed to: %d !", value);
+}
+
+static bool OnVolumeItemMap(void* option, char* buff) {
+  _u8 value = (_u8)option;
+  if (value == 0) {
+    sprintf(buff, "OFF");
+  } else {
+    sprintf(buff, "%d", value);
+  }
+
+  return true;
 }
 
 static inline View_t* CreateVolumeOptionsPicker() {
   volumeOptions = ArrayCreate(7);
-  ArrayAdd(volumeOptions, "OFF");
-  ArrayAdd(volumeOptions, "10%");
-  ArrayAdd(volumeOptions, "30%");
-  ArrayAdd(volumeOptions, "50%");
-  ArrayAdd(volumeOptions, "70%");
-  ArrayAdd(volumeOptions, "90%");
-  ArrayAdd(volumeOptions, "100%");
+  ArrayAdd(volumeOptions, 0);
+  ArrayAdd(volumeOptions, 1);
+  ArrayAdd(volumeOptions, 3);
+  ArrayAdd(volumeOptions, 5);
+  ArrayAdd(volumeOptions, 7);
+  ArrayAdd(volumeOptions, 9);
+  ArrayAdd(volumeOptions, 10);
 
-  return OptionPicker_Create(volumeOptions, GFX_GetFont(), OnVolumeChanged);
+  return OptionPicker_Create(volumeOptions, GFX_GetFont(), OnVolumeChanged,
+                             OnVolumeItemMap);
 }
 
 // TODO: move to dynamic calculation
@@ -192,7 +182,6 @@ static const _u8 padding = 20;
 
 static void onAppStart() {
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
-  GFX_SetTheme(&theme);
 
   _u16 rootId = Composer_GetRootId(composer);
   if (rootId == TREE_INDEX_NONE) {
@@ -246,6 +235,9 @@ static void onAppStart() {
   sleepInOptionPicker = CreateSleepOptionsPicker();
   Composer_AddView(composer, sleepOptionBoxId, slLabel);
   Composer_AddView(composer, sleepOptionBoxId, sleepInOptionPicker);
+  // TODO: redraw this label as well
+  View_t* minutesLabel = Label_Create(" min", GFX_GetFont());
+  Composer_AddView(composer, sleepOptionBoxId, minutesLabel);
   Composer_AddView(composer, sleepOptionBoxId,
                    VSpacer_Create(settingItemHeight));
 

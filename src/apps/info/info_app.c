@@ -9,6 +9,7 @@
 #include "../../devices/storage/storage.h"
 #include "../../devices/storage/storage_utils.h"
 #include "../../ui/composer.h"
+#include "../../ui/views/label.h"
 #include "../../ui/views/toolbar.h"
 #include "../apps_utils.h"
 #include "esp_chip_info.h"
@@ -41,11 +42,6 @@ static AppSpecification_t specs = {
     .onStop = &App_StubFunction,
 };
 
-static Theme theme = {
-    .primaryColor = COLOR_ORANGE,
-    .backgroundColor = COLOR_DARKGREEN,
-};
-
 static BatteryDeviceData* batteryData;
 static StorageDeviceData_t* storageData;
 
@@ -64,7 +60,6 @@ static void AddLabel(const _u16 rootBoxId, const char* text);
 
 static void onAppStart(void) {
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
-  GFX_SetTheme(&theme);
 
   _u16 rootId = Composer_GetRootId(composer);
   if (rootId == TREE_INDEX_NONE) {

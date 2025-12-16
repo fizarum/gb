@@ -54,6 +54,28 @@ void GFX_DrawPixels(const _u16 x, const _u16 y, _u16* colors, _u8 colorsCount);
 // draw array of colors in linear colors array
 void GFX_DrawPixelsInBuffer(const _u32 start, _u16* colors, _u16 colorsCount);
 
+// draw array of color indeces
+void GFX_DrawColorIndeces(const _u32 start, _u8* colorIndeces, _u16 count,
+                          bool clearBackground);
+
+/**
+ * @brief Draws image on canvas.
+ *
+ * @param x start position of image on screen
+ * @param y start position of image on screen
+ * @param width image width
+ * @param height image height
+ * @param pixels image data
+ * @param pixelsCount count of pixels in image
+ * @param isPacked means its color index in system palette, not final color
+ */
+void GFX_DrawImagePixels(const _u16 x, const _u16 y, const _u16 width,
+                         const _u16 height, _u16* pixels);
+
+void GFX_DrawImageIndexes(const _u16 x, const _u16 y, const _u16 width,
+                          const _u16 height, _u8* indexes,
+                          bool clearBackground);
+
 void GFX_DrawFilledRect(const _u16 left, const _u16 top, const _u16 right,
                         const _u16 bottom, const _u16 color);
 void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,
@@ -64,6 +86,8 @@ void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
 
 void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
                    const _u8 lineWidth, const _u16 color);
+
+_u16 GFX_GetColor(const _u8 colorIndex);
 
 // utils
 void GFX_FillScreen(const _u16 color);
