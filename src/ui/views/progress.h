@@ -9,7 +9,7 @@ extern "C" {
 
 typedef struct Progress_t Progress_t;
 
-View_t *Progress_Create(_u8 progress, _u8 maxValue);
+View_t* Progress_Create(_u8 progress, _u8 maxValue);
 
 #ifdef __cplusplus
 }

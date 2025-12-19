@@ -10,7 +10,7 @@ extern "C" {
 
 typedef struct Toolbar_t Toolbar_t;
 
-View_t *Toolbar_Create(char *title, Font_t *font);
+View_t* Toolbar_Create(char* title, Font_t* font);
 
 #ifdef __cplusplus
 }

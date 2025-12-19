@@ -8,7 +8,7 @@ extern "C" {
 #include "symbol_data.h"
 
 void SymbolsResInit();
-SymbolData_t *SymbolsGet(_u8 c);
+SymbolData_t* SymbolsGet(_u8 c);
 
 #ifdef __cplusplus
 }

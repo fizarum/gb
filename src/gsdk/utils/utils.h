@@ -64,8 +64,8 @@ inline bool isBitSet32(uint32_t source, uint8_t position) {
  *
  * @param str string to transform
  */
-inline void strToLowerCase(char *str) {
-  char *temp = str;
+inline void strToLowerCase(char* str) {
+  char* temp = str;
   while (*temp) {
     *temp = tolower(*temp);
     temp++;

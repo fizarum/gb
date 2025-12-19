@@ -105,7 +105,7 @@ void sysTask(void* arg) {
         }
       }
     }
-    vTaskDelay(_20);
+    vTaskDelay(_10);
   }
 }
 
@@ -198,7 +198,7 @@ void driverTask(void* arg) {
       BroadcastManager_SendEvent(batteryEvent.value);
     }
 
-    vTaskDelay(_20);
+    vTaskDelay(_10);
   }
 }
 

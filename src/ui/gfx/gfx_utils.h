@@ -14,7 +14,7 @@ inline const static bool GFX_IsPointInside(const _i16 x, const _i16 y,
  * @brief Finds 1D index in 2D array with given width
  */
 inline const static _u32 GFX_GetIndexFromXY(const _u16 x, const _u16 y,
-                                               const _u16 width) {
+                                            const _u16 width) {
   return y * width + x;
 }
 

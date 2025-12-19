@@ -10,8 +10,8 @@ extern "C" {
 #include <stdint.h>
 
 #include "../sprite/sprite.h"
+#include "../types/layer_type.h"
 #include "../types/types.h"
-#include "layer_type.h"
 
 typedef struct SpritesHolder SpritesHolder;
 

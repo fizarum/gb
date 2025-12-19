@@ -10,7 +10,7 @@ typedef struct SpriteData {
   _u16 indicesCount;
   _u8 frames;
   _u16 indicesPerFrame;
-  _ci *indices;
+  _ci* indices;
 
 } SpriteData;
 

@@ -7,9 +7,9 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include "../types/layer_type.h"
 #include "../types/point.h"
 #include "../types/types.h"
-#include "layer_type.h"
 
 typedef struct ObjectsHolder ObjectsHolder;
 
