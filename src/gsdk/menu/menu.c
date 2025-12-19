@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 #include "../collections/array.h"
-#include "../scene/layer_type.h"
 #include "../sprite/sprite.h"
+#include "../types/layer_type.h"
 #include "../ui/button.h"
 
 #define SPRITES_BACKGROUND_MAX_COUNT 50

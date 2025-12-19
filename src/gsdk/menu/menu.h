@@ -4,9 +4,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "../scene/layer_type.h"
 #include "../screen/screen_config.h"
 #include "../sprite/sprite_data.h"
+#include "../types/layer_type.h"
 #include "../types/types.h"
 #include "menu_item.h"
 

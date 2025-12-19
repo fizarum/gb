@@ -1,5 +1,5 @@
 #ifndef CHIP_HAL_H
-#define CHIIP_HAL_H
+#define CHIP_HAL_H
 
 #include "esp_chip_info.h"
 

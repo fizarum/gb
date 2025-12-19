@@ -13,7 +13,7 @@ extern "C" {
  * @brief Container for symbol bitmap
  */
 typedef struct SymbolData_t {
-  _u8 *data;
+  _u8* data;
   _u16 dataLength;
   _u8 asciiCode;
 } SymbolData_t;

@@ -9,7 +9,7 @@ extern "C" {
 
 typedef struct VSpacer_t VSpacer_t;
 
-View_t *VSpacer_Create(const _u16 height);
+View_t* VSpacer_Create(const _u16 height);
 
 #ifdef __cplusplus
 }
