@@ -6,6 +6,7 @@
 #include "../screen/palette.h"
 #include "../types/point.h"
 #include "../utils/screen_utils.h"
+#include "esp_timer.h"
 
 typedef struct Sprite {
   SpriteData* data;
@@ -115,8 +116,8 @@ void Sprite_MoveBy(Sprite* sprite, const _i8 x, const _i8 y) {
   sprite->position.y += y;
 }
 
-const bool Sprite_IsOnDisplay(const Sprite* sprite, _u16 displayWidth,
-                              _u16 displayHeight) {
+bool Sprite_IsOnDisplay(const Sprite* sprite, _u16 displayWidth,
+                        _u16 displayHeight) {
   _i32 l = sprite->position.x;
   _i32 t = sprite->position.y;
   _i32 r = l + sprite->data->width - 1;
@@ -133,26 +134,28 @@ const bool Sprite_IsOnDisplay(const Sprite* sprite, _u16 displayWidth,
 
   return true;
 }
+int64_t animationUpdatedAt = 0;
+int64_t now = 0;
 
 void Sprite_UpdateState(Sprite* sprite) {
   if (sprite->animationSpeed == ANIMATION_SPEED_NONE) return;
 
-  sprite->remainTicksToUpdateFrame--;
-  sprite->frameChanged = false;
-
-  if (sprite->remainTicksToUpdateFrame < 0) {
-    sprite->remainTicksToUpdateFrame = sprite->animationSpeed;
+  now = esp_timer_get_time() / 1000;
+  if (animationUpdatedAt + sprite->animationSpeed < now) {
     sprite->frameChanged = true;
     sprite->frameIndex++;
     if (sprite->frameIndex >= sprite->data->frames) {
       sprite->frameIndex = 0;
     }
+    animationUpdatedAt = now;
   }
 }
 
-const bool Sprite_IsFrameChanged(const Sprite* sprite) {
+bool Sprite_IsFrameChanged(const Sprite* sprite) {
   return sprite->frameChanged;
 }
+
+void Sprite_SetFrameRedrawn(Sprite* sprite) { sprite->frameChanged = false; }
 
 void Sprite_SetAnimationSpeed(Sprite* sprite, const AnimationSpeed speed) {
   sprite->animationSpeed = speed;

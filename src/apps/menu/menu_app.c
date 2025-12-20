@@ -110,7 +110,6 @@ static void onAppRedraw(RedrawType_t redrawType) {
   GFX_Redraw();
 }
 
-int64_t start, period;
 static void onAppResume(void) {
   ESP_LOGI(specs.name, "on app resume...");
   GFX_SetTheme(&theme);
@@ -156,7 +155,6 @@ AppSpecification_t* MenuAppSpecification(AppsManager_t* appsManager) {
   return &specs;
 }
 
-//
 void NormalizeSelectedAppIndex() {
   if (selectedAppIndex == UINT8_MAX) {
     selectedAppIndex = ArrayLastIndex(allApps);
