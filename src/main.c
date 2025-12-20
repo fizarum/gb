@@ -152,7 +152,7 @@ void appsTask(void* arg) {
       }
     }
     AppsManagerUpdate(appsManager);
-    vTaskDelay(_10);
+    vTaskDelay(_5);
   }
 }
 
@@ -198,7 +198,7 @@ void driverTask(void* arg) {
       BroadcastManager_SendEvent(batteryEvent.value);
     }
 
-    vTaskDelay(_10);
+    vTaskDelay(_5);
   }
 }
 

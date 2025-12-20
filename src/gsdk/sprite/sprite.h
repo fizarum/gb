@@ -42,11 +42,12 @@ const LayerType Sprite_GetLayer(const Sprite* sprite);
 void Sprite_MoveTo(Sprite* sprite, const _u16 x, const _u16 y);
 void Sprite_MoveBy(Sprite* sprite, const _i8 x, const _i8 y);
 
-const bool Sprite_IsOnDisplay(const Sprite* sprite, _u16 displayWidth,
-                              _u16 displayHeight);
+bool Sprite_IsOnDisplay(const Sprite* sprite, _u16 displayWidth,
+                        _u16 displayHeight);
 
 void Sprite_UpdateState(Sprite* sprite);
-const bool Sprite_IsFrameChanged(const Sprite* sprite);
+bool Sprite_IsFrameChanged(const Sprite* sprite);
+void Sprite_SetFrameRedrawn(Sprite* sprite);
 void Sprite_SetAnimationSpeed(Sprite* sprite, const AnimationSpeed speed);
 
 #ifdef __cplusplus

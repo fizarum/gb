@@ -120,8 +120,6 @@ void _AssignSprites() {
   sandId = Scene_AddSprite(scene, &sand, LAYER_TILEMAP);
   coastId = Scene_AddSprite(scene, &coast, LAYER_TILEMAP);
 
-  // playerId = Scene_AddGameObject(scene, &player, LAYER_NEAR, true, true,
-  // false);
   playerId = Scene_AddGameObject(scene, &player, LAYER_MID, true, true, false);
 
   fishId = Scene_AddSprite(scene, &fish, LAYER_MID);

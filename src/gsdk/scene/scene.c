@@ -258,6 +258,7 @@ static void updateAnimationStateCallback(SpriteId sid) {
   Sprite_UpdateState(sprite);
   if (Sprite_IsFrameChanged(sprite) == true) {
     setDurtySprite(_scene, sprite);
+    Sprite_SetFrameRedrawn(sprite);
   }
 }
 
