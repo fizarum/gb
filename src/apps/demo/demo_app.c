@@ -91,7 +91,7 @@ static void handleKey(const void* keyData) {
     Scene_MoveGameObjectBy(scene, playerId, 0, -1);
   } else if (IsButtonDownPressed(data)) {
     Scene_MoveGameObjectBy(scene, playerId, 0, 1);
-  } else if (IsButtonStartReleased(data)) {
+  } else if (IsButtonSelectReleased(data)) {
     Game_TogglePauseResume();
   }
 }
