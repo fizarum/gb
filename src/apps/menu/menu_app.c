@@ -217,10 +217,8 @@ void DrawScreen() {
   // GFX_DrawFilledRect(20, 220, 300, 222, GFX_GetTheme()->primaryColor);
 
   // nav icon
-  GFX_DrawImageIndexes(20, 220, 16, 16, leftRightNavIcon, false);
-  GFX_DrawString(" move", 40, 220, GFX_GetFont());
+  DrawTextWithIcon("move", leftRightNavIcon, 20, 220);
 
   // command icon
-  GFX_DrawImageIndexes(160, 220, 16, 16, xButton, false);
-  GFX_DrawString(" start", 180, 220, GFX_GetFont());
+  DrawTextWithIcon("start", xButton, 180, 220);
 }
