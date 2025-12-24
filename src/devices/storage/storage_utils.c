@@ -8,7 +8,7 @@
 
 static const uint32_t bytesInMB = 1024 * 1024;
 
-uint32_t StorageGetTotalSizeInMBs(const char* mountPoint) {
+uint32_t Storage_GetTotalSizeInMBs(const char* mountPoint) {
   FATFS* fsinfo;
   uint32_t freClust;
 
@@ -22,7 +22,7 @@ uint32_t StorageGetTotalSizeInMBs(const char* mountPoint) {
   return size / bytesInMB;
 }
 
-uint32_t StorageGetUsedSizeInMBs(const char* mountPoint) {
+uint32_t Storage_GetUsedSizeInMBs(const char* mountPoint) {
   FATFS* fsinfo;
   DWORD freClust;
   if (f_getfree(mountPoint, &freClust, &fsinfo) != 0) {
@@ -36,7 +36,7 @@ uint32_t StorageGetUsedSizeInMBs(const char* mountPoint) {
   return size / bytesInMB;
 }
 
-esp_err_t SDCalculateFilesInDirectory(const char* path, _u16* filesCount) {
+esp_err_t SD_CalculateFilesInDirectory(const char* path, _u16* filesCount) {
   DIR* dir = opendir(path);
 
   if (!dir) {
@@ -59,8 +59,8 @@ esp_err_t SDCalculateFilesInDirectory(const char* path, _u16* filesCount) {
   return ESP_OK;
 }
 
-esp_err_t SDShowDirectory(const char* path, _u16 startPos, _u16 endPos,
-                          long* finishedAt, DirectoryItemIterator iterator) {
+esp_err_t SD_ShowDirectory(const char* path, _u16 startPos, _u16 endPos,
+                           long* finishedAt, DirectoryItemIterator iterator) {
   if (iterator == NULL) {
     return ESP_OK;
   }
@@ -103,19 +103,16 @@ esp_err_t SDShowDirectory(const char* path, _u16 startPos, _u16 endPos,
   return ESP_OK;
 }
 
-// todo: test implementation - callback needed!
-esp_err_t SDReadFile(const char* path, OnDataGetCallback callback) {
+esp_err_t SD_ReadFile(const char* path, OnDataGetCallback callback) {
   ESP_LOGI(TAG, "Reading file %s", path);
-#define LENGTH 16
+#define LENGTH 32
 
   FILE* f = fopen(path, "r");
   if (f == NULL) {
     ESP_LOGE(TAG, "Failed to open file for reading");
     return ESP_FAIL;
   }
-  // static const _u8 length = 16;
   static char line[LENGTH];
-  // char* result = NULL;
   bool proceed = false;
 
   while (fgets(line, LENGTH, f) != NULL) {
@@ -125,16 +122,46 @@ esp_err_t SDReadFile(const char* path, OnDataGetCallback callback) {
     }
   }
 
-  // result = fgets(line, sizeof(line), f);
+  fclose(f);
+
+  return ESP_OK;
+}
+
+esp_err_t SD_ReadFileToBuff(const char* path, _u8* buff, _u16 length) {
+  ESP_LOGI(TAG, "Reading file %s", path);
+  FILE* f = fopen(path, "r");
+  if (f == NULL) {
+    ESP_LOGE(TAG, "Failed to open file for reading");
+    return ESP_FAIL;
+  }
+
+  char* res = fgets(buff, length, f);
+  if (res == NULL) {
+    ESP_LOGE(TAG, "Failed to read from file");
+    return ESP_FAIL;
+  }
 
   fclose(f);
 
-  // strip newline
-  // char* pos = strchr(line, '\n');
-  // if (pos) {
-  //   *pos = '\0';
-  // }
-  // ESP_LOGI(TAG, "Read from file: '%s'", line);
+  return ESP_OK;
+}
+
+esp_err_t SD_WriteFile(const char* path, const _u8* data, const _u16 length) {
+  ESP_LOGI(TAG, "Writing file %s", path);
+  FILE* f = fopen(path, "w");
+
+  if (f == NULL) {
+    ESP_LOGE(TAG, "Failed to open file for reading");
+    return ESP_FAIL;
+  }
+
+  int result = fputs(data, f);
+  if (result == EOF) {
+    ESP_LOGE(TAG, "Failed to write data!");
+    return ESP_FAIL;
+  }
+
+  fclose(f);
 
   return ESP_OK;
 }

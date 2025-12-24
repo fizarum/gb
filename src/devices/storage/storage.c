@@ -20,7 +20,7 @@ static DeviceSpecification specs = {
     .type = TypeStorage,
 };
 
-static StorageDeviceData_t deviceData = {
+static StorageDeviceData deviceData = {
     .mountPoint = MOUNT_POINT,
     .card = NULL,
 };

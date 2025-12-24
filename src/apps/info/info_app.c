@@ -43,7 +43,7 @@ static AppSpecification_t specs = {
 };
 
 static BatteryDeviceData* batteryData;
-static StorageDeviceData_t* storageData;
+static StorageDeviceData* storageData;
 
 static esp_chip_info_t chipInfo;
 static rtc_cpu_freq_config_t conf;
@@ -66,14 +66,10 @@ static void onAppStart(void) {
     return;
   }
 
-  DeviceManager* deviceManger = DeviceManagerGetInstance();
-  Device* powerDevice = DeviceManagerGetByType(deviceManger, TypePower);
-  batteryData = (BatteryDeviceData*)DeviceGetData(powerDevice);
-
-  Device* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
-  storageData = (StorageDeviceData_t*)DeviceGetData(storageDevice);
-  sdSizeInMB = StorageGetTotalSizeInMBs(storageData->mountPoint);
-  sdUsedSizeInMB = StorageGetUsedSizeInMBs(storageData->mountPoint);
+  batteryData = (BatteryDeviceData*)DeviceManager_GetData(TypePower);
+  storageData = (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
+  sdSizeInMB = Storage_GetTotalSizeInMBs(storageData->mountPoint);
+  sdUsedSizeInMB = Storage_GetUsedSizeInMBs(storageData->mountPoint);
 
   esp_chip_info(&chipInfo);
   rtc_clk_cpu_freq_get_config(&conf);

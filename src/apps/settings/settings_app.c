@@ -2,9 +2,11 @@
 
 #include <device_manager.h>
 #include <extensions/display_extensions.h>
+#include <specifications/storage_data.h>
 #include <string.h>
 
 #include "../../devices/joystick/joystick.h"
+#include "../../devices/storage/storage_utils.h"
 #include "../../ui/composer.h"
 #include "../../ui/views/box.h"
 #include "../../ui/views/label.h"
@@ -16,6 +18,7 @@
 #include "../../ui/views/vspacer.h"
 #include "../apps_utils.h"
 #include "esp_log.h"
+#include "settings_data.h"
 
 static void OnStop();
 
@@ -35,7 +38,8 @@ static View_t* powerSaveSwitch;
 static View_t* sleepInOptionPicker;
 static InputEvent inputEvent;
 
-Device* displayDevice;
+static DisplayExtension* displayExtension;
+static StorageDeviceData* storageData;
 
 static View_t* selectOptionViewByIndex(_u8 index) {
   switch (index) {
@@ -98,7 +102,8 @@ static Array_t* volumeOptions;
 
 static void OnSleepTimeoutChanged(OptionPicker_t* picker, void* option) {
   const _u8 value = (_u8)option;
-  ESP_LOGI("Sleep timeout", "option changed to: %d !", value);
+  SettingsData_SetSleepIn(value);
+  ESP_LOGI(specs.name, "[sleep timeout] option changed to: %d !", value);
 }
 
 static inline View_t* CreateSleepOptionsPicker() {
@@ -114,13 +119,14 @@ static inline View_t* CreateSleepOptionsPicker() {
 
 static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
   const _u8 value = (_u8)option;
-  ESP_LOGI("Brightness", "option changed to: %d !", value);
-  DeviceSpecification* specs = Device_GetSpecification(displayDevice);
+  ESP_LOGI(specs.name, "[brightness] option changed to: %d !", value);
   const _u8 brightness = value * 10;
 
-  if (specs != NULL) {
-    ((DisplayExtension*)specs->extension)->changeBrightness(brightness);
+  if (displayExtension != NULL) {
+    displayExtension->changeBrightness(brightness);
   }
+
+  SettingsData_SetBrightness(value);
 }
 
 static bool OnBrightnessItemMap(void* option, char* buff) {
@@ -148,7 +154,9 @@ static inline View_t* CreateBrightnessOptionsPicker() {
 
 static void OnVolumeChanged(OptionPicker_t* picker, void* option) {
   const _u8 value = (_u8)option;
-  ESP_LOGI("Volume", "option changed to: %d !", value);
+  SettingsData_SetVolume(value);
+
+  ESP_LOGI(specs.name, "[volume] option changed to: %d !", value);
 }
 
 static bool OnVolumeItemMap(void* option, char* buff) {
@@ -176,20 +184,35 @@ static inline View_t* CreateVolumeOptionsPicker() {
                              OnVolumeItemMap);
 }
 
+static void OnPowerSaveModeChanged(SwitchButton_t* button, _u8 on) {
+  SettingsData_SetPowerSave(on);
+  ESP_LOGI(specs.name, "[power save mode] changed to: %d !", on);
+}
+
+static inline View_t* CreatePowerSaveSwitchButton() {
+  return SwitchButton_Create(false, GFX_GetFont(), OnPowerSaveModeChanged);
+}
+
 // TODO: move to dynamic calculation
 static const _u8 settingItemHeight = 52;
 static const _u8 padding = 20;
 
 static void onAppStart() {
+  SettingsData_Load();
+
+  displayExtension = (DisplayExtension*)DeviceManager_GetExtension(TypeDisplay);
+  storageData = (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
+
+  if (displayExtension != NULL) {
+    displayExtension->changeBrightness(SettingsData_GetBrightness());
+  }
+
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
 
   _u16 rootId = Composer_GetRootId(composer);
   if (rootId == TREE_INDEX_NONE) {
     return;
   }
-
-  DeviceManager* deviceManger = DeviceManagerGetInstance();
-  displayDevice = DeviceManagerGetByType(deviceManger, TypeDisplay);
 
   // toolbar
   View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
@@ -224,7 +247,7 @@ static void onAppStart() {
   // 3. power save mode
   _u16 powerSaveBoxId = Composer_AddHBox(composer, settingsBoxId);
   View_t* psLabel = Label_Create("power save: ", GFX_GetFont());
-  powerSaveSwitch = SwitchButton_Create(false, GFX_GetFont());
+  powerSaveSwitch = CreatePowerSaveSwitchButton();
   Composer_AddView(composer, powerSaveBoxId, psLabel);
   Composer_AddView(composer, powerSaveBoxId, powerSaveSwitch);
   Composer_AddView(composer, powerSaveBoxId, VSpacer_Create(settingItemHeight));
@@ -242,6 +265,12 @@ static void onAppStart() {
                    VSpacer_Create(settingItemHeight));
 
   Composer_Recompose(composer);
+
+  // apply data to ui
+  OptionPicker_SelectOption(brightnessPicker, SettingsData_GetBrightness());
+  OptionPicker_SelectOption(volumePicker, SettingsData_GetVolume());
+  SwitchButton_SetIsOn(powerSaveSwitch, SettingsData_GetPowerSave());
+  OptionPicker_SelectOption(sleepInOptionPicker, SettingsData_GetSleepIn());
 }
 
 static void onAppRedraw(RedrawType_t redrawType) {
@@ -261,6 +290,7 @@ AppSpecification_t* SettingsAppSpecification() {
 };
 
 static void OnStop() {
+  SettingsData_Save();
   Composer_Clear(composer);
   ArrayDestroy(sleepOptions);
   ArrayDestroy(brightnessOptions);

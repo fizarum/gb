@@ -28,6 +28,10 @@ static void HandleInput(View_t* view, InputEvent* event);
 static void Destroy(void* optionPickerArg);
 static void RecalculateSize(OptionPicker_t* picker);
 
+inline static OptionPicker_t* GetPicker(View_t* view) {
+  return (OptionPicker_t*)View_GetCustomView(view);
+}
+
 View_t* OptionPicker_Create(Array_t* options, Font_t* font,
                             OptionChangedCallback callback,
                             OptionMapItem mapItemCallback) {
@@ -54,11 +58,20 @@ View_t* OptionPicker_Create(Array_t* options, Font_t* font,
   return picker->view;
 }
 
-// private part
-inline static OptionPicker_t* GetPicker(View_t* view) {
-  return (OptionPicker_t*)View_GetCustomView(view);
+void OptionPicker_SelectOption(View_t* optionPicker, void* option) {
+  OptionPicker_t* picker = GetPicker(optionPicker);
+  picker->selecedOptionIndex = ArrayIndexOf(picker->options, option);
+
+  if (picker->selecedOptionIndex >= picker->optionsCount) {
+    picker->selecedOptionIndex = picker->optionsCount - 1;
+  }
+  if (picker->callback != NULL) {
+    void* data = ArrayValueAt(picker->options, picker->selecedOptionIndex);
+    picker->callback(picker, data);
+  }
 }
 
+// private part
 static void Draw(View_t* view, const _u16 left, const _u16 top,
                  const _u16 right, const _u16 bottom) {
   OptionPicker_t* picker = GetPicker(view);
