@@ -132,7 +132,7 @@ static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y) {
 
 static inline void DrawTextWithIcon(const char* text, const _u8* const icon,
                                     _u16 x, _u16 y) {
-  GFX_DrawImageIndexes(x, y, 16, 16, leftRightNavIcon, false);
+  GFX_DrawImageIndexes(x, y, 16, 16, icon, false);
   // "y+3" is a difference between height of icon (16 px) and font (10) divided
   // by 2
   GFX_DrawString(text, x + 20, y + 3, GFX_GetFont());
