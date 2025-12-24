@@ -30,13 +30,15 @@ typedef void(DirectoryItemIterator)(_u16 index, DirectoryItem* item);
  */
 typedef bool(OnDataGetCallback)(const char* data, _u8 length);
 
-uint32_t StorageGetTotalSizeInMBs(const char* mountPoint);
-uint32_t StorageGetUsedSizeInMBs(const char* mountPoint);
+uint32_t Storage_GetTotalSizeInMBs(const char* mountPoint);
+uint32_t Storage_GetUsedSizeInMBs(const char* mountPoint);
 
-esp_err_t SDCalculateFilesInDirectory(const char* path, _u16* filesCount);
-esp_err_t SDShowDirectory(const char* path, _u16 startPos, _u16 endPos,
-                          long* finishedAt, DirectoryItemIterator iterator);
-esp_err_t SDReadFile(const char* path, OnDataGetCallback callback);
+esp_err_t SD_CalculateFilesInDirectory(const char* path, _u16* filesCount);
+esp_err_t SD_ShowDirectory(const char* path, _u16 startPos, _u16 endPos,
+                           long* finishedAt, DirectoryItemIterator iterator);
+esp_err_t SD_ReadFile(const char* path, OnDataGetCallback callback);
+esp_err_t SD_ReadFileToBuff(const char* path, _u8* buff, _u16 length);
+esp_err_t SD_WriteFile(const char* path, const _u8* data, const _u16 length);
 
 void FileItemFromDirent(FileItem_t* dst, DirectoryItem* src);
 

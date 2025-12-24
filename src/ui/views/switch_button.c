@@ -6,18 +6,16 @@
 #include "../gfx/gfx.h"
 
 typedef struct SwitchButton_t {
-  // TODO: recheck why this flag doesn't change
-  //  bool isOn;
+  bool isOn;
   Font_t* font;
+
+  SwitchChangedCallback callback;
 
   View_t* view;
 } SwitchButton_t;
 
 static const char* onLabel = "ON";
 static const char* offLabel = "OFF";
-// TODO: used this external flag because of some strange bug which ignores
-// changes in SwitchButton_t->isOn
-static bool isOn = false;
 static _u16 padding = 20;
 static _u16 maxTextLengthInPixels = 0;
 
@@ -27,7 +25,12 @@ static void HandleInput(View_t* view, InputEvent* event);
 static void Destroy(void* switchButtonArg);
 static void RecalculateSize(SwitchButton_t* switchButton);
 
-View_t* SwitchButton_Create(_u8 on, Font_t* font) {
+inline static SwitchButton_t* GetSwitchButton(View_t* view) {
+  return (SwitchButton_t*)View_GetCustomView(view);
+}
+
+View_t* SwitchButton_Create(_u8 on, Font_t* font,
+                            SwitchChangedCallback callback) {
   SwitchButton_t* button = (SwitchButton_t*)malloc(sizeof(SwitchButton_t));
 
   if (button == NULL) {
@@ -40,18 +43,34 @@ View_t* SwitchButton_Create(_u8 on, Font_t* font) {
   button->view = View_Create(button, false, &Draw, &HandleInput, &Destroy, NULL,
                              widthPolicy, heightpolicy);
 
+  button->isOn = on;
+  button->callback = callback;
+
   RecalculateSize(button);
-  isOn = on;
 
   return button->view;
 }
 
-void SwitchButton_Toggle(SwitchButton_t* button) {
-  isOn = !isOn;
-  View_SetUpdated((View_t*)button);
+void SwitchButton_Toggle(View_t* view) {
+  SwitchButton_t* button = GetSwitchButton(view);
+  button->isOn = !(button->isOn);
+  if (button->callback != NULL) {
+    button->callback(button, button->isOn);
+  }
+  View_SetUpdated(view);
 }
 
-bool SwitchBuitton_IsOn(const SwitchButton_t* button) { return isOn; }
+void SwitchButton_SetIsOn(View_t* view, _u8 on) {
+  SwitchButton_t* button = GetSwitchButton(view);
+  button->isOn = on;
+  if (button->callback != NULL) {
+    button->callback(button, on);
+  }
+}
+
+bool SwitchBuitton_IsOn(const View_t* view) {
+  return GetSwitchButton(view)->isOn;
+}
 
 // private part
 static const _u8 indicatorSize = 10;
@@ -61,14 +80,14 @@ static void Draw(View_t* view, const _u16 left, const _u16 top,
   GFX_DrawFilledRect(left, top, left + padding + maxTextLengthInPixels, bottom,
                      GFX_GetTheme()->backgroundColor);
 
-  SwitchButton_t* button = (SwitchButton_t*)View_GetCustomView(view);
-  const char* text = isOn ? onLabel : offLabel;
+  SwitchButton_t* button = GetSwitchButton(view);
+  const char* text = button->isOn ? onLabel : offLabel;
 
-  if (isOn) {
+  if (button->isOn) {
     GFX_DrawFilledRect(left, top, left + indicatorSize, top + indicatorSize,
                        GFX_GetFontColor());
   } else {
-    GFX_DrawRect(left, top, left + indicatorSize, top + indicatorSize, 1,
+    GFX_DrawRect(left, top, left + indicatorSize, top + indicatorSize, 2,
                  GFX_GetFontColor());
   }
 

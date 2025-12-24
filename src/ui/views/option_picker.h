@@ -24,6 +24,8 @@ View_t* OptionPicker_Create(Array_t* options, Font_t* font,
                             OptionChangedCallback callback,
                             OptionMapItem mapItemCallback);
 
+void OptionPicker_SelectOption(View_t* optionPicker, void* option);
+
 #ifdef __cplusplus
 }
 #endif

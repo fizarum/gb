@@ -258,11 +258,11 @@ void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,
   // top line
   GFX_DrawHLine(left, top, right - left, lineWidth, color);
   // bottom line
-  GFX_DrawHLine(left, bottom, right - left, lineWidth, color);
+  GFX_DrawHLine(left, bottom, right - left + 1, lineWidth, color);
   // left
   GFX_DrawVLine(left, top, bottom - top, lineWidth, color);
   // right
-  GFX_DrawVLine(right, top, bottom - top, lineWidth, color);
+  GFX_DrawVLine(right, top, bottom - top + 1, lineWidth, color);
 }
 
 void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,

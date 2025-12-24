@@ -19,8 +19,8 @@ static gpio_num_t _wakeupPin;
 
 void PowerManager_Init(gpio_num_t wakeupPin) {
   _deviceManager = DeviceManagerGetInstance();
-  _displayDevice = DeviceManagerGetByType(_deviceManager, TypeDisplay);
-  _keyboardDevice = DeviceManagerGetByType(_deviceManager, TypeInput);
+  _displayDevice = DeviceManager_GetByType(TypeDisplay);
+  _keyboardDevice = DeviceManager_GetByType(TypeInput);
   _wakeupPin = wakeupPin;
 }
 

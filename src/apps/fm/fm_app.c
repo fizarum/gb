@@ -14,7 +14,7 @@
 #include "esp_log.h"
 #include "scroll_bar.h"
 
-static StorageDeviceData_t* storageData;
+static StorageDeviceData* storageData;
 
 static AppSpecification_t specs = {
     .name = "File Manager",
@@ -41,7 +41,7 @@ static _u8 focusedFileIndex = 0;
 _u8 pages = 0;
 _u8 currentPage = 0;
 
-char buff[64];
+static char buff[64];
 
 static void OnDirectoryItemGet(_u16 index, DirectoryItem* item);
 static void ShowDirectoryContent(const char* path, _u8 page,
@@ -90,9 +90,7 @@ static void handleKey(const void* keyData) {
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
 
-  DeviceManager* deviceManger = DeviceManagerGetInstance();
-  Device* storageDevice = DeviceManagerGetByType(deviceManger, TypeStorage);
-  storageData = (StorageDeviceData_t*)DeviceGetData(storageDevice);
+  storageData = (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
 
   totalFiles = 0;
   focusedFileIndex = 0;
@@ -100,7 +98,7 @@ static void onAppStart(void) {
   vPosOfText = startVPadding;
 
   // first scan files count in current directory
-  esp_err_t result = SDCalculateFilesInDirectory(mnt, &totalFiles);
+  esp_err_t result = SD_CalculateFilesInDirectory(mnt, &totalFiles);
 
   if (result == ESP_OK) {
     PrepareCache();
@@ -242,7 +240,7 @@ static void ShowDirectoryContent(const char* path, _u8 page,
   _u16 end = start + filesPerPage - 1;
 
   ArrayForeach(filesOnPage, &DisableAllFileItemsIterator);
-  SDShowDirectory(path, start, end, &indexOfLastGotFile, &OnDirectoryItemGet);
+  SD_ShowDirectory(path, start, end, &indexOfLastGotFile, &OnDirectoryItemGet);
 
   filesOnCurrentPage = indexOfLastGotFile > end
                            ? filesPerPage
@@ -251,8 +249,6 @@ static void ShowDirectoryContent(const char* path, _u8 page,
   ESP_LOGI(specs.name, "page[%d] finished at: %ld current page has %d files",
            page, indexOfLastGotFile, filesOnCurrentPage);
 }
-
-// open file logic
 
 static bool OnDataCallback(const char* data, _u8 length) {
   ESP_LOGI(specs.name, "--> read data: %s", data);
@@ -264,6 +260,6 @@ static void OpenFile() {
   if (item != NULL) {
     sprintf(buff, "%s//%s", storageData->mountPoint, item->name);
     ESP_LOGI(specs.name, "opening file: %s", buff);
-    SDReadFile(buff, &OnDataCallback);
+    SD_ReadFile(buff, &OnDataCallback);
   }
 }
