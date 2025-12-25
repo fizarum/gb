@@ -25,7 +25,7 @@ static MCPDevice_t mcp23017 = {
     .address = MCP_ADDRESS,
 };
 
-static InputDeviceData deviceData;
+static InputDeviceExtension deviceData;
 
 static bool onInit(void) {
   bool initOk = MCPInit(&mcp23017);
@@ -67,7 +67,7 @@ static void onUpdate(void) {
 }
 
 DeviceSpecification* JoystickSpecification() {
-  specs.data = &deviceData;
+  specs.extension = &deviceData;
 
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;

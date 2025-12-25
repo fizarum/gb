@@ -37,14 +37,13 @@ static bool transmitDataTimes(const _u16 value, const _u16 times);
 static bool transmit(const _u8* data, const size_t length);
 static bool lighten(const _u8 percents);
 
-static DisplayExtension extension = {
+static DisplayDeviceExtension extension = {
     .changeBrightness = &lighten,
 };
 
 static DeviceSpecification specs = {
     .name = "Display",
     .type = TypeDisplay,
-    .extension = &extension,
 };
 
 static ILI9341_t dev = {
@@ -90,7 +89,6 @@ QueueHandle_t displayUpdatedQueue;
 UpdateTransaction_t updateTransaction;
 
 spi_device_handle_t spiHandle;
-static DisplayDeviceData deviceData;
 static _u8 brightness = 30;
 
 void drawingTask(void* arg);
@@ -120,12 +118,12 @@ static bool onInit(void) {
 
   Ili9341SetInversion(&dev, false);
 
-  deviceData.width = dev.width;
-  deviceData.height = dev.height;
+  extension.width = dev.width;
+  extension.height = dev.height;
 
   displayUpdatedQueue = xQueueCreate(1, sizeof(_u16*));
 
-  GFX_Init(deviceData.width, deviceData.height, Monochrome,
+  GFX_Init(extension.width, extension.height, Monochrome,
            // RGB565,
            &canvasUpdated);
 
@@ -158,7 +156,7 @@ static bool onEnable(bool enable) {
 static void onUpdate(void) {}
 
 DeviceSpecification* DislplaySpecification() {
-  specs.data = &deviceData;
+  specs.extension = &extension;
 
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;
@@ -169,7 +167,7 @@ DeviceSpecification* DislplaySpecification() {
 
 void drawingTask(void* arg) {
   _u16 flag;
-  _u16 lineLength = deviceData.width;
+  _u16 lineLength = extension.width;
   _u16* canvas = GFX_GetCanvas();
   _u32 offset = 0;
   _u16 y = 0;
@@ -178,7 +176,7 @@ void drawingTask(void* arg) {
     if (xQueueReceive(displayUpdatedQueue, &flag, 0) == pdPASS) {
       offset = 0;
 
-      for (y = 0; y < deviceData.height; y++) {
+      for (y = 0; y < extension.height; y++) {
         Ili9341DrawPixels(&dev, 0, y, lineLength, y, (canvas + offset),
                           lineLength);
         offset += lineLength;

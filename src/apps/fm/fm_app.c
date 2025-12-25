@@ -14,7 +14,7 @@
 #include "esp_log.h"
 #include "scroll_bar.h"
 
-static StorageDeviceData* storageData;
+static StorageDeviceExtension* extension;
 
 static AppSpecification_t specs = {
     .name = "File Manager",
@@ -56,7 +56,7 @@ static void SwitchNextPage();
 static void OpenFile();
 
 static void handleKey(const void* keyData) {
-  InputDeviceData* data = (InputDeviceData*)keyData;
+  InputDeviceExtension* data = (InputDeviceExtension*)keyData;
 
   // ESP_LOGI(specs.name, "provided keydata: %u", data->keymap);
   if (IsButtonUpReleased(data) == true) {
@@ -80,7 +80,7 @@ static void handleKey(const void* keyData) {
   } else if (IsButtonYReleased(data)) {
     FileItem_t* item = ArrayValueAt(filesOnPage, focusedFileIndex);
     if (item != NULL) {
-      sprintf(buff, "%s//%s", storageData->mountPoint, item->name);
+      sprintf(buff, "%s//%s", extension->mountPoint, item->name);
       ESP_LOGI(specs.name, "trying to open file: %s", buff);
       OpenFile(buff);
     }
@@ -90,11 +90,11 @@ static void handleKey(const void* keyData) {
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
 
-  storageData = (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
+  extension = (StorageDeviceExtension*)DeviceManager_GetExtension(TypeStorage);
 
   totalFiles = 0;
   focusedFileIndex = 0;
-  const char* mnt = storageData->mountPoint;
+  const char* mnt = extension->mountPoint;
   vPosOfText = startVPadding;
 
   // first scan files count in current directory
@@ -206,8 +206,7 @@ static void SwitchPreviousPage() {
   if (currentPage >= pages) {
     currentPage = pages - 1;
   }
-  ShowDirectoryContent(storageData->mountPoint, currentPage,
-                       &OnDirectoryItemGet);
+  ShowDirectoryContent(extension->mountPoint, currentPage, &OnDirectoryItemGet);
   focusedFileIndex = filesOnCurrentPage - 1;
 }
 
@@ -218,8 +217,7 @@ static void SwitchNextPage() {
   if (currentPage >= pages) {
     currentPage = 0;
   }
-  ShowDirectoryContent(storageData->mountPoint, currentPage,
-                       &OnDirectoryItemGet);
+  ShowDirectoryContent(extension->mountPoint, currentPage, &OnDirectoryItemGet);
 }
 
 static void OnDirectoryItemGet(_u16 index, DirectoryItem* item) {
@@ -258,7 +256,7 @@ static bool OnDataCallback(const char* data, _u8 length) {
 static void OpenFile() {
   FileItem_t* item = ArrayValueAt(filesOnPage, focusedFileIndex);
   if (item != NULL) {
-    sprintf(buff, "%s//%s", storageData->mountPoint, item->name);
+    sprintf(buff, "%s//%s", extension->mountPoint, item->name);
     ESP_LOGI(specs.name, "opening file: %s", buff);
     SD_ReadFile(buff, &OnDataCallback);
   }

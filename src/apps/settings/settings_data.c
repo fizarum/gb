@@ -21,8 +21,8 @@ static char optionsFilename[16];
 static _u8 buff[64];
 
 void SettingsData_Save() {
-  StorageDeviceData* storageData =
-      (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
+  StorageDeviceExtension* storageData =
+      (StorageDeviceExtension*)DeviceManager_GetExtension(TypeStorage);
   sprintf(optionsFilename, "%s/%s", storageData->mountPoint, filename);
 
   sprintf(buff, "1:%d 2:%d 3:%d 4:%d", data.brightness, data.volume,
@@ -79,9 +79,9 @@ static void ParseDataString() {
 }
 
 void SettingsData_Load() {
-  StorageDeviceData* storageData =
-      (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
-  sprintf(optionsFilename, "%s/%s", storageData->mountPoint, filename);
+  StorageDeviceExtension* storage =
+      (StorageDeviceExtension*)DeviceManager_GetExtension(TypeStorage);
+  sprintf(optionsFilename, "%s/%s", storage->mountPoint, filename);
   SD_ReadFileToBuff(optionsFilename, buff, sizeof(buff));
 
   ParseDataString();
