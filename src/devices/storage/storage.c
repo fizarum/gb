@@ -20,7 +20,7 @@ static DeviceSpecification specs = {
     .type = TypeStorage,
 };
 
-static StorageDeviceData deviceData = {
+static StorageDeviceExtension extension = {
     .mountPoint = MOUNT_POINT,
     .card = NULL,
 };
@@ -68,8 +68,8 @@ static bool onInit(void) {
   };
 
   ESP_LOGI(specs.name, "Mounting filesystem");
-  ret = esp_vfs_fat_sdspi_mount(deviceData.mountPoint, &host, &slotConfig,
-                                &mountConfig, &(deviceData.card));
+  ret = esp_vfs_fat_sdspi_mount(extension.mountPoint, &host, &slotConfig,
+                                &mountConfig, &(extension.card));
 
   if (ret != ESP_OK) {
     if (ret == ESP_FAIL) {
@@ -86,7 +86,7 @@ static bool onInit(void) {
     return false;
   }
   ESP_LOGI(specs.name, "Filesystem mounted to SD: %s",
-           deviceData.card->cid.name);
+           extension.card->cid.name);
 
   return true;
 }
@@ -104,7 +104,7 @@ static bool onEnable(bool enable) {
 static void onUpdate(void) {}
 
 DeviceSpecification* StorageSpecification() {
-  specs.data = &deviceData;
+  specs.extension = &extension;
 
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;

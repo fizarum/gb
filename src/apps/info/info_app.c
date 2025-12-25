@@ -42,9 +42,6 @@ static AppSpecification_t specs = {
     .onStop = &App_StubFunction,
 };
 
-static BatteryDeviceData* batteryData;
-static StorageDeviceData* storageData;
-
 static esp_chip_info_t chipInfo;
 static rtc_cpu_freq_config_t conf;
 
@@ -66,10 +63,12 @@ static void onAppStart(void) {
     return;
   }
 
-  batteryData = (BatteryDeviceData*)DeviceManager_GetData(TypePower);
-  storageData = (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
-  sdSizeInMB = Storage_GetTotalSizeInMBs(storageData->mountPoint);
-  sdUsedSizeInMB = Storage_GetUsedSizeInMBs(storageData->mountPoint);
+  BatteryDeviceExtension* battery =
+      (BatteryDeviceExtension*)DeviceManager_GetExtension(TypePower);
+  StorageDeviceExtension* storage =
+      (StorageDeviceExtension*)DeviceManager_GetExtension(TypeStorage);
+  sdSizeInMB = Storage_GetTotalSizeInMBs(storage->mountPoint);
+  sdUsedSizeInMB = Storage_GetUsedSizeInMBs(storage->mountPoint);
 
   esp_chip_info(&chipInfo);
   rtc_clk_cpu_freq_get_config(&conf);
@@ -122,10 +121,10 @@ static void onAppStart(void) {
   AddLabel(mainBoxId, sdUsedStr);
 
   // battery
-  sprintf(batteryStr, "battery: %d %%", batteryData->chargeLevelPercents);
+  sprintf(batteryStr, "battery: %d %%", battery->chargeLevelPercents);
   AddLabel(mainBoxId, batteryStr);
 
-  sprintf(chargingStr, "charging: %s", batteryData->charging ? "yes" : "no");
+  sprintf(chargingStr, "charging: %s", battery->charging ? "yes" : "no");
   AddLabel(mainBoxId, chargingStr);
 
   sprintf(osStr, "OS ver: %s", osVersion);

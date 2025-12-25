@@ -1,157 +1,157 @@
 #include "joystick_utils.h"
 
-bool IsButtonMenuPressed(const InputDeviceData* data) {
+bool IsButtonMenuPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnMenu);
 }
 
-bool IsButtonMenuReleased(const InputDeviceData* data) {
+bool IsButtonMenuReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnMenu);
 }
 
-bool IsButtonMenuLongPressed(const InputDeviceData* data) {
+bool IsButtonMenuLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnMenu);
 }
 
-bool IsButtonStartPressed(const InputDeviceData* data) {
+bool IsButtonStartPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnStart);
 }
 
-bool IsButtonStartReleased(const InputDeviceData* data) {
+bool IsButtonStartReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnStart);
 }
 
-bool IsButtonStartLongPressed(const InputDeviceData* data) {
+bool IsButtonStartLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnStart);
 }
 
-bool IsButtonSelectPressed(const InputDeviceData* data) {
+bool IsButtonSelectPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnSelect);
 }
 
-bool IsButtonSelectReleased(const InputDeviceData* data) {
+bool IsButtonSelectReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnSelect);
 }
 
-bool IsButtonSelectLongPressed(const InputDeviceData* data) {
+bool IsButtonSelectLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnSelect);
 }
 
-bool IsButtonDownPressed(const InputDeviceData* data) {
+bool IsButtonDownPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnDown);
 }
 
-bool IsButtonDownReleased(const InputDeviceData* data) {
+bool IsButtonDownReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnDown);
 }
 
-bool IsButtonDownLongPressed(const InputDeviceData* data) {
+bool IsButtonDownLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnDown);
 }
 
-bool IsButtonRightPressed(const InputDeviceData* data) {
+bool IsButtonRightPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnRight);
 }
 
-bool IsButtonRightReleased(const InputDeviceData* data) {
+bool IsButtonRightReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnRight);
 }
 
-bool IsButtonRightLongPressed(const InputDeviceData* data) {
+bool IsButtonRightLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnRight);
 }
 
-bool IsButtonLeftPressed(const InputDeviceData* data) {
+bool IsButtonLeftPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnLeft);
 }
 
-bool IsButtonLeftReleased(const InputDeviceData* data) {
+bool IsButtonLeftReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnLeft);
 }
 
-bool IsButtonLeftLongPressed(const InputDeviceData* data) {
+bool IsButtonLeftLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnLeft);
 }
 
-bool IsButtonUpPressed(const InputDeviceData* data) {
+bool IsButtonUpPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnUp);
 }
 
-bool IsButtonUpReleased(const InputDeviceData* data) {
+bool IsButtonUpReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnUp);
 }
 
-bool IsButtonUpLongPressed(const InputDeviceData* data) {
+bool IsButtonUpLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnUp);
 }
 
-bool IsButtonLTPressed(const InputDeviceData* data) {
+bool IsButtonLTPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, leftTrigger);
 }
 
-bool IsButtonLTReleased(const InputDeviceData* data) {
+bool IsButtonLTReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, leftTrigger);
 }
 
-bool IsButtonLTLongPressed(const InputDeviceData* data) {
+bool IsButtonLTLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, leftTrigger);
 }
 
-bool IsButtonRTPressed(const InputDeviceData* data) {
+bool IsButtonRTPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, rightTrigger);
 }
 
-bool IsButtonRTReleased(const InputDeviceData* data) {
+bool IsButtonRTReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, rightTrigger);
 }
 
-bool IsButtonRTLongPressed(const InputDeviceData* data) {
+bool IsButtonRTLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, rightTrigger);
 }
 
-bool IsButtonXPressed(const InputDeviceData* data) {
+bool IsButtonXPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnX);
 }
 
-bool IsButtonXReleased(const InputDeviceData* data) {
+bool IsButtonXReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnX);
 }
 
-bool IsButtonXLongPressed(const InputDeviceData* data) {
+bool IsButtonXLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnX);
 }
 
-bool IsButtonAPressed(const InputDeviceData* data) {
+bool IsButtonAPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnA);
 }
 
-bool IsButtonAReleased(const InputDeviceData* data) {
+bool IsButtonAReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnA);
 }
 
-bool IsButtonALongPressed(const InputDeviceData* data) {
+bool IsButtonALongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnA);
 }
 
-bool IsButtonYPressed(const InputDeviceData* data) {
+bool IsButtonYPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnY);
 }
 
-bool IsButtonYReleased(const InputDeviceData* data) {
+bool IsButtonYReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnY);
 }
 
-bool IsButtonYLongPressed(const InputDeviceData* data) {
+bool IsButtonYLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnY);
 }
 
-bool IsButtonBPressed(const InputDeviceData* data) {
+bool IsButtonBPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnB);
 }
 
-bool IsButtonBReleased(const InputDeviceData* data) {
+bool IsButtonBReleased(const InputDeviceExtension* data) {
   return IsButtonReleased(data, btnB);
 }
 
-bool IsButtonBLongPressed(const InputDeviceData* data) {
+bool IsButtonBLongPressed(const InputDeviceExtension* data) {
   return IsButtonLongPressed(data, btnB);
 }

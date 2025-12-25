@@ -76,7 +76,7 @@ static void IRAM_ATTR powerButtonHandler(void* args) {
 void app_main() {
   vTaskDelay(_50);
 
-  inputDataQueue = xQueueCreate(inputDataSize, sizeof(InputDeviceData));
+  inputDataQueue = xQueueCreate(inputDataSize, sizeof(InputDeviceExtension));
 
   xTaskCreate(driverTask, "driverTask", 4096, NULL, 11, &driverTaskHandle);
   xTaskCreate(appsTask, "appsTask", 4096, NULL, 10, &appsTaskHandle);
@@ -113,7 +113,7 @@ void appsTask(void* arg) {
   // added delay to let hadrware init properly(better log), can be removed
   vTaskDelay(pdMS_TO_TICKS(300));
 
-  InputDeviceData inputDataToReceive;
+  InputDeviceExtension inputDataToReceive;
 
   ESP_LOGI(SYS_TAG, "start!");
   BroadcastManager_Init();
@@ -169,33 +169,34 @@ void driverTask(void* arg) {
     DeviceManagerUpdate(deviceManager);
 
     Device* device = DeviceManagerGet(deviceManager, joystickId);
-    const InputDeviceData* data = (InputDeviceData*)DeviceGetData(device);
+    const InputDeviceExtension* data =
+        (InputDeviceExtension*)DeviceGetExtension(device);
 
     if (IsAnyButtonPressed(data) == true) {
       xQueueSend(inputDataQueue, data, _2);
     }
 
     Device* batteryDevice = DeviceManagerGet(deviceManager, batteryId);
-    BatteryDeviceData* batteryData =
-        (BatteryDeviceData*)DeviceGetData(batteryDevice);
+    BatteryDeviceExtension* extension =
+        (BatteryDeviceExtension*)DeviceGetExtension(batteryDevice);
 
-    if (batteryData->charginStatusChanged == true) {
-      batteryData->charginStatusChanged = false;
+    if (extension->charginStatusChanged == true) {
+      extension->charginStatusChanged = false;
 
-      BroadcastEvent_t batteryEvent = {
-          .payload = batteryData->chargeLevelPercents,
+      BroadcastEvent_t event = {
+          .payload = extension->chargeLevelPercents,
       };
 
-      if (batteryData->charging) {
-        batteryEvent.type = ChargingOn;
+      if (extension->charging) {
+        event.type = ChargingOn;
       } else {
-        batteryEvent.type = ChargingOff;
+        event.type = ChargingOff;
       }
 
       ESP_LOGW(DEV_TAG, "charging status changed, sending broadcast event: %lu",
-               batteryEvent.value);
+               event.value);
 
-      BroadcastManager_SendEvent(batteryEvent.value);
+      BroadcastManager_SendEvent(event.value);
     }
 
     vTaskDelay(_5);

@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <device.h>
-#include <extensions/display_extensions.h>
+#include <specifications/display_data.h>
 
 DeviceSpecification* DislplaySpecification();
 

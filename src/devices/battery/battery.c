@@ -29,7 +29,7 @@ adc_channel_t channel = ADC_CHANNEL_3;
 #define BATTERY_LEVEL_MIN 1907
 // 2 seconds
 const uint32_t delayBetweenUpdatesInMicroSeconds = 2 * 1000000;
-static int lastUpdatedTimeAt, now = 0;
+static int64_t lastUpdatedTimeAt, now = 0;
 int voltage = 0;
 
 static DeviceSpecification specs = {
@@ -37,7 +37,7 @@ static DeviceSpecification specs = {
     .type = TypePower,
 };
 
-static BatteryDeviceData deviceData;
+static BatteryDeviceExtension extension;
 
 bool isCalibrated = false;
 
@@ -84,24 +84,24 @@ static void onUpdate(void) {
     }
     chargeInPercents = (_u8)((float)voltage / (float)BATTERY_LEVEL_MAX * 100);
 
-    if (deviceData.charging != charging) {
-      deviceData.charginStatusChanged = true;
-    } else if (deviceData.charging == false &&
-               deviceData.chargeLevelPercents != chargeInPercents) {
-      deviceData.charginStatusChanged = true;
+    if (extension.charging != charging) {
+      extension.charginStatusChanged = true;
+    } else if (extension.charging == false &&
+               extension.chargeLevelPercents != chargeInPercents) {
+      extension.charginStatusChanged = true;
     } else {
-      deviceData.charginStatusChanged = false;
+      extension.charginStatusChanged = false;
     }
-    deviceData.charging = charging;
-    deviceData.chargeLevelPercents = chargeInPercents;
+    extension.charging = charging;
+    extension.chargeLevelPercents = chargeInPercents;
 
     ESP_LOGI(specs.name, "voltage: %d%% changed: %d", chargeInPercents,
-             deviceData.charginStatusChanged);
+             extension.charginStatusChanged);
   }
 }
 
 DeviceSpecification* BatterySpecification() {
-  specs.data = &deviceData;
+  specs.extension = &extension;
 
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;

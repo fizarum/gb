@@ -18,6 +18,8 @@
 #define AUDIO_DOUT 17
 #define AUDIO_BCLK 18
 
+static bool changeVolume(const _u8 volume);
+
 typedef struct SystemSoundInfo {
   _u8* start;
   _u8* end;
@@ -29,8 +31,9 @@ static DeviceSpecification specs = {
     .type = TypeAudio,
 };
 
-static AudioDeviceData data = {
+static AudioDeviceExtension extension = {
     .volume = 1.0,
+    .changeVolume = &changeVolume,
 };
 
 static i2s_chan_handle_t channelHandler;
@@ -120,7 +123,7 @@ static bool onEnable(bool enable) {
 
   if (enable) {
     // TODO: read volume value from settings
-    data.volume = 2.0;
+    extension.volume = 2.0;
 
     audioState = Enabled;
     xTaskCreate(&processAudio, "processAudio", 2048, NULL, 12,
@@ -138,7 +141,7 @@ static bool onEnable(bool enable) {
 static void onUpdate(void) {}
 
 DeviceSpecification* AudioSpecification() {
-  specs.data = &data;
+  specs.extension = &extension;
 
   specs.onInit = &onInit;
   specs.onEnable = &onEnable;
@@ -192,4 +195,10 @@ static void processAudio(void* arg) {
       vTaskDelay(pdMS_TO_TICKS(100));
     }
   }
+}
+
+static bool changeVolume(const _u8 volume) {
+  // TODO: complete
+  ESP_LOGI(specs.name, "--> volume change: %d", volume);
+  return true;
 }

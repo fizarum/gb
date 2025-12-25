@@ -55,7 +55,7 @@ static void handleKey(const void* keyData) {
     ESP_LOGW(specs.name, "can't handle keyData, its null!");
   }
 
-  InputDeviceData* data = (InputDeviceData*)keyData;
+  InputDeviceExtension* data = (InputDeviceExtension*)keyData;
   // ESP_LOGI(specs.name, "[specs] handle input: %d", data->keymap);
 
   if (IsButtonLeftReleased(data)) {

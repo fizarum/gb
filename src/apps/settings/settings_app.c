@@ -1,7 +1,8 @@
 #include "settings_app.h"
 
 #include <device_manager.h>
-#include <extensions/display_extensions.h>
+#include <specifications/audio_data.h>
+#include <specifications/display_data.h>
 #include <specifications/storage_data.h>
 #include <string.h>
 
@@ -38,9 +39,6 @@ static View_t* powerSaveSwitch;
 static View_t* sleepInOptionPicker;
 static InputEvent inputEvent;
 
-static DisplayExtension* displayExtension;
-static StorageDeviceData* storageData;
-
 static View_t* selectOptionViewByIndex(_u8 index) {
   switch (index) {
     case 0:
@@ -57,7 +55,7 @@ static View_t* selectOptionViewByIndex(_u8 index) {
 }
 
 static void handleKey(const void* keyData) {
-  InputDeviceData* data = (InputDeviceData*)keyData;
+  InputDeviceExtension* data = (InputDeviceExtension*)keyData;
   static _u8 selectedIndex = 0;
   inputEvent.keycode = KEY_NONE;
   inputEvent.type = Cancelled;
@@ -122,8 +120,10 @@ static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
   ESP_LOGI(specs.name, "[brightness] option changed to: %d !", value);
   const _u8 brightness = value * 10;
 
-  if (displayExtension != NULL) {
-    displayExtension->changeBrightness(brightness);
+  DisplayDeviceExtension* extension =
+      (DisplayDeviceExtension*)DeviceManager_GetExtension(TypeDisplay);
+  if (extension != NULL) {
+    extension->changeBrightness(brightness);
   }
 
   SettingsData_SetBrightness(value);
@@ -154,6 +154,11 @@ static inline View_t* CreateBrightnessOptionsPicker() {
 
 static void OnVolumeChanged(OptionPicker_t* picker, void* option) {
   const _u8 value = (_u8)option;
+  AudioDeviceExtension* data =
+      (AudioDeviceExtension*)DeviceManager_GetExtension(TypeAudio);
+  if (data != NULL) {
+    data->changeVolume(value);
+  }
   SettingsData_SetVolume(value);
 
   ESP_LOGI(specs.name, "[volume] option changed to: %d !", value);
@@ -199,13 +204,6 @@ static const _u8 padding = 20;
 
 static void onAppStart() {
   SettingsData_Load();
-
-  displayExtension = (DisplayExtension*)DeviceManager_GetExtension(TypeDisplay);
-  storageData = (StorageDeviceData*)DeviceManager_GetData(TypeStorage);
-
-  if (displayExtension != NULL) {
-    displayExtension->changeBrightness(SettingsData_GetBrightness());
-  }
 
   composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
 
