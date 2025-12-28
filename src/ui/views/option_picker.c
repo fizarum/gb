@@ -41,17 +41,15 @@ View_t* OptionPicker_Create(Array_t* options, Font_t* font,
     return NULL;
   }
 
-  SizePolicy_t widthPolicy = {.type = WrapContent, .weight = 0};
-  SizePolicy_t heightpolicy = {.type = WrapContent, .weight = 0};
-
   picker->options = options;
   picker->optionsCount = ArrayCapacity(options);
   picker->selecedOptionIndex = 0;
   picker->font = font;
   picker->callback = callback;
   picker->mapItemCallback = mapItemCallback;
-  picker->view = View_Create(picker, false, &Draw, &HandleInput, &Destroy, NULL,
-                             widthPolicy, heightpolicy);
+  picker->view =
+      View_Create(picker, false, &Draw, &HandleInput, &Destroy, NULL,
+                  sizePolicyWrapContent.value, sizePolicyWrapContent.value);
 
   RecalculateSize(picker);
 

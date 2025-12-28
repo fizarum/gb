@@ -5,37 +5,10 @@
 extern "C" {
 #endif
 
-#include <stdbool.h>
 #include <system/input/input_event.h>
 #include <types.h>
 
-typedef enum SizePolicyType_t {
-  // in this case ViewSizeChangedCallback should provide exact size
-  WrapContent,
-
-  // stretches view to max available space, ignores values from
-  // ViewSizeChangedCallback
-  MatchParent,
-
-  // in this case view's size is calculated from all avail parent's size divided
-  // on sum of all view weights. Weight value is taken from SizePolicy_t.weight.
-  // Max value is 7.
-  //
-  // For example view1.weight = 1, view2.weight = 1 means each has 50% of
-  // parent's size.
-  // For view1.weight = 1, view2.weight = 2: view1 has 1/3 view2 has 2/3 of
-  // parent's size
-  Weight,
-} SizePolicyType_t;
-
-typedef union SizePolicy_t {
-  struct {
-    _u8 weight : 8;
-    SizePolicyType_t type : 8;
-  };
-  // in case when type == WrapContent this value represents size in pixels
-  _u16 value;
-} SizePolicy_t;
+#include "size_policy.h"
 
 typedef struct Padding_t {
   _u16 left;
@@ -59,8 +32,7 @@ View_t* View_Create(void* customView, bool isBox,
                     ViewCallback onDestroyCallback,  // detroy
                     ViewSizeChangedCallback onSizeChangedCallback,
                     // size policy part
-                    const SizePolicy_t widthPolicy,
-                    const SizePolicy_t heightPolicy);
+                    const _u16 widthPolicy, const _u16 heightPolicy);
 void View_Destroy(View_t* node);
 
 void View_Draw(View_t* view);
@@ -108,8 +80,8 @@ void View_SetPadding(View_t* view, const _u16 l, const _u16 t, const _u16 r,
 void View_SetHPadding(View_t* view, const _u16 horizontal);
 void View_SetVPadding(View_t* view, const _u16 vertical);
 
-SizePolicy_t* View_GetWidthPolicy(View_t* view);
-SizePolicy_t* View_GetHeightPolicy(View_t* view);
+SizePolicy* View_GetWidthPolicy(View_t* view);
+SizePolicy* View_GetHeightPolicy(View_t* view);
 
 void* View_GetCustomView(const View_t* view);
 

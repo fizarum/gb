@@ -12,54 +12,54 @@ typedef struct Box_t {
   _u16 maxWidth;
   _u16 maxHeight;
 
-  View_t *view;
+  View_t* view;
 } Box_t;
 
-static View_t *Box_Create(const Direction_t direction);
-static void Box_Destroy(void *boxArg);
+static View_t* Box_Create(const Direction_t direction);
+static void Box_Destroy(void* boxArg);
 
-View_t *HBox_Create() { return Box_Create(Horizontal); }
-View_t *VBox_Create() { return Box_Create(Vertical); }
+View_t* HBox_Create() { return Box_Create(Horizontal); }
+View_t* VBox_Create() { return Box_Create(Vertical); }
 
-View_t *Box_GetView(Box_t *box) {
+View_t* Box_GetView(Box_t* box) {
   if (box == NULL) {
     return NULL;
   }
   return box->view;
 }
 
-Direction_t Box_GetDirection(const Box_t *box) { return box->direction; }
+Direction_t Box_GetDirection(const Box_t* box) { return box->direction; }
 
-bool Box_IsDirectionVertical(const Box_t *box) {
+bool Box_IsDirectionVertical(const Box_t* box) {
   return box->direction == Vertical;
 }
 
-void Box_SetMaxSize(Box_t *box, const _u16 width, const _u16 height) {
+void Box_SetMaxSize(Box_t* box, const _u16 width, const _u16 height) {
   box->maxWidth = width;
   box->maxHeight = height;
 }
 
-_u16 Box_GetMaxWidth(Box_t *box) { return box->maxWidth; }
+_u16 Box_GetMaxWidth(Box_t* box) { return box->maxWidth; }
 
-_u16 Box_GetMaxHeight(Box_t *box) { return box->maxHeight; }
+_u16 Box_GetMaxHeight(Box_t* box) { return box->maxHeight; }
 
-_u16 Box_GetFreeWidthSpace(Box_t *box) {
+_u16 Box_GetFreeWidthSpace(Box_t* box) {
   _u16 width = View_GetWidth(box->view);
   _u16 maxWidth = box->maxWidth;
   return width < maxWidth ? maxWidth - width : 0;
 }
 
-_u16 Box_GetFreeHeightSpace(Box_t *box) {
+_u16 Box_GetFreeHeightSpace(Box_t* box) {
   _u16 height = View_GetHeight(box->view);
   _u16 maxHeight = box->maxHeight;
   return height < maxHeight ? maxHeight - height : 0;
 }
 
-void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
+void Box_RecalculateSizeForNewView(Box_t* box, View_t* childView) {
   _u16 childViewWidth = View_GetWidth(childView);
   _u16 childViewHeight = View_GetHeight(childView);
 
-  View_t *boxView = box->view;
+  View_t* boxView = box->view;
   _u16 boxViewWidth = View_GetContentWidth(boxView);
   _u16 boxViewHeight = View_GetContentHeight(boxView);
   _u16 boxViewTopPos = View_GetContentYPosition(boxView);
@@ -76,8 +76,8 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
     View_SetHeight(childView, childViewHeight);
   }
 
-  SizePolicyType_t widthPolicy = View_GetWidthPolicy(childView)->type;
-  SizePolicyType_t heightPolicy = View_GetHeightPolicy(childView)->type;
+  SizePolicyType widthPolicy = View_GetWidthPolicy(childView)->type;
+  SizePolicyType heightPolicy = View_GetHeightPolicy(childView)->type;
 
   if (widthPolicy == MatchParent) {
     // 2 x 1 px of line width
@@ -152,25 +152,25 @@ void Box_RecalculateSizeForNewView(Box_t *box, View_t *childView) {
 
 // private part
 
-static View_t *Box_Create(const Direction_t direction) {
-  Box_t *box = (Box_t *)malloc(sizeof(Box_t));
+static View_t* Box_Create(const Direction_t direction) {
+  Box_t* box = (Box_t*)malloc(sizeof(Box_t));
   if (box == NULL) {
     return NULL;
   }
 
   box->direction = direction;
-  SizePolicy_t sizePolicy = {.type = MatchParent, .weight = 0};
   box->view =
-      View_Create(box, true, NULL, NULL, &Box_Destroy, NULL, sizePolicy, sizePolicy);
+      View_Create(box, true, NULL, NULL, &Box_Destroy, NULL,
+                  sizePolicyMatchParent.value, sizePolicyMatchParent.value);
 
   return box->view;
 }
 
-static void Box_Destroy(void *boxArg) {
+static void Box_Destroy(void* boxArg) {
   if (boxArg == NULL) {
     return;
   }
 
-  Box_t *box = (Box_t *)boxArg;
+  Box_t* box = (Box_t*)boxArg;
   free(box);
 }

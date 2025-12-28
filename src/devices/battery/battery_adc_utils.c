@@ -8,7 +8,7 @@
 #define TAG "BatteryADC"
 
 static bool doCalibration(adc_unit_t unit, adc_channel_t channel,
-                          adc_atten_t atten, adc_cali_handle_t *outHandle);
+                          adc_atten_t atten, adc_cali_handle_t* outHandle);
 
 static adc_oneshot_chan_cfg_t config = {
     .atten = ADC_ATTEN,
@@ -46,7 +46,7 @@ int BatteryADCRead(const adc_unit_t unit, const adc_channel_t channel,
 
 // private part
 static bool doCalibration(adc_unit_t unit, adc_channel_t channel,
-                          adc_atten_t atten, adc_cali_handle_t *outHandle) {
+                          adc_atten_t atten, adc_cali_handle_t* outHandle) {
   adc_cali_handle_t handle = NULL;
   esp_err_t ret = ESP_FAIL;
   bool calibrated = false;

@@ -15,11 +15,11 @@ View_t* VSpacer_Create(const _u16 height) {
     return NULL;
   }
 
-  SizePolicy_t heightPolicy = {.value = height};
-  SizePolicy_t widthPolicy = {.value = 0};
+  SizePolicy heightPolicy = {.custom = 0, .value = height};
+  SizePolicy widthPolicy = {.custom = 0, .value = 0};
 
   spacer->view = View_Create(spacer, false, NULL, NULL, &Destroy, NULL,
-                             widthPolicy, heightPolicy);
+                             widthPolicy.value, heightPolicy.value);
 
   RecalculateSize(spacer);
 
@@ -38,6 +38,6 @@ static void Destroy(void* spacerArg) {
 
 static void RecalculateSize(VSpacer_t* spacer) {
   View_SetWidth(spacer->view, 0);
-  SizePolicy_t* policy = View_GetHeightPolicy(spacer->view);
+  SizePolicy* policy = View_GetHeightPolicy(spacer->view);
   View_SetHeight(spacer->view, policy->value);
 }

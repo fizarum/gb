@@ -8,26 +8,22 @@ extern "C" {
 #include "tree.h"
 #include "view.h"
 
-typedef struct Composer_t Composer_t;
+typedef struct Composer Composer;
 
-Composer_t* Composer_Create(const _u16 screenWidth, const _u16 screenHeight);
-// TODO: add Composer_Destroy(Composer_t *composer);
+void Composer_Init(const _u16 width, const _u16 height);
 
-// TODO: add Composer_Clear(Composer_t *composer);
+_u16 Composer_GetRootId();
 
-uint16_t Composer_GetRootId(const Composer_t* composer);
+_u16 Composer_AddBox(_u16 parentId, View_t* view);
+_u16 Composer_AddVBox(_u16 parentId);
+_u16 Composer_AddHBox(_u16 parentId);
+_u16 Composer_AddView(_u16 parentId, View_t* view);
 
-_u16 Composer_AddBox(Composer_t* composer, _u16 parentId, View_t* view);
-_u16 Composer_AddVBox(Composer_t* composer, _u16 parentId);
-_u16 Composer_AddHBox(Composer_t* composer, _u16 parentId);
-_u16 Composer_AddView(Composer_t* composer, _u16 parentId, View_t* view);
+View_t* Composer_FindView(const _u16 viewId);
 
-View_t* Composer_FindView(Composer_t* composer, const _u16 viewId);
-
-void Composer_Recompose(Composer_t* composer);
-
-void Composer_Draw(Composer_t* composer);
-void Composer_Clear(Composer_t* composer);
+void Composer_Recompose();
+void Composer_Draw();
+void Composer_Clear();
 
 #ifdef __cplusplus
 }

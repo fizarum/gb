@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "esp_log.h"
+
 #define VIEW_ID_NONE UINT16_MAX
 
 /**
@@ -14,8 +16,8 @@ typedef struct View_t {
 
   bool isBox;
 
-  SizePolicy_t widthPolicy;
-  SizePolicy_t heightPolicy;
+  SizePolicy widthPolicy;
+  SizePolicy heightPolicy;
   _u16 width;
   _u16 height;
 
@@ -42,8 +44,7 @@ View_t* View_Create(void* customView, bool isBox,
                     ViewCallback onDestroyCallback,  // detroy
                     ViewSizeChangedCallback onSizeChangedCallback,
                     // size policy part
-                    const SizePolicy_t widthPolicy,
-                    const SizePolicy_t heightPolicy) {
+                    const _u16 widthPolicy, const _u16 heightPolicy) {
   View_t* view = (View_t*)malloc(sizeof(View_t));
   if (view == NULL) {
     return NULL;
@@ -66,8 +67,8 @@ View_t* View_Create(void* customView, bool isBox,
   view->padding.bottom = 0;
 
   view->needsRedraw = true;
-  view->widthPolicy = widthPolicy;
-  view->heightPolicy = heightPolicy;
+  view->widthPolicy.value = widthPolicy;
+  view->heightPolicy.value = heightPolicy;
 
   return view;
 }
@@ -181,10 +182,8 @@ void View_SetVPadding(View_t* view, const _u16 vertical) {
   view->padding.bottom = vertical;
 }
 
-SizePolicy_t* View_GetWidthPolicy(View_t* view) { return &(view->widthPolicy); }
-SizePolicy_t* View_GetHeightPolicy(View_t* view) {
-  return &(view->heightPolicy);
-}
+SizePolicy* View_GetWidthPolicy(View_t* view) { return &(view->widthPolicy); }
+SizePolicy* View_GetHeightPolicy(View_t* view) { return &(view->heightPolicy); }
 
 void* View_GetCustomView(const View_t* view) { return view->customView; }
 

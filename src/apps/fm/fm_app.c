@@ -89,6 +89,7 @@ static void handleKey(const void* keyData) {
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
+  Composer_Init(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
 
   extension = (StorageDeviceExtension*)DeviceManager_GetExtension(TypeStorage);
 
@@ -162,6 +163,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
 static void onAppStop(void) {
   ESP_LOGI(specs.name, "on app stop...");
+  Composer_Clear();
   CleanupCache();
 }
 

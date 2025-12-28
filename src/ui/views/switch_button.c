@@ -37,11 +37,10 @@ View_t* SwitchButton_Create(_u8 on, Font_t* font,
     return NULL;
   }
 
-  SizePolicy_t widthPolicy = {.type = WrapContent, .weight = 0};
-  SizePolicy_t heightpolicy = {.type = WrapContent, .weight = 0};
   button->font = font;
-  button->view = View_Create(button, false, &Draw, &HandleInput, &Destroy, NULL,
-                             widthPolicy, heightpolicy);
+  button->view =
+      View_Create(button, false, &Draw, &HandleInput, &Destroy, NULL,
+                  sizePolicyWrapContent.value, sizePolicyWrapContent.value);
 
   button->isOn = on;
   button->callback = callback;

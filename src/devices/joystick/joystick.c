@@ -10,7 +10,6 @@
 #define I2C_SCL 47
 #define MCP_ADDRESS 0x20
 
-static bool joystickEnabled = false;
 static _u16 joystickData = 0;
 
 static DeviceSpecification specs = {
@@ -51,19 +50,15 @@ static bool onInit(void) {
 
 static bool onEnable(bool enable) {
   ESP_LOGI(specs.name, "enable: %d", enable);
-  joystickEnabled = enable;
   return true;
 }
 
 static void onUpdate(void) {
-  if (joystickEnabled == true) {
-    // save old keymap
-    deviceData.previousKeymap = joystickData;
-    // fetch new
-    MCPReadAllPorts(&mcp23017, &joystickData);
-    // and update specification object
-    deviceData.keymap = joystickData;
-  }
+  // save old keymap
+  deviceData.previousKeymap = joystickData;
+  // fetch new
+  MCPReadAllPorts(&mcp23017, &joystickData);
+  deviceData.keymap = joystickData;
 }
 
 DeviceSpecification* JoystickSpecification() {

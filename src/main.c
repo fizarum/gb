@@ -79,7 +79,7 @@ void app_main() {
   inputDataQueue = xQueueCreate(inputDataSize, sizeof(InputDeviceExtension));
 
   xTaskCreate(driverTask, "driverTask", 4096, NULL, 11, &driverTaskHandle);
-  xTaskCreate(appsTask, "appsTask", 4096, NULL, 10, &appsTaskHandle);
+  xTaskCreate(appsTask, "appsTask", 6144, NULL, 10, &appsTaskHandle);
 
   // Just to make sure that device manager is initialized properly
   vTaskDelay(_50);
