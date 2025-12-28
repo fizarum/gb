@@ -6,12 +6,14 @@
 #include "esp_log.h"
 #include "views/box.h"
 
-typedef struct Composer_t {
-  uint16_t width;
-  uint16_t height;
+typedef struct Composer {
+  _u16 width;
+  _u16 height;
 
-  Tree_t* root;
-} Composer_t;
+  Tree_t* uiTree;
+} Composer;
+
+static Composer composer;
 
 static void OnDrawItem(TreeNode_t* node);
 static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
@@ -22,24 +24,17 @@ static inline View_t* GetViewFromNode(TreeNode_t* node) {
   return (View_t*)TreeNode_GetData(node);
 }
 
-Composer_t* Composer_Create(const uint16_t screenWidth,
-                            const uint16_t screenHeight) {
-  Composer_t* composer = (Composer_t*)malloc(sizeof(Composer_t));
+void Composer_Init(const _u16 width, const _u16 height) {
+  composer.width = width;
+  composer.height = height;
+  composer.uiTree = Tree_Create();
 
-  if (composer == NULL) {
-    return NULL;
-  }
-
-  composer->width = screenWidth;
-  composer->height = screenHeight;
-  composer->root = Tree_Create();
-  _u16 id = Composer_GetRootId(composer);
-
+  _u16 id = Composer_GetRootId();
   if (id != TREE_INDEX_NONE) {
     View_t* container = VBox_Create();
     if (container != NULL) {
       Box_t* box = (Box_t*)View_GetCustomView(container);
-      bool set = Tree_SetNodeData(composer->root, id, container);
+      bool set = Tree_SetNodeData(composer.uiTree, id, container);
       if (set == true) {
         ESP_LOGI(
             "Composer", "root box [id: %d] orientation: [%s] is created", id,
@@ -50,37 +45,35 @@ Composer_t* Composer_Create(const uint16_t screenWidth,
 
       View_SetId(container, id);
       // set max sizes for box
-      Box_SetMaxSize(box, screenWidth, screenHeight);
+      Box_SetMaxSize(box, width, height);
     }
   }
-
-  return composer;
 }
 
-uint16_t Composer_GetRootId(const Composer_t* composer) {
-  TreeNode_t* root = Tree_GetRoot(composer->root);
+_u16 Composer_GetRootId() {
+  TreeNode_t* root = Tree_GetRoot(composer.uiTree);
 
   return root != NULL ? TreeNode_GetId(root) : TREE_INDEX_NONE;
 }
 
-_u16 Composer_AddBox(Composer_t* composer, uint16_t branchId, View_t* view) {
+_u16 Composer_AddBox(_u16 branchId, View_t* view) {
   if (view == NULL) {
     return TREE_INDEX_NONE;
   }
 
-  TreeNode_t* branch = Tree_FindNode(composer->root, branchId);
+  TreeNode_t* branch = Tree_FindNode(composer.uiTree, branchId);
   if (branch == NULL || TreeNode_IsLeaf(branch) == true) {
     return TREE_INDEX_NONE;
   }
 
-  uint16_t id = Tree_AddNode(composer->root, branch, false);
+  _u16 id = Tree_AddNode(composer.uiTree, branch, false);
   if (id == TREE_INDEX_NONE) {
     return TREE_INDEX_NONE;
   }
 
   View_SetId(view, id);
 
-  bool viewSet = Tree_SetNodeData(composer->root, id, view);
+  bool viewSet = Tree_SetNodeData(composer.uiTree, id, view);
 
   if (viewSet == true) {
     // set max width and height for child box
@@ -132,56 +125,54 @@ _u16 Composer_AddBox(Composer_t* composer, uint16_t branchId, View_t* view) {
   return viewSet == true ? id : TREE_INDEX_NONE;
 }
 
-_u16 Composer_AddVBox(Composer_t* composer, _u16 parentId) {
-  return Composer_AddBox(composer, parentId, VBox_Create());
+_u16 Composer_AddVBox(_u16 parentId) {
+  return Composer_AddBox(parentId, VBox_Create());
 }
 
-_u16 Composer_AddHBox(Composer_t* composer, _u16 parentId) {
-  return Composer_AddBox(composer, parentId, HBox_Create());
+_u16 Composer_AddHBox(_u16 parentId) {
+  return Composer_AddBox(parentId, HBox_Create());
 }
 
-uint16_t Composer_AddView(Composer_t* composer, uint16_t parentId,
-                          View_t* view) {
+_u16 Composer_AddView(_u16 parentId, View_t* view) {
   if (view == NULL) {
     return TREE_INDEX_NONE;
   }
 
-  TreeNode_t* branch = Tree_FindNode(composer->root, parentId);
+  TreeNode_t* branch = Tree_FindNode(composer.uiTree, parentId);
   if (branch == NULL || TreeNode_IsLeaf(branch) == true) {
     return TREE_INDEX_NONE;
   }
 
-  uint16_t id = Tree_AddNode(composer->root, branch, true);
+  _u16 id = Tree_AddNode(composer.uiTree, branch, true);
   if (id == TREE_INDEX_NONE) {
     return TREE_INDEX_NONE;
   }
 
   View_SetId(view, id);
 
-  bool viewSet = Tree_SetNodeData(composer->root, id, view);
+  bool viewSet = Tree_SetNodeData(composer.uiTree, id, view);
   return viewSet == true ? id : TREE_INDEX_NONE;
 }
 
-View_t* Composer_FindView(Composer_t* composer, const _u16 viewId) {
-  TreeNode_t* node = Tree_FindNode(composer->root, viewId);
+View_t* Composer_FindView(const _u16 viewId) {
+  TreeNode_t* node = Tree_FindNode(composer.uiTree, viewId);
   return GetViewFromNode(node);
 }
 
-void Composer_Recompose(Composer_t* composer) {
-  TreeNode_t* root = Tree_GetRoot(composer->root);
+void Composer_Recompose() {
+  TreeNode_t* root = Tree_GetRoot(composer.uiTree);
   View_t* rootView = GetViewFromNode(root);
   Box_t* rootBox = (Box_t*)View_GetCustomView(rootView);
   Direction_t rootDirection = Box_GetDirection(rootBox);
 
-  OnRecomposeItem(root, rootDirection, 0, 0, composer->width, composer->height);
+  OnRecomposeItem(root, rootDirection, 0, 0, composer.width, composer.height);
 }
 
-void Composer_Draw(Composer_t* composer) {
-  Tree_Foreach(composer->root, OnDrawItem);
-}
+void Composer_Draw() { Tree_Foreach(composer.uiTree, OnDrawItem); }
 
-void Composer_Clear(Composer_t* composer) {
-  Tree_Destroy(composer->root, OnClearItem);
+void Composer_Clear() {
+  Tree_Destroy(composer.uiTree, OnClearItem);
+  composer.uiTree = NULL;
 }
 
 // private part
@@ -198,6 +189,10 @@ static void OnDrawItem(TreeNode_t* node) {
 static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
                             _u16 left, _u16 top, _u16 right, _u16 bottom) {
   View_t* view = GetViewFromNode(node);
+  if (view == NULL) {
+    ESP_LOGW("Composer", "view is null, skip step");
+    return;
+  }
   View_SetPosition(view, left, top);
 
   // get actual view size
@@ -238,8 +233,8 @@ static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
       }
 
       View_t* childView = GetViewFromNode(child);
-      _u16 childWidth = View_GetWidth(childView);
-      _u16 childHeight = View_GetHeight(childView);
+      _u16 childWidth = childView != NULL ? View_GetWidth(childView) : 0;
+      _u16 childHeight = childView != NULL ? View_GetHeight(childView) : 0;
       // resize parent with new child's size
       if (direction == Vertical) {
         height += childHeight;
@@ -257,19 +252,28 @@ static void OnRecomposeItem(TreeNode_t* node, Direction_t parentDirection,
       View_SetWidth(view, width);
       View_SetHeight(view, height);
     }
+
     Box_SetMaxSize(box, right - left, bottom - top);
   } else {
-    SizePolicy_t* widthSizePolicy = View_GetWidthPolicy(view);
-    SizePolicy_t* heightSizePolicy = View_GetHeightPolicy(view);
+    SizePolicy* widthSizePolicy = View_GetWidthPolicy(view);
+    SizePolicy* heightSizePolicy = View_GetHeightPolicy(view);
 
-    if (widthSizePolicy->type == MatchParent) {
-      width = right > left ? right - left : 0;
-      View_SetWidth(view, width);
+    if (widthSizePolicy->custom == 1) {
+      if (widthSizePolicy->type == MatchParent) {
+        width = right > left ? right - left : 0;
+        View_SetWidth(view, width);
+      }
+    } else {
+      View_SetWidth(view, widthSizePolicy->value);
     }
 
-    if (heightSizePolicy->type == MatchParent) {
-      height = bottom > top ? bottom - top : 0;
-      View_SetHeight(view, height);
+    if (heightSizePolicy->custom == 1) {
+      if (heightSizePolicy->type == MatchParent) {
+        height = bottom > top ? bottom - top : 0;
+        View_SetHeight(view, height);
+      }
+    } else {
+      View_SetHeight(view, heightSizePolicy->value);
     }
   }
 }

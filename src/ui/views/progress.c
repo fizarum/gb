@@ -27,10 +27,9 @@ View_t* Progress_Create(_u8 value, _u8 maxValue) {
 
   progress->value = value;
   progress->maxValue = maxValue;
-  SizePolicy_t widthPolicy = {.type = MatchParent, .weight = 0};
-  SizePolicy_t heightpolicy = {.type = WrapContent, .weight = 0};
-  progress->view = View_Create(progress, false, &Draw, &HandleInput, &Destroy,
-                               NULL, widthPolicy, heightpolicy);
+  progress->view =
+      View_Create(progress, false, &Draw, &HandleInput, &Destroy, NULL,
+                  sizePolicyMatchParent.value, sizePolicyWrapContent.value);
 
   RecalculateSize(progress);
 

@@ -28,10 +28,8 @@ static AppSpecification_t specs = {
     .onPause = &App_StubFunction,
     .onResume = &App_StubFunction,
     .onUpdate = &App_StubFunction,
-    .onStop = &OnStop,
 };
 
-static Composer_t* composer;
 static View_t* listFocus;
 static View_t* brightnessPicker;
 static View_t* volumePicker;
@@ -104,6 +102,12 @@ static void OnSleepTimeoutChanged(OptionPicker_t* picker, void* option) {
   ESP_LOGI(specs.name, "[sleep timeout] option changed to: %d !", value);
 }
 
+static bool OnSleepInDelayChanged(void* option, char* buff) {
+  _u8 value = (_u8)option;
+  snprintf(buff, 7, "%d", value);
+  return true;
+}
+
 static inline View_t* CreateSleepOptionsPicker() {
   sleepOptions = ArrayCreate(4);
   ArrayAdd(sleepOptions, 1);
@@ -112,7 +116,7 @@ static inline View_t* CreateSleepOptionsPicker() {
   ArrayAdd(sleepOptions, 10);
 
   return OptionPicker_Create(sleepOptions, GFX_GetFont(), OnSleepTimeoutChanged,
-                             NULL);
+                             OnSleepInDelayChanged);
 }
 
 static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
@@ -205,64 +209,59 @@ static const _u8 padding = 20;
 static void onAppStart() {
   SettingsData_Load();
 
-  composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
-
-  _u16 rootId = Composer_GetRootId(composer);
+  Composer_Init(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
+  _u16 rootId = Composer_GetRootId();
   if (rootId == TREE_INDEX_NONE) {
     return;
   }
 
   // toolbar
   View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
-  Composer_AddView(composer, rootId, toolbar);
+  Composer_AddView(rootId, toolbar);
 
   // main box
-  _u16 contentBoxId = Composer_AddHBox(composer, rootId);
+  _u16 contentBoxId = Composer_AddHBox(rootId);
   // list focus (left)
   listFocus = ListFocus_Create(settingsItem);
-  Composer_AddView(composer, contentBoxId, listFocus);
+  Composer_AddView(contentBoxId, listFocus);
 
-  _u16 settingsBoxId = Composer_AddVBox(composer, contentBoxId);
+  _u16 settingsBoxId = Composer_AddVBox(contentBoxId);
 
   // 1. brightness
-  _u16 settingsItem1 = Composer_AddVBox(composer, settingsBoxId);
-  Composer_AddView(composer, settingsItem1, VSpacer_Create(padding));
-  _u16 brItemBoxId = Composer_AddHBox(composer, settingsItem1);
+  _u16 settingsItem1 = Composer_AddVBox(settingsBoxId);
+  Composer_AddView(settingsItem1, VSpacer_Create(padding));
+  _u16 brItemBoxId = Composer_AddHBox(settingsItem1);
   View_t* brLabel = Label_Create("Brightness:", GFX_GetFont());
   brightnessPicker = CreateBrightnessOptionsPicker();
-  Composer_AddView(composer, brItemBoxId, brLabel);
-  Composer_AddView(composer, brItemBoxId, brightnessPicker);
-  Composer_AddView(composer, brItemBoxId, VSpacer_Create(settingItemHeight));
+  Composer_AddView(brItemBoxId, brLabel);
+  Composer_AddView(brItemBoxId, brightnessPicker);
+  Composer_AddView(brItemBoxId, VSpacer_Create(settingItemHeight));
 
   // 2. volume
-  _u16 volumeBoxId = Composer_AddHBox(composer, settingsBoxId);
+  _u16 volumeBoxId = Composer_AddHBox(settingsBoxId);
   View_t* vlLabel = Label_Create("volume:", GFX_GetFont());
   volumePicker = CreateVolumeOptionsPicker();
-  Composer_AddView(composer, volumeBoxId, vlLabel);
-  Composer_AddView(composer, volumeBoxId, volumePicker);
-  Composer_AddView(composer, volumeBoxId, VSpacer_Create(settingItemHeight));
+  Composer_AddView(volumeBoxId, vlLabel);
+  Composer_AddView(volumeBoxId, volumePicker);
+  Composer_AddView(volumeBoxId, VSpacer_Create(settingItemHeight));
 
   // 3. power save mode
-  _u16 powerSaveBoxId = Composer_AddHBox(composer, settingsBoxId);
+  _u16 powerSaveBoxId = Composer_AddHBox(settingsBoxId);
   View_t* psLabel = Label_Create("power save: ", GFX_GetFont());
   powerSaveSwitch = CreatePowerSaveSwitchButton();
-  Composer_AddView(composer, powerSaveBoxId, psLabel);
-  Composer_AddView(composer, powerSaveBoxId, powerSaveSwitch);
-  Composer_AddView(composer, powerSaveBoxId, VSpacer_Create(settingItemHeight));
+  Composer_AddView(powerSaveBoxId, psLabel);
+  Composer_AddView(powerSaveBoxId, powerSaveSwitch);
+  Composer_AddView(powerSaveBoxId, VSpacer_Create(settingItemHeight));
 
   // 4. "sleep in" option
-  _u16 sleepOptionBoxId = Composer_AddHBox(composer, settingsBoxId);
-  View_t* slLabel = Label_Create("sleep in: ", GFX_GetFont());
+  _u16 sleepOptionBoxId = Composer_AddHBox(settingsBoxId);
+  View_t* slLabel = Label_Create("sleep in min: ", GFX_GetFont());
   sleepInOptionPicker = CreateSleepOptionsPicker();
-  Composer_AddView(composer, sleepOptionBoxId, slLabel);
-  Composer_AddView(composer, sleepOptionBoxId, sleepInOptionPicker);
-  // TODO: redraw this label as well
-  View_t* minutesLabel = Label_Create(" min", GFX_GetFont());
-  Composer_AddView(composer, sleepOptionBoxId, minutesLabel);
-  Composer_AddView(composer, sleepOptionBoxId,
-                   VSpacer_Create(settingItemHeight));
+  Composer_AddView(sleepOptionBoxId, slLabel);
+  Composer_AddView(sleepOptionBoxId, sleepInOptionPicker);
+  Composer_AddView(sleepOptionBoxId, VSpacer_Create(settingItemHeight));
 
-  Composer_Recompose(composer);
+  Composer_Recompose();
 
   // apply data to ui
   OptionPicker_SelectOption(brightnessPicker, SettingsData_GetBrightness());
@@ -275,7 +274,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
     GFX_FillScreen(GFX_GetTheme()->backgroundColor);
   }
-  Composer_Draw(composer);
+  Composer_Draw();
   GFX_Redraw();
 }
 
@@ -283,13 +282,14 @@ AppSpecification_t* SettingsAppSpecification() {
   specs.handleInput = &handleKey;
   specs.onStart = &onAppStart;
   specs.onRedraw = &onAppRedraw;
+  specs.onStop = &OnStop;
 
   return &specs;
 };
 
 static void OnStop() {
+  Composer_Clear();
   SettingsData_Save();
-  Composer_Clear(composer);
   ArrayDestroy(sleepOptions);
   ArrayDestroy(brightnessOptions);
   ArrayDestroy(volumeOptions);

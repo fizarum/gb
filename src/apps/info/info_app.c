@@ -51,14 +51,12 @@ static _u16 freeRamInKb = 0;
 static _u32 sdSizeInMB = 0;
 static _u32 sdUsedSizeInMB = 0;
 
-static Composer_t* composer;
-
 static void AddLabel(const _u16 rootBoxId, const char* text);
 
 static void onAppStart(void) {
-  composer = Composer_Create(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
+  Composer_Init(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
 
-  _u16 rootId = Composer_GetRootId(composer);
+  _u16 rootId = Composer_GetRootId();
   if (rootId == TREE_INDEX_NONE) {
     return;
   }
@@ -75,11 +73,11 @@ static void onAppStart(void) {
 
   // toolbar
   View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
-  Composer_AddView(composer, rootId, toolbar);
+  Composer_AddView(rootId, toolbar);
 
   // main box
-  _u16 mainBoxId = Composer_AddVBox(composer, rootId);
-  View_t* boxView = Composer_FindView(composer, mainBoxId);
+  _u16 mainBoxId = Composer_AddVBox(rootId);
+  View_t* boxView = Composer_FindView(mainBoxId);
   if (boxView != NULL) {
     View_SetHPadding(boxView, PADDING);
   }
@@ -130,7 +128,7 @@ static void onAppStart(void) {
   sprintf(osStr, "OS ver: %s", osVersion);
   AddLabel(mainBoxId, osStr);
 
-  Composer_Recompose(composer);
+  Composer_Recompose();
 }
 
 static void handleKey(const void* keyData) {}
@@ -139,11 +137,11 @@ static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
     GFX_FillScreen(GFX_GetTheme()->backgroundColor);
   }
-  Composer_Draw(composer);
+  Composer_Draw();
   GFX_Redraw();
 }
 
-static void onAppStop() { Composer_Clear(composer); }
+static void onAppStop() { Composer_Clear(); }
 
 AppSpecification_t* InfoAppSpecification() {
   specs.handleInput = &handleKey;
@@ -156,5 +154,5 @@ AppSpecification_t* InfoAppSpecification() {
 
 static void AddLabel(const _u16 rootBoxId, const char* text) {
   View_t* label = Label_Create(text, GFX_GetFont());
-  Composer_AddView(composer, rootBoxId, label);
+  Composer_AddView(rootBoxId, label);
 }

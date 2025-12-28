@@ -25,11 +25,9 @@ View_t* Toolbar_Create(char* text, Font_t* font) {
 
   toolbar->title = text;
   toolbar->font = font;
-  SizePolicy_t widthPolicy = {.type = MatchParent, .weight = 0};
-  SizePolicy_t heightPolicy = {.type = WrapContent, .weight = 0};
   toolbar->view =
       View_Create(toolbar, false, &Toolbar_Draw, NULL, &Toolbar_Destroy, NULL,
-                  widthPolicy, heightPolicy);
+                  sizePolicyMatchParent.value, sizePolicyWrapContent.value);
 
   Toolbar_RecalculateSize(toolbar);
 
