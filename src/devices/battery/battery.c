@@ -1,6 +1,5 @@
 #include "battery.h"
 
-#include <specifications/battery_data.h>
 #include <stddef.h>
 
 #include "battery_adc_utils.h"
@@ -95,8 +94,10 @@ static void onUpdate(void) {
     extension.charging = charging;
     extension.chargeLevelPercents = chargeInPercents;
 
-    ESP_LOGI(specs.name, "voltage: %d%% changed: %d", chargeInPercents,
-             extension.charginStatusChanged);
+    if (charging && extension.charginStatusChanged) {
+      ESP_LOGI(specs.name, "voltage: %d%% changed: %d is charging: %d",
+               chargeInPercents, extension.charginStatusChanged, charging);
+    }
   }
 }
 

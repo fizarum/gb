@@ -151,7 +151,7 @@ esp_err_t SD_WriteFile(const char* path, const _u8* data, const _u16 length) {
   FILE* f = fopen(path, "w");
 
   if (f == NULL) {
-    ESP_LOGE(TAG, "Failed to open file for reading");
+    ESP_LOGE(TAG, "Failed to open file for writing");
     return ESP_FAIL;
   }
 

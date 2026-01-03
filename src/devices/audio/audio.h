@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <device.h>
+#include <specifications/audio_data.h>
 
 DeviceSpecification* AudioSpecification();
 

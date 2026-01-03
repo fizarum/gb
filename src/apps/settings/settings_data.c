@@ -1,6 +1,6 @@
 #include "settings_data.h"
 
-#include <device.h>
+#include <device_manager.h>
 #include <devices/storage/storage_utils.h>
 #include <specifications/storage_data.h>
 #include <string.h>
@@ -49,7 +49,7 @@ static void ApplySetting(char* rawSetting) {
       SettingsData_SetVolume(value);
       break;
     case 3:
-      SettingsData_SetPowerSave(value);
+      SettingsData_SetPowerSave(value == 1);
       break;
     case 4:
       SettingsData_SetSleepIn(value);
@@ -61,21 +61,21 @@ static void ApplySetting(char* rawSetting) {
 }
 
 static void ParseDataString() {
-  // brightness
-  char* rawSetting = strtok(buff, " ");
-  ApplySetting(rawSetting);
-
-  // volume
-  rawSetting = strtok(NULL, " ");
-  ApplySetting(rawSetting);
-
-  // power save
-  rawSetting = strtok(NULL, " ");
-  ApplySetting(rawSetting);
-
-  // sleep in
-  rawSetting = strtok(NULL, " ");
-  ApplySetting(rawSetting);
+  static char _buff[16];
+  _u16 settingIndex = 0;
+  const char delimiter = ' ';
+  for (_u16 index = 0; index < strlen(buff); ++index) {
+    const char c = buff[index];
+    if (c == delimiter || c == 0) {
+      _buff[settingIndex] = 0;
+      ApplySetting(_buff);
+      settingIndex = 0;
+    } else {
+      _buff[settingIndex] = c;
+      ++settingIndex;
+    }
+  }
+  ApplySetting(_buff);
 }
 
 void SettingsData_Load() {
@@ -83,6 +83,8 @@ void SettingsData_Load() {
       (StorageDeviceExtension*)DeviceManager_GetExtension(TypeStorage);
   sprintf(optionsFilename, "%s/%s", storage->mountPoint, filename);
   SD_ReadFileToBuff(optionsFilename, buff, sizeof(buff));
+
+  printf("settings data: %s\n", buff);
 
   ParseDataString();
 }

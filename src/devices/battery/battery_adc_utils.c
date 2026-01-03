@@ -32,13 +32,13 @@ bool BatteryADCInit(const adc_unit_t unit, const adc_channel_t channel) {
 int BatteryADCRead(const adc_unit_t unit, const adc_channel_t channel,
                    const bool calibrated) {
   ESP_ERROR_CHECK(adc_oneshot_read(adcHandle, channel, adcRaw));
-  ESP_LOGI(TAG, "ADC%d Channel[%d] Raw Data: %d", initConfig.unit_id + 1,
-           channel, adcRaw[0]);
+  // ESP_LOGI(TAG, "ADC%d Channel[%d] Raw Data: %d", initConfig.unit_id + 1,
+  //          channel, adcRaw[0]);
 
   if (calibrated == true) {
     ESP_ERROR_CHECK(adc_cali_raw_to_voltage(caliHandle, adcRaw[0], voltage));
-    ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV",
-             initConfig.unit_id + 1, channel, voltage[0]);
+    // ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV",
+    //          initConfig.unit_id + 1, channel, voltage[0]);
   }
 
   return voltage[0];

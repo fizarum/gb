@@ -54,7 +54,7 @@ void PowerManager_SetPowerMode(PowerMode mode) {
 
     case SavePower:
       ESP_LOGI(TAG, "set save power mode");
-      setCPUFrequencyMhz(40);
+      setCPUFrequencyMhz(80);
       break;
 
     case Nap:

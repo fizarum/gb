@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <device.h>
+#include <specifications/battery_data.h>
 
 DeviceSpecification* BatterySpecification();
 
