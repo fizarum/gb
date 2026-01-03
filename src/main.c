@@ -1,7 +1,6 @@
 #include <apps_manager.h>
 #include <broadcast/broadcast_manager.h>
 #include <device_manager.h>
-#include <specifications/battery_data.h>
 #include <stddef.h>
 
 #include "apps/demo/demo_app.h"
@@ -9,6 +8,7 @@
 #include "apps/info/info_app.h"
 #include "apps/menu/menu_app.h"
 #include "apps/settings/settings_app.h"
+#include "apps/settings/settings_data.h"
 #include "devices/audio/audio.h"
 #include "devices/battery/battery.h"
 #include "devices/display/display.h"
@@ -63,6 +63,8 @@ void driverTask(void* arg);
 static _u16 RegisterDevice(DeviceManager* deviceManager,
                            DeviceSpecification* deviceSpecification);
 
+static void LoadAndApplySettings();
+
 static void IRAM_ATTR powerButtonHandler(void* args) {
   micros = esp_timer_get_time();
   if (micros - whenUpdatedPowerModeInMicros >
@@ -102,6 +104,7 @@ void sysTask(void* arg) {
           PowerManager_SetPowerMode(Nap);
         } else {
           PowerManager_ResetPowerMode();
+          LoadAndApplySettings();
         }
       }
     }
@@ -143,7 +146,7 @@ void appsTask(void* arg) {
   while (1) {
     BroadcastManager_Update();
 
-    if (xQueueReceive(inputDataQueue, &inputDataToReceive, _2) == pdPASS) {
+    if (xQueueReceive(inputDataQueue, &inputDataToReceive, _200) == pdPASS) {
       // handle menu button to close active app (except menu)
       if (IsButtonMenuReleased(&inputDataToReceive) == true) {
         AppsManagerStopActiveApp(appsManager);
@@ -164,6 +167,7 @@ void driverTask(void* arg) {
   _u16 batteryId = RegisterDevice(deviceManager, BatterySpecification());
   RegisterDevice(deviceManager, StorageSpecification());
   RegisterDevice(deviceManager, AudioSpecification());
+  LoadAndApplySettings();
 
   while (1) {
     DeviceManagerUpdate(deviceManager);
@@ -216,4 +220,29 @@ static _u16 RegisterDevice(DeviceManager* deviceManager,
     ESP_LOGW(DEV_TAG, "cannot add device: [%s]\n", name);
   }
   return addedDeviceId;
+}
+
+static void LoadAndApplySettings() {
+  // load system settings
+  SettingsData_Load();
+
+  // and apply them
+  DisplayDeviceExtension* displayExtension =
+      (DisplayDeviceExtension*)DeviceManager_GetExtension(TypeDisplay);
+  if (displayExtension != NULL) {
+    _u8 value = SettingsData_GetBrightness() * 10;
+    displayExtension->changeBrightness(value);
+  }
+
+  AudioDeviceExtension* audioExtension =
+      (AudioDeviceExtension*)DeviceManager_GetExtension(TypeAudio);
+  if (audioExtension != NULL) {
+    _u8 volume = SettingsData_GetVolume() * 10;
+    audioExtension->changeVolume(volume);
+  }
+
+  PowerMode powerMode = SettingsData_GetPowerSave() ? Normal : SavePower;
+  PowerManager_SetPowerMode(powerMode);
+
+  // TODO: complete for other settings
 }

@@ -29,7 +29,7 @@ inline static SwitchButton_t* GetSwitchButton(View_t* view) {
   return (SwitchButton_t*)View_GetCustomView(view);
 }
 
-View_t* SwitchButton_Create(_u8 on, Font_t* font,
+View_t* SwitchButton_Create(bool on, Font_t* font,
                             SwitchChangedCallback callback) {
   SwitchButton_t* button = (SwitchButton_t*)malloc(sizeof(SwitchButton_t));
 
@@ -59,7 +59,7 @@ void SwitchButton_Toggle(View_t* view) {
   View_SetUpdated(view);
 }
 
-void SwitchButton_SetIsOn(View_t* view, _u8 on) {
+void SwitchButton_SetIsOn(View_t* view, bool on) {
   SwitchButton_t* button = GetSwitchButton(view);
   button->isOn = on;
   if (button->callback != NULL) {

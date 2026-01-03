@@ -9,12 +9,12 @@ extern "C" {
 #include "../view.h"
 
 typedef struct SwitchButton_t SwitchButton_t;
-typedef void (*SwitchChangedCallback)(SwitchButton_t* button, _u8 on);
+typedef void (*SwitchChangedCallback)(SwitchButton_t* button, bool on);
 
-View_t* SwitchButton_Create(_u8 on, Font_t* font,
+View_t* SwitchButton_Create(bool on, Font_t* font,
                             SwitchChangedCallback callback);
 void SwitchButton_Toggle(View_t* button);
-void SwitchButton_SetIsOn(View_t* view, _u8 on);
+void SwitchButton_SetIsOn(View_t* view, bool on);
 bool SwitchBuitton_IsOn(const View_t* button);
 
 #ifdef __cplusplus

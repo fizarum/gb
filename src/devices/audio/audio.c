@@ -1,10 +1,10 @@
 #include "audio.h"
 
 #include <driver/i2s_std.h>
-#include <specifications/audio_data.h>
 
 #include "audio_state.h"
 #include "esp_log.h"
+#include "esp_task_wdt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
@@ -17,6 +17,8 @@
 #define AUDIO_LRCLK 8
 #define AUDIO_DOUT 17
 #define AUDIO_BCLK 18
+
+static float minimalAudioLevel = 0.2;
 
 static bool changeVolume(const _u8 volume);
 
@@ -42,6 +44,7 @@ static SystemSoundInfo systemSound = {
     .end = NULL,
     .length = 0,
 };
+
 static AudioState audioState;
 
 TaskHandle_t audioTaskHandler = NULL;
@@ -65,9 +68,9 @@ void playSystemSound(_u16 type) {
       break;
 
     case 2:
-      systemSound.start = (_u8*)o_start;
-      systemSound.end = (_u8*)o_end;
-      systemSound.length = o_end - o_start;
+      systemSound.start = (_u8*)sfx1_start;
+      systemSound.end = (_u8*)sfx1_end;
+      systemSound.length = sfx1_end - sfx1_start;
       break;
 
     default:
@@ -95,7 +98,7 @@ static bool onInit(void) {
       .gpio_cfg =
           {
               .mclk = I2S_GPIO_UNUSED,  // some codecs may require mclk signal,
-                                        // this example doesn't need it
+                                        // this implementaion doesn't need it
               .bclk = AUDIO_BCLK,
               .ws = AUDIO_LRCLK,
               .dout = AUDIO_DOUT,
@@ -119,16 +122,14 @@ static bool onInit(void) {
 }
 
 static bool onEnable(bool enable) {
-  esp_err_t result;
-
   if (enable) {
     // TODO: read volume value from settings
-    extension.volume = 2.0;
-
+    changeVolume(1);
     audioState = Enabled;
-    xTaskCreate(&processAudio, "processAudio", 2048, NULL, 12,
+    xTaskCreate(&processAudio, "processAudio", 4096, NULL, 12,
                 &audioTaskHandler);
   } else {
+    changeVolume(0);
     if (audioTaskHandler != NULL) {
       vTaskDelete(audioTaskHandler);
     }
@@ -154,7 +155,7 @@ static _u16 buffer[DATA_CHUNCK_SIZE * 2];
 
 static void processAudio(void* arg) {
   static size_t w_bytes = 0;
-  static uint32_t offset = 0;
+  static _u32 offset = 0;
   static _u32 chunks = 0;
   static _u16 chunkIndex = 0;
   static _u32 index = 0;
@@ -165,6 +166,11 @@ static void processAudio(void* arg) {
       if (systemSound.length % DATA_CHUNCK_SIZE != 0) {
         chunks += 1;
       }
+
+      if (extension.volume == 0.0) {
+        chunks = 0;
+      }
+
       i2s_channel_enable(channelHandler);
       for (index = 0; index < chunks; ++index) {
         for (chunkIndex = 0; chunkIndex < DATA_CHUNCK_SIZE; ++chunkIndex) {
@@ -173,9 +179,8 @@ static void processAudio(void* arg) {
           //     https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/i2s.html#std-tx-mode
           // buffer[i] = (beep1_start[offset] << 3) * (data.volume);
           buffer[chunkIndex] =
-              (*(systemSound.start + offset) << 3);  //* (data.volume);
+              (*(systemSound.start + offset) << 3) * (extension.volume);
         }
-
         if (i2s_channel_write(channelHandler, buffer, DATA_CHUNCK_SIZE * 2,
                               &w_bytes, 1000) != ESP_OK) {
           ESP_LOGE(specs.name, "can not process audio chunk\n");
@@ -190,7 +195,7 @@ static void processAudio(void* arg) {
       for (index = 0; index < DATA_CHUNCK_SIZE * 2; ++index) {
         buffer[index] = 0;
       }
-      vTaskDelay(pdMS_TO_TICKS(1));
+      vTaskDelay(pdMS_TO_TICKS(10));
     } else {
       vTaskDelay(pdMS_TO_TICKS(100));
     }
@@ -198,7 +203,12 @@ static void processAudio(void* arg) {
 }
 
 static bool changeVolume(const _u8 volume) {
-  // TODO: complete
-  ESP_LOGI(specs.name, "--> volume change: %d", volume);
+  if (volume == 0) {
+    extension.volume = 0.0;
+  } else {
+    extension.volume = minimalAudioLevel * volume;
+  }
+
+  ESP_LOGI(specs.name, "--> volume change: %.2f", extension.volume);
   return true;
 }

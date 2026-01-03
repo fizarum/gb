@@ -8,6 +8,7 @@
 
 #include "../../devices/joystick/joystick.h"
 #include "../../devices/storage/storage_utils.h"
+#include "../../system/power/power_managment.h"
 #include "../../ui/composer.h"
 #include "../../ui/views/box.h"
 #include "../../ui/views/label.h"
@@ -193,9 +194,12 @@ static inline View_t* CreateVolumeOptionsPicker() {
                              OnVolumeItemMap);
 }
 
-static void OnPowerSaveModeChanged(SwitchButton_t* button, _u8 on) {
+static void OnPowerSaveModeChanged(SwitchButton_t* button, bool on) {
+  PowerMode powerMode = on ? SavePower : Normal;
+  PowerManager_SetPowerMode(powerMode);
   SettingsData_SetPowerSave(on);
-  ESP_LOGI(specs.name, "[power save mode] changed to: %d !", on);
+  ESP_LOGI(specs.name, "[power save mode] changed to: %s !",
+           on ? "power save" : "normal");
 }
 
 static inline View_t* CreatePowerSaveSwitchButton() {
@@ -266,7 +270,7 @@ static void onAppStart() {
   // apply data to ui
   OptionPicker_SelectOption(brightnessPicker, SettingsData_GetBrightness());
   OptionPicker_SelectOption(volumePicker, SettingsData_GetVolume());
-  SwitchButton_SetIsOn(powerSaveSwitch, SettingsData_GetPowerSave());
+  SwitchButton_SetIsOn(powerSaveSwitch, SettingsData_GetPowerSave() == 1);
   OptionPicker_SelectOption(sleepInOptionPicker, SettingsData_GetSleepIn());
 }
 

@@ -60,7 +60,7 @@ static void handleKey(const void* keyData) {
 
   if (IsButtonLeftReleased(data)) {
     SelectPreviousApp();
-    playSystemSound(1);
+    playSystemSound(2);
   } else if (IsButtonRightReleased(data)) {
     SelectNextApp();
     playSystemSound(2);
