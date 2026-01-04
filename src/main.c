@@ -53,8 +53,6 @@ volatile int64_t micros = 0;
 volatile int64_t whenUpdatedPowerModeInMicros = 0;
 
 volatile bool powerUpPressed = false;
-// TODO: reuse PowerManager's power mode
-volatile bool sleeping = false;
 
 void sysTask(void* arg);
 void appsTask(void* arg);
@@ -72,7 +70,6 @@ static void IRAM_ATTR powerButtonHandler(void* args) {
   if (micros - whenUpdatedPowerModeInMicros >
       thresholdMicrosForPowerModeChange) {
     powerUpPressed = true;
-    sleeping = !sleeping;
     whenUpdatedPowerModeInMicros = micros;
   }
 }
@@ -100,12 +97,11 @@ void sysTask(void* arg) {
     if (powerUpPressed) {
       powerUpPressed = false;
 
-      ESP_LOGI(SYS_TAG, "should start sleeping: %d", sleeping);
-      if (sleeping) {
-        PowerManager_SetPowerMode(Nap, ByButton);
-      } else {
+      if (PowerManager_IsSleeping()) {
         PowerManager_ResetPowerMode(ByButton);
         LoadAndApplySettings();
+      } else {
+        PowerManager_SetPowerMode(Nap, ByButton);
       }
     }
     PowerManager_Update();
@@ -146,7 +142,7 @@ void appsTask(void* arg) {
 
   while (1) {
     BroadcastManager_Update();
-    if (PowerManager_GetPowerMode() > Nap) {
+    if (PowerManager_IsAwake()) {
       if (xQueueReceive(inputDataQueue, &inputDataToReceive, _200) == pdPASS) {
         // handle menu button to close active app (except menu)
         if (IsButtonMenuReleased(&inputDataToReceive) == true) {
@@ -204,7 +200,7 @@ void driverTask(void* arg) {
       BroadcastManager_SendEvent(event.value);
     }
 
-    if (PowerManager_GetPowerMode() > Nap) {
+    if (PowerManager_IsAwake()) {
       InputDeviceExtension* keyboardExtension =
           (InputDeviceExtension*)DeviceManager_GetExtension(TypeInput);
 
@@ -236,11 +232,7 @@ static _u16 RegisterDevice(DeviceManager* deviceManager,
 
 static void onPowerModeChangedCallback(const PowerMode mode,
                                        const ModeChangedBy changedBy) {
-  ESP_LOGI(SYS_TAG, "on power mode change: %d", mode);
-  // only if mode changed by timer to nap or sleep, update the flag
-  if (mode <= Nap && changedBy == ByTimer) {
-    sleeping = true;
-  }
+  ESP_LOGI(SYS_TAG, "on power mode change: %d, reason: %d", mode, changedBy);
 }
 
 static void LoadAndApplySettings() {

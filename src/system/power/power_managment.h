@@ -33,6 +33,8 @@ void PowerManager_ResetSleepTimer();
 void PowerManager_SetPowerMode(const PowerMode mode,
                                const ModeChangedBy changedBy);
 PowerMode PowerManager_GetPowerMode();
+bool PowerManager_IsSleeping();
+bool PowerManager_IsAwake();
 void PowerManager_ResetPowerMode(const ModeChangedBy changedBy);
 
 /**
