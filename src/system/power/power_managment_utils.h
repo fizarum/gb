@@ -6,7 +6,7 @@
 #include "esp_private/esp_clk.h"
 #include "soc/rtc.h"
 
-static const char* TAG = "power";
+static const char* TAG = "Power";
 
 void esp_timer_impl_update_apb_freq(
     uint32_t apb_ticks_per_us);  // private in IDF

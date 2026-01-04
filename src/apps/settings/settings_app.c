@@ -100,24 +100,20 @@ static Array_t* volumeOptions;
 static void OnSleepTimeoutChanged(OptionPicker_t* picker, void* option) {
   const _u8 value = (_u8)option;
   SettingsData_SetSleepIn(value);
-  ESP_LOGI(specs.name, "[sleep timeout] option changed to: %d !", value);
-}
 
-static bool OnSleepInDelayChanged(void* option, char* buff) {
-  _u8 value = (_u8)option;
-  snprintf(buff, 7, "%d", value);
-  return true;
+  PowerManager_SetSleepTimer(value * 60 * 1000);
+  ESP_LOGI(specs.name, "[sleep timeout] option changed to: %d !", value);
 }
 
 static inline View_t* CreateSleepOptionsPicker() {
   sleepOptions = ArrayCreate(4);
   ArrayAdd(sleepOptions, 1);
-  ArrayAdd(sleepOptions, 2);
   ArrayAdd(sleepOptions, 5);
   ArrayAdd(sleepOptions, 10);
+  ArrayAdd(sleepOptions, 30);
 
   return OptionPicker_Create(sleepOptions, GFX_GetFont(), OnSleepTimeoutChanged,
-                             OnSleepInDelayChanged);
+                             NULL);
 }
 
 static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
@@ -134,12 +130,6 @@ static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
   SettingsData_SetBrightness(value);
 }
 
-static bool OnBrightnessItemMap(void* option, char* buff) {
-  _u8 value = (_u8)option;
-  snprintf(buff, 7, "%d", value);
-  return true;
-}
-
 static inline View_t* CreateBrightnessOptionsPicker() {
   brightnessOptions = ArrayCreate(10);
   ArrayAdd(brightnessOptions, 1);
@@ -154,7 +144,7 @@ static inline View_t* CreateBrightnessOptionsPicker() {
   ArrayAdd(brightnessOptions, 10);
 
   return OptionPicker_Create(brightnessOptions, GFX_GetFont(),
-                             OnBrightnessChanged, OnBrightnessItemMap);
+                             OnBrightnessChanged, NULL);
 }
 
 static void OnVolumeChanged(OptionPicker_t* picker, void* option) {
@@ -196,7 +186,7 @@ static inline View_t* CreateVolumeOptionsPicker() {
 
 static void OnPowerSaveModeChanged(SwitchButton_t* button, bool on) {
   PowerMode powerMode = on ? SavePower : Normal;
-  PowerManager_SetPowerMode(powerMode);
+  PowerManager_SetPowerMode(powerMode, BySystem);
   SettingsData_SetPowerSave(on);
   ESP_LOGI(specs.name, "[power save mode] changed to: %s !",
            on ? "power save" : "normal");

@@ -175,7 +175,7 @@ void Scene_MoveSpriteTo(Scene* scene, SpriteId id, _u16 x, _u16 y) {
 void Scene_MoveGameObjectBy(Scene* scene, ObjectId id, _i8 x, _i8 y) {
   GameObject* object = (GameObject*)id;
   SpriteId sid = GameObject_GetSpriteId(object);
-
+  // TODO: recheck why this id vary each time for same real object on scene
   ObjectId obstacleId =
       CollisionChecker_GetObstacle(scene->objectsHolder, id, x, y);
   if (obstacleId == OBJECT_ID_NA) {

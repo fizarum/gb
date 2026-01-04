@@ -6,6 +6,7 @@
 #include "../../devices/joystick/joystick.h"
 #include "../../gsdk/game.h"
 #include "../../gsdk/screen/screen_config.h"
+#include "../../system/power/power_managment.h"
 #include "../apps_utils.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -38,6 +39,8 @@ static void onAppStart() {
   ESP_LOGI(specs.name, "on app start...");
   // TODO: make this part as external option
   GFX_SetApplicationColorMode(RGB565);
+
+  PowerManager_AcquirePowerLock();
 
   ScreenConfig_Set(320, 240, 2);
   game = Game_Create();
@@ -72,6 +75,7 @@ static void onAppStop() {
   // TODO: make this call as bart of any application
   GFX_ResetApplicationColorMode();
   Game_Destroy(game);
+  PowerManager_ReleasePowerLock();
 }
 
 static void onAppUpdate(void) {
