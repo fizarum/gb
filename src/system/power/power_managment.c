@@ -159,6 +159,9 @@ void PowerManager_SetPowerMode(const PowerMode mode,
 
 PowerMode PowerManager_GetPowerMode() { return powerMode; }
 
+bool PowerManager_IsSleeping() { return powerMode <= Nap; }
+bool PowerManager_IsAwake() { return powerMode > Nap; }
+
 void PowerManager_ResetPowerMode(const ModeChangedBy changedBy) {
   ESP_LOGI(TAG, "exit power save mode!");
   PowerManager_SetPowerMode(Normal, changedBy);
