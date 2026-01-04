@@ -49,11 +49,11 @@ TickType_t _5 = pdMS_TO_TICKS(5);
 TickType_t _2 = pdMS_TO_TICKS(2);
 const _u8 inputDataSize = 2;
 
-volatile bool newPowerModeApplied = true;
 volatile int64_t micros = 0;
 volatile int64_t whenUpdatedPowerModeInMicros = 0;
 
 volatile bool powerUpPressed = false;
+// TODO: reuse PowerManager's power mode
 volatile bool sleeping = false;
 
 void sysTask(void* arg);
@@ -62,6 +62,8 @@ void driverTask(void* arg);
 
 static _u16 RegisterDevice(DeviceManager* deviceManager,
                            DeviceSpecification* deviceSpecification);
+static void onPowerModeChangedCallback(const PowerMode mode,
+                                       const ModeChangedBy changedBy);
 
 static void LoadAndApplySettings();
 
@@ -70,7 +72,7 @@ static void IRAM_ATTR powerButtonHandler(void* args) {
   if (micros - whenUpdatedPowerModeInMicros >
       thresholdMicrosForPowerModeChange) {
     powerUpPressed = true;
-    newPowerModeApplied = false;
+    sleeping = !sleeping;
     whenUpdatedPowerModeInMicros = micros;
   }
 }
@@ -90,25 +92,24 @@ void app_main() {
 
 void sysTask(void* arg) {
   GPIO_SetInterrupt(WAKEUP_PIN, GPIO_INTR_POSEDGE, powerButtonHandler);
-  PowerManager_Init(WAKEUP_PIN);
+
+  _u32 millis = SettingsData_GetSleepIn() * 60 * 1000;
+  PowerManager_Init(WAKEUP_PIN, millis, &onPowerModeChangedCallback);
 
   while (1) {
-    if (!newPowerModeApplied) {
-      if (powerUpPressed) {
-        powerUpPressed = false;
-        sleeping = !sleeping;
+    if (powerUpPressed) {
+      powerUpPressed = false;
 
-        ESP_LOGI(SYS_TAG, "should start sleeping: %d", sleeping);
-        newPowerModeApplied = true;
-        if (sleeping) {
-          PowerManager_SetPowerMode(Nap);
-        } else {
-          PowerManager_ResetPowerMode();
-          LoadAndApplySettings();
-        }
+      ESP_LOGI(SYS_TAG, "should start sleeping: %d", sleeping);
+      if (sleeping) {
+        PowerManager_SetPowerMode(Nap, ByButton);
+      } else {
+        PowerManager_ResetPowerMode(ByButton);
+        LoadAndApplySettings();
       }
     }
-    vTaskDelay(_10);
+    PowerManager_Update();
+    vTaskDelay(_100);
   }
 }
 
@@ -145,26 +146,33 @@ void appsTask(void* arg) {
 
   while (1) {
     BroadcastManager_Update();
-
-    if (xQueueReceive(inputDataQueue, &inputDataToReceive, _200) == pdPASS) {
-      // handle menu button to close active app (except menu)
-      if (IsButtonMenuReleased(&inputDataToReceive) == true) {
-        AppsManagerStopActiveApp(appsManager);
-      } else {
-        AppsManagerHandleInput(appsManager, &inputDataToReceive);
+    if (PowerManager_GetPowerMode() > Nap) {
+      if (xQueueReceive(inputDataQueue, &inputDataToReceive, _200) == pdPASS) {
+        // handle menu button to close active app (except menu)
+        if (IsButtonMenuReleased(&inputDataToReceive) == true) {
+          AppsManagerStopActiveApp(appsManager);
+        } else {
+          AppsManagerHandleInput(appsManager, &inputDataToReceive);
+        }
+        // TODO: add this filtering as internal logic of input device
+        if (inputDataToReceive.keymap & 0xffdf) {
+          PowerManager_ResetSleepTimer();
+        }
       }
+      AppsManagerUpdate(appsManager);
+      vTaskDelay(_5);
+    } else {
+      vTaskDelay(_200);
     }
-    AppsManagerUpdate(appsManager);
-    vTaskDelay(_5);
   }
 }
 
 void driverTask(void* arg) {
   deviceManager = DeviceManagerGetInstance();
 
-  _u16 joystickId = RegisterDevice(deviceManager, JoystickSpecification());
+  RegisterDevice(deviceManager, JoystickSpecification());
   RegisterDevice(deviceManager, DislplaySpecification());
-  _u16 batteryId = RegisterDevice(deviceManager, BatterySpecification());
+  RegisterDevice(deviceManager, BatterySpecification());
   RegisterDevice(deviceManager, StorageSpecification());
   RegisterDevice(deviceManager, AudioSpecification());
   LoadAndApplySettings();
@@ -172,26 +180,18 @@ void driverTask(void* arg) {
   while (1) {
     DeviceManagerUpdate(deviceManager);
 
-    Device* device = DeviceManagerGet(deviceManager, joystickId);
-    const InputDeviceExtension* data =
-        (InputDeviceExtension*)DeviceGetExtension(device);
+    // battery broadcast example
+    BatteryDeviceExtension* batteryExtension =
+        (BatteryDeviceExtension*)DeviceManager_GetExtension(TypePower);
 
-    if (IsAnyButtonPressed(data) == true) {
-      xQueueSend(inputDataQueue, data, _2);
-    }
-
-    Device* batteryDevice = DeviceManagerGet(deviceManager, batteryId);
-    BatteryDeviceExtension* extension =
-        (BatteryDeviceExtension*)DeviceGetExtension(batteryDevice);
-
-    if (extension->charginStatusChanged == true) {
-      extension->charginStatusChanged = false;
+    if (batteryExtension->charginStatusChanged == true) {
+      batteryExtension->charginStatusChanged = false;
 
       BroadcastEvent_t event = {
-          .payload = extension->chargeLevelPercents,
+          .payload = batteryExtension->chargeLevelPercents,
       };
 
-      if (extension->charging) {
+      if (batteryExtension->charging) {
         event.type = ChargingOn;
       } else {
         event.type = ChargingOff;
@@ -200,10 +200,22 @@ void driverTask(void* arg) {
       ESP_LOGW(DEV_TAG, "charging status changed, sending broadcast event: %lu",
                event.value);
 
+      // TODO: move broadcast to a separate function
       BroadcastManager_SendEvent(event.value);
     }
 
-    vTaskDelay(_5);
+    if (PowerManager_GetPowerMode() > Nap) {
+      InputDeviceExtension* keyboardExtension =
+          (InputDeviceExtension*)DeviceManager_GetExtension(TypeInput);
+
+      if (IsAnyButtonPressed(keyboardExtension) == true) {
+        xQueueSend(inputDataQueue, keyboardExtension, _2);
+      }
+
+      vTaskDelay(_5);
+    } else {
+      vTaskDelay(_200);
+    }
   }
 }
 
@@ -220,6 +232,15 @@ static _u16 RegisterDevice(DeviceManager* deviceManager,
     ESP_LOGW(DEV_TAG, "cannot add device: [%s]\n", name);
   }
   return addedDeviceId;
+}
+
+static void onPowerModeChangedCallback(const PowerMode mode,
+                                       const ModeChangedBy changedBy) {
+  ESP_LOGI(SYS_TAG, "on power mode change: %d", mode);
+  // only if mode changed by timer to nap or sleep, update the flag
+  if (mode <= Nap && changedBy == ByTimer) {
+    sleeping = true;
+  }
 }
 
 static void LoadAndApplySettings() {
@@ -241,8 +262,10 @@ static void LoadAndApplySettings() {
     audioExtension->changeVolume(volume);
   }
 
-  PowerMode powerMode = SettingsData_GetPowerSave() ? Normal : SavePower;
-  PowerManager_SetPowerMode(powerMode);
+  PowerMode powerMode = SettingsData_GetPowerSave() == 0 ? Normal : SavePower;
+  PowerManager_SetPowerMode(powerMode, BySystem);
 
+  _u32 millis = SettingsData_GetSleepIn() * 60 * 1000;
+  PowerManager_SetSleepTimer(millis);
   // TODO: complete for other settings
 }

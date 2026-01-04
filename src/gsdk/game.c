@@ -59,6 +59,7 @@ void Game_Destroy(Game* game) {
   if (game == NULL) return;
 
   state = STOPPED;
+  printf("game state: STOPPED\n");
 
   Scene_Destroy(scene);
   SpritesHolder_Destroy(game->spritesHolder);

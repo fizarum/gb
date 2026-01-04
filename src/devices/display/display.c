@@ -89,12 +89,15 @@ QueueHandle_t displayUpdatedQueue;
 UpdateTransaction_t updateTransaction;
 
 spi_device_handle_t spiHandle;
+// TODO: reuse DisplayDeviceExtension's brightness
 static _u8 brightness = 30;
 
 void drawingTask(void* arg);
 
 static inline void canvasUpdated() {
-  xQueueSend(displayUpdatedQueue, GFX_GetCanvas(), 0);
+  if (DeviceIsEnabled(specs.device)) {
+    xQueueSend(displayUpdatedQueue, GFX_GetCanvas(), 0);
+  }
 }
 
 static bool onInit(void) {
@@ -126,7 +129,9 @@ static bool onInit(void) {
   GFX_Init(extension.width, extension.height, Monochrome,
            // RGB565,
            &canvasUpdated);
-
+  xTaskCreate(&drawingTask, "drawingTask", 2048, NULL, 12, &displayTaskHandle);
+  GFX_SetFont(&font);
+  GFX_SetTheme(&theme);
   return true;
 }
 
@@ -139,15 +144,8 @@ static bool onEnable(bool enable) {
 
   if (enable == true) {
     dev.lighten(brightness);
-    xTaskCreate(&drawingTask, "drawingTask", 2048, NULL, 12,
-                &displayTaskHandle);
-    GFX_SetFont(&font);
-    GFX_SetTheme(&theme);
   } else {
     dev.lighten(0);
-    if (displayTaskHandle != NULL) {
-      vTaskDelete(displayTaskHandle);
-    }
   }
 
   return true;
