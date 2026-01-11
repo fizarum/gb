@@ -90,7 +90,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
       break;
     }
     case RedrawPartial: {
-      GFX_DrawFilledRect(40, 120, 240, 130, GFX_GetTheme()->backgroundColor);
+      GFX_DrawFilledRect(26, 120, 294, 150, GFX_GetTheme()->backgroundColor);
 
       GFX_DrawString(appName, textStart, 120, GFX_GetFont());
 
@@ -205,16 +205,16 @@ void DrawScreen() {
   // period = esp_timer_get_time() - start;
   // ESP_LOGI(specs.name, "elapsed time: %lld uSeconds", period);
 
+  _u8 lineWidth = 2;
+  _u16 color = GFX_GetTheme()->primaryColor;
+
   // left arrow
-  GFX_DrawFilledRect(15, 110, 17, 130, GFX_GetTheme()->primaryColor);
-  GFX_DrawFilledRect(23, 100, 25, 140, GFX_GetTheme()->primaryColor);
+  GFX_DrawLine(15, 110, 15, 130, lineWidth, color);
+  GFX_DrawLine(23, 100, 23, 140, lineWidth, color);
 
   // right arrow
-  GFX_DrawFilledRect(304, 110, 306, 130, GFX_GetTheme()->primaryColor);
-  GFX_DrawFilledRect(296, 100, 298, 140, GFX_GetTheme()->primaryColor);
-
-  // bottom status line
-  // GFX_DrawFilledRect(20, 220, 300, 222, GFX_GetTheme()->primaryColor);
+  GFX_DrawLine(296, 100, 296, 140, lineWidth, color);
+  GFX_DrawLine(304, 110, 304, 130, lineWidth, color);
 
   // nav icon
   DrawTextWithIcon("move", leftRightNavIcon, 20, 220);

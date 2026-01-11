@@ -32,6 +32,14 @@ static ColorMode applicationColorMode;
 static _u16* canvas;
 
 void SystemPaletteInit();
+static void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
+                          const _u8 lineWidth, const _u16 color);
+
+static void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
+                          const _u8 lineWidth, const _u16 color);
+
+static void GFX_DrawFreeLine(_u16 x0, _u16 y0, _u16 x1, _u16 y1,
+                             const _u8 lineWidth, const _u16 color);
 
 static inline _u16 normalizePrimaryColor(_u16 color) {
   // if we're in monochrome color mode - only foreground or background color are
@@ -265,8 +273,21 @@ void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,
   GFX_DrawVLine(right, top, bottom - top + 1, lineWidth, color);
 }
 
-void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
-                   const _u8 lineWidth, const _u16 color) {
+void GFX_DrawLine(const _u16 x0, const _u16 y0, const _u16 x1, const _u16 y1,
+                  const _u8 lineWidth, const _u16 color) {
+  if (x0 == x1) {
+    _u16 length = abs(y1 - y0);
+    GFX_DrawVLine(x0, y0, length, lineWidth, color);
+  } else if (y0 == y1) {
+    _u16 length = abs(x1 - x0);
+    GFX_DrawHLine(x0, y0, length, lineWidth, color);
+  } else {
+    GFX_DrawFreeLine(x0, y0, x1, y1, lineWidth, color);
+  }
+}
+
+static void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
+                          const _u8 lineWidth, const _u16 color) {
   _u16 normalizedLength = length;
   if (length + left >= canvasWidth) {
     normalizedLength = canvasWidth - left - 1;
@@ -287,8 +308,8 @@ void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
   }
 }
 
-void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
-                   const _u8 lineWidth, const _u16 color) {
+static void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
+                          const _u8 lineWidth, const _u16 color) {
   _u16 bottom = top + length;
   if (bottom >= canvasHeight) {
     bottom = canvasHeight - 1;
@@ -296,6 +317,38 @@ void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
   for (_u16 index = top; index <= bottom; index++) {
     // we're using drawing horizontal line because of lineWidth
     GFX_DrawHLine(left, index, lineWidth, 1, color);
+  }
+}
+
+// used Bresenham's Line Algorithm
+static void GFX_DrawFreeLine(_u16 x0, _u16 y0, _u16 x1, _u16 y1,
+                             const _u8 lineWidth, const _u16 color) {
+  int dx = abs(x1 - x0);
+  int dy = abs(y1 - y0);
+
+  _i8 stepX = x0 < x1 ? 1 : -1;
+  _i8 stepY = y0 < y1 ? 1 : -1;
+
+  int err = (dx > dy ? dx : -dy) / 2, e2;
+
+  for (;;) {
+    if (lineWidth == 1) {
+      GFX_DrawPixel(x0, y0, color);
+    } else {
+      GFX_DrawFilledRect(x0, y0, x0 + lineWidth, y0 + lineWidth, color);
+    }
+
+    if (x0 == x1 && y0 == y1) break;
+    e2 = err;
+
+    if (e2 > -dx) {
+      err -= dy;
+      x0 += stepX;
+    }
+    if (e2 < dy) {
+      err += dx;
+      y0 += stepY;
+    }
   }
 }
 

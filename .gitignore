@@ -4,3 +4,5 @@ build
 *.code-workspace
 sdkconfig
 sdkconfig.*
+src/res/sfx/*.ogg
+src/res/sfx/*.wav
