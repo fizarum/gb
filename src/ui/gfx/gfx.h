@@ -81,11 +81,8 @@ void GFX_DrawFilledRect(const _u16 left, const _u16 top, const _u16 right,
 void GFX_DrawRect(const _u16 left, const _u16 top, const _u16 right,
                   const _u16 bottom, const _u8 lineWidth, const _u16 color);
 
-void GFX_DrawHLine(const _u16 left, const _u16 top, const _u16 length,
-                   const _u8 lineWidth, const _u16 color);
-
-void GFX_DrawVLine(const _u16 left, const _u16 top, const _u16 length,
-                   const _u8 lineWidth, const _u16 color);
+void GFX_DrawLine(const _u16 x0, const _u16 y0, const _u16 x1, const _u16 y1,
+                  const _u8 lineWidth, const _u16 color);
 
 _u16 GFX_GetColor(const _u8 colorIndex);
 

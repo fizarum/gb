@@ -18,7 +18,7 @@ extern "C" {
  * @return true
  * @return false
  */
-static bool GPIO_Config(const int8_t pin, const gpio_mode_t mode) {
+static inline bool GPIO_Config(const int8_t pin, const gpio_mode_t mode) {
   if (pin < 0) {
     return false;
   }
@@ -30,25 +30,27 @@ static bool GPIO_Config(const int8_t pin, const gpio_mode_t mode) {
   return gpio_set_direction(pin, mode) == ESP_OK;
 }
 
-static bool GPIO_Set(const int8_t pin, const uint8_t value) {
+static inline bool GPIO_Set(const int8_t pin, const uint8_t value) {
   return gpio_set_level(pin, value) == ESP_OK;
 }
 
-static void GPIO_EnableInterrupt(const _i8 pin, gpio_isr_t isr_handler,
-                                 void* args) {
+static inline uint8_t GPIO_Get(const int8_t pin) { return gpio_get_level(pin); }
+
+static inline void GPIO_EnableInterrupt(const _i8 pin, gpio_isr_t isr_handler,
+                                        void* args) {
   // Attach the ISR to the GPIO interrupt
   gpio_isr_handler_add(pin, isr_handler, NULL);
   // Enable the Interrupt
   gpio_intr_enable(pin);
 }
 
-static void GPIO_DisableInterrupt(const _i8 pin) {
+static inline void GPIO_DisableInterrupt(const _i8 pin) {
   gpio_intr_disable(pin);
   gpio_isr_handler_remove(pin);
 }
 
-static void GPIO_SetInterrupt(const _i8 pin, gpio_int_type_t intr_type,
-                              gpio_isr_t isr_handler) {
+static inline void GPIO_SetInterrupt(const _i8 pin, gpio_int_type_t intr_type,
+                                     gpio_isr_t isr_handler) {
   // Reset the pin
   gpio_reset_pin(pin);
 
