@@ -42,7 +42,7 @@ static const _u8 lineSidePadding = 20;
 static void Toolbar_Draw(View_t* view, const _u16 left, const _u16 top,
                          const _u16 right, const _u16 bottom) {
   Toolbar_t* toolbar = (Toolbar_t*)View_GetCustomView(view);
-  Font_t* activeFont = GFX_GetFont();
+  Font_t* activeFont = toolbar->font;
   _u16 yPosForNextView = top + titleTopPadding;
 
   GFX_DrawString(toolbar->title, left + titleStartPadding, yPosForNextView,

@@ -51,10 +51,12 @@ static _u16 freeRamInKb = 0;
 static _u32 sdSizeInMB = 0;
 static _u32 sdUsedSizeInMB = 0;
 
-static void AddLabel(const _u16 rootBoxId, const char* text);
+static void AddLabel(const _u16 rootBoxId, const char* text, Font_t* font);
 
 static void onAppStart(void) {
   Composer_Init(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
+
+  Font_t* font = GFX_GetTheme()->fontNormal;
 
   _u16 rootId = Composer_GetRootId();
   if (rootId == TREE_INDEX_NONE) {
@@ -72,7 +74,7 @@ static void onAppStart(void) {
   rtc_clk_cpu_freq_get_config(&conf);
 
   // toolbar
-  View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
+  View_t* toolbar = Toolbar_Create(specs.name, font);
   Composer_AddView(rootId, toolbar);
 
   // main box
@@ -84,19 +86,19 @@ static void onAppStart(void) {
 
   // model part
   sprintf(modelStr, "model: %s", Chip_GetModel());
-  AddLabel(mainBoxId, modelStr);
+  AddLabel(mainBoxId, modelStr, font);
 
   // revision
   sprintf(revisionStr, "rev: %u", chipInfo.revision);
-  AddLabel(mainBoxId, revisionStr);
+  AddLabel(mainBoxId, revisionStr, font);
 
   // cores
   sprintf(coresStr, "cores: %d", chipInfo.cores);
-  AddLabel(mainBoxId, coresStr);
+  AddLabel(mainBoxId, coresStr, font);
 
   // cpu
   sprintf(cpuStr, "speed: %u Mhz", (_u16)conf.freq_mhz);
-  AddLabel(mainBoxId, cpuStr);
+  AddLabel(mainBoxId, cpuStr, font);
 
   uint32_t flashChipSize;
   esp_flash_get_size(NULL, &flashChipSize);
@@ -104,29 +106,29 @@ static void onAppStart(void) {
 
   // flash
   sprintf(flashStr, "flash: %u MB", flashSizeInMb);
-  AddLabel(mainBoxId, flashStr);
+  AddLabel(mainBoxId, flashStr, font);
 
   freeRamInKb = esp_get_free_heap_size() / kbSize;
   // ram
   sprintf(freeRAMStr, "RAM: %u KB", freeRamInKb);
-  AddLabel(mainBoxId, freeRAMStr);
+  AddLabel(mainBoxId, freeRAMStr, font);
 
   // sd
   sprintf(sdSizeStr, "sd size: %lu MB", sdSizeInMB);
-  AddLabel(mainBoxId, sdSizeStr);
+  AddLabel(mainBoxId, sdSizeStr, font);
 
   sprintf(sdUsedStr, "sd used: %lu MB", sdUsedSizeInMB);
-  AddLabel(mainBoxId, sdUsedStr);
+  AddLabel(mainBoxId, sdUsedStr, font);
 
   // battery
   sprintf(batteryStr, "battery: %d %%", battery->chargeLevelPercents);
-  AddLabel(mainBoxId, batteryStr);
+  AddLabel(mainBoxId, batteryStr, font);
 
   sprintf(chargingStr, "charging: %s", battery->charging ? "yes" : "no");
-  AddLabel(mainBoxId, chargingStr);
+  AddLabel(mainBoxId, chargingStr, font);
 
   sprintf(osStr, "OS ver: %s", osVersion);
-  AddLabel(mainBoxId, osStr);
+  AddLabel(mainBoxId, osStr, font);
 
   Composer_Recompose();
 }
@@ -152,7 +154,7 @@ AppSpecification_t* InfoAppSpecification() {
   return &specs;
 }
 
-static void AddLabel(const _u16 rootBoxId, const char* text) {
-  View_t* label = Label_Create(text, GFX_GetFont());
+static void AddLabel(const _u16 rootBoxId, const char* text, Font_t* font) {
+  View_t* label = Label_Create(text, font);
   Composer_AddView(rootBoxId, label);
 }

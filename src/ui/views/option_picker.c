@@ -81,7 +81,7 @@ static void Draw(View_t* view, const _u16 left, const _u16 top,
     snprintf(_buff, 7, "%d", value);
   }
   _u8 textLength = strlen(_buff);
-  _u8 symbolWidth = GFX_FontGetWidth();
+  _u8 symbolWidth = Font_GetWidth(picker->font);
 
   // size can change based on text of option so its length is text length +
   // 4*size of symbols for '<', 'space',  'space' and '>'
@@ -97,15 +97,15 @@ static void Draw(View_t* view, const _u16 left, const _u16 top,
 
   // draw left arrow
   _u16 leftPos = left;
-  GFX_DrawChar('<', leftPos, top, GFX_GetFont());
+  GFX_DrawChar('<', leftPos, top, picker->font);
 
   // middle text
   leftPos += symbolWidth * 2;
-  GFX_DrawString(_buff, leftPos, top, GFX_GetFont());
+  GFX_DrawString(_buff, leftPos, top, picker->font);
 
   // draw right arrow
   leftPos += symbolWidth * textLength + symbolWidth;
-  GFX_DrawChar('>', leftPos, top, GFX_GetFont());
+  GFX_DrawChar('>', leftPos, top, picker->font);
 }
 
 static void HandleInput(View_t* view, InputEvent* event) {

@@ -10,6 +10,7 @@
 
 #include "../../devices/joystick/joystick.h"
 #include "../../devices/storage/storage_utils.h"
+#include "../../ui/composer.h"
 #include "../apps_utils.h"
 #include "esp_log.h"
 #include "scroll_bar.h"
@@ -119,7 +120,11 @@ static void onAppStart(void) {
 
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
-    App_DrawBackgroundAndTitle(specs.name, GFX_GetTheme()->backgroundColor);
+    GFX_FillScreen(GFX_GetTheme()->backgroundColor);
+    // TODO: rework to compose version
+    Font_t* font = GFX_GetTheme()->fontNormal;
+    GFX_DrawString(specs.name, TITLE_X_POS, TITLE_Y_POS, font);
+    GFX_DrawLine(20, 20, 300, 20, 2, GFX_GetFontColor());
   }
   vPosOfText = startVPadding;
   _u16 vPosOfTextBox = vPosOfText + vSpacing;
@@ -139,7 +144,8 @@ static void onAppRedraw(RedrawType_t redrawType) {
     GFX_DrawFilledRect(startHPadding, vPosOfText, GFX_GetCanwasWidth() - 1,
                        vPosOfTextBox, GFX_GetTheme()->backgroundColor);
     if (fileItem->initialized == true) {
-      GFX_DrawString(fileItem->name, startHPadding, vPosOfText, GFX_GetFont());
+      GFX_DrawString(fileItem->name, startHPadding, vPosOfText,
+                     GFX_GetTheme()->fontNormal);
     }
 
     vPosOfText += vSpacing;

@@ -39,7 +39,7 @@ View_t* Label_Create(char* text, Font_t* font) {
 static void Label_Draw(View_t* view, const uint16_t left, const uint16_t top,
                        const uint16_t right, const uint16_t bottom) {
   Label_t* label = (Label_t*)View_GetCustomView(view);
-  Font_t* font = GFX_GetFont();
+  Font_t* font = label->font;
   GFX_DrawString(label->text, left, top + font->spacing, font);
 }
 
