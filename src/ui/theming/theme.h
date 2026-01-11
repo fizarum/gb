@@ -7,12 +7,18 @@ extern "C" {
 
 #include <types.h>
 
+#include "../typography/font.h"
+
 typedef struct Theme {
   _u16 primaryColor;
   _u16 secondaryColor;
   _u16 tertiaryColor;
 
   _u16 backgroundColor;
+
+  Font_t* fontLarge;
+  Font_t* fontNormal;
+  Font_t* fontSmall;
 
 } Theme;
 

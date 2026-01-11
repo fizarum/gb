@@ -61,10 +61,24 @@ static ILI9341_t dev = {
     .lighten = &lighten,
 };
 
-Font_t font = {
+Font_t fontSmall = {
+    .height = 5,
+    .width = 8,
+    .scale = 1,
+    .spacing = 2,
+};
+
+Font_t fontNormal = {
     .height = 5,
     .width = 8,
     .scale = 2,
+    .spacing = 2,
+};
+
+Font_t fontLarge = {
+    .height = 5,
+    .width = 8,
+    .scale = 3,
     .spacing = 2,
 };
 
@@ -74,6 +88,9 @@ Theme theme = {
     .secondaryColor = COLOR_BLACK,
     .tertiaryColor = COLOR_BLACK,
     .backgroundColor = COLOR_BLACK,
+    .fontSmall = &fontSmall,
+    .fontNormal = &fontNormal,
+    .fontLarge = &fontLarge,
 };
 
 typedef struct UpdateTransaction_t {
@@ -130,7 +147,6 @@ static bool onInit(void) {
            // RGB565,
            &canvasUpdated);
   xTaskCreate(&drawingTask, "drawingTask", 2048, NULL, 12, &displayTaskHandle);
-  GFX_SetFont(&font);
   GFX_SetTheme(&theme);
   return true;
 }

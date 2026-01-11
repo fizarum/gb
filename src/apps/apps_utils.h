@@ -29,14 +29,6 @@ static const char* const osVersion = "0.0.1";
 #define FOCUS_SMALL_PADDING 2
 #define FOCUS_MIDDLE_PADDING 4
 
-static inline void App_DrawBackgroundAndTitle(const char* title,
-                                              const _u16 backgroundColor) {
-  GFX_FillScreen(backgroundColor);
-  GFX_DrawString(title, TITLE_X_POS, TITLE_Y_POS, GFX_GetFont());
-  // top status line
-  GFX_DrawFilledRect(20, 20, 300, 22, GFX_GetFontColor());
-}
-
 static inline void App_DrawProgress(const _u16 left, const _u16 top,
                                     const _u16 right, const _u16 bottom,
                                     const _u8 progress) {
@@ -87,38 +79,6 @@ static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
                      GFX_GetFontColor());
 }
 
-static inline void App_DrawOnOffButton(const _u16 left, const _u16 top,
-                                       bool isOn) {
-  const char* text = isOn == true ? "ON" : "OFF";
-  if (isOn) {
-    GFX_DrawFilledRect(left, top, left + ON_OFF_INDICATOR_SIZE,
-                       top + ON_OFF_INDICATOR_SIZE, GFX_GetFontColor());
-  } else {
-    GFX_DrawRect(left, top, left + ON_OFF_INDICATOR_SIZE,
-                 top + ON_OFF_INDICATOR_SIZE, 1, GFX_GetFontColor());
-  }
-
-  GFX_DrawString(text, left + 20, top, GFX_GetFont());
-}
-
-static inline void App_DrawHorizontalPicker(const _u16 left, const _u16 top,
-                                            const char* text, _u8 textLength) {
-  _u16 textLengthInPx = GFX_FontGetWidth() * textLength;
-  _u8 spacing = GFX_FontGetWidth();
-
-  // draw left arrow
-  _u16 leftPos = left;
-  GFX_DrawChar('<', leftPos, top, GFX_GetFont());
-
-  // middle text
-  leftPos += spacing * 2;
-  GFX_DrawString(text, leftPos, top, GFX_GetFont());
-
-  // draw right arrow
-  leftPos += textLengthInPx + spacing;
-  GFX_DrawChar('>', leftPos, top, GFX_GetFont());
-}
-
 // battery part
 static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y) {
   GFX_DrawImageIndexes(x, y, 16, 16, batteryLeftPart, true);
@@ -131,11 +91,11 @@ static inline void DrawBattery(bool charging, _u8 level, _u16 x, _u16 y) {
 }
 
 static inline void DrawTextWithIcon(const char* text, const _u8* const icon,
-                                    _u16 x, _u16 y) {
+                                    _u16 x, _u16 y, Font_t* font) {
   GFX_DrawImageIndexes(x, y, 16, 16, icon, false);
   // "y+3" is a difference between height of icon (16 px) and font (10) divided
   // by 2
-  GFX_DrawString(text, x + 20, y + 3, GFX_GetFont());
+  GFX_DrawString(text, x + 20, y + 3, font);
 }
 
 // stub for app's unused callbacks

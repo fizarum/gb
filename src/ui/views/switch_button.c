@@ -90,7 +90,7 @@ static void Draw(View_t* view, const _u16 left, const _u16 top,
                  GFX_GetFontColor());
   }
 
-  GFX_DrawString(text, left + padding, top, GFX_GetFont());
+  GFX_DrawString(text, left + padding, top, button->font);
 }
 
 static void HandleInput(View_t* view, InputEvent* event) {

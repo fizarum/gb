@@ -28,9 +28,6 @@ void GFX_SetSystemColorMode(const ColorMode mode);
 void GFX_SetApplicationColorMode(const ColorMode mode);
 void GFX_ResetApplicationColorMode();
 
-void GFX_SetFont(Font_t* font);
-Font_t* GFX_GetFont();
-
 void GFX_SetTheme(Theme* theme);
 Theme* GFX_GetTheme();
 
@@ -89,7 +86,6 @@ _u16 GFX_GetColor(const _u8 colorIndex);
 // utils
 void GFX_FillScreen(const _u16 color);
 
-_u8 GFX_FontGetWidth();
 _u16 GFX_GetFontColor();
 
 #ifdef __cplusplus

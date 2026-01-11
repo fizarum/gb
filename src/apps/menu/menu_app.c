@@ -35,14 +35,8 @@ static AppSpecification_t specs = {
     .onUpdate = &App_StubFunction,
 };
 
-static Theme theme = {
-    .primaryColor = COLOR_SUNRAY,
-    .backgroundColor = COLOR_DARKCYAN,
-};
-
 static void onAppStart() {
   ESP_LOGI(specs.name, "on app started...");
-  GFX_SetTheme(&theme);
 
   if (_appsManager != NULL) {
     allApps = AppsManagerGetAllApps(_appsManager);
@@ -73,16 +67,17 @@ static void onAppRedraw(RedrawType_t redrawType) {
   const _u16 displayHCenter = GFX_GetCanwasWidth() / 2;
 
   const char* appName = AppGetName(selectedApp);
+  Font_t* font = GFX_GetTheme()->fontNormal;
 
   // just added one GFX_FontGetWidth() to make it centered
-  const _u16 textLength = (strlen(appName) + 1) * GFX_FontGetWidth();
+  const _u16 textLength = (strlen(appName) + 1) * Font_GetWidth(font);
   const _u16 textStart = displayHCenter - textLength / 2;
 
   switch (redrawType) {
     case RedrawFull: {
       DrawScreen();
 
-      GFX_DrawString(appName, textStart, 120, GFX_GetFont());
+      GFX_DrawString(appName, textStart, 120, font);
 
       DrawBattery(isCharging, percentage, 250, 7);
 
@@ -92,7 +87,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     case RedrawPartial: {
       GFX_DrawFilledRect(26, 120, 294, 150, GFX_GetTheme()->backgroundColor);
 
-      GFX_DrawString(appName, textStart, 120, GFX_GetFont());
+      GFX_DrawString(appName, textStart, 120, font);
 
       ESP_LOGI(specs.name, "selected app: %s", appName);
       break;
@@ -112,7 +107,6 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
 static void onAppResume(void) {
   ESP_LOGI(specs.name, "on app resume...");
-  GFX_SetTheme(&theme);
 
   if (selectedAppIndex == UINT8_MAX) {
     SelectNextApp();
@@ -188,8 +182,10 @@ void SelectPreviousApp() {
 
 void DrawScreen() {
   GFX_FillScreen(GFX_GetTheme()->backgroundColor);
+
+  Font_t* font = GFX_GetTheme()->fontNormal;
   // time placeholder
-  GFX_DrawString("23:59", 30, 7, GFX_GetFont());
+  GFX_DrawString("23:59", 30, 7, font);
 
   // battery placeholder
   // used DrawBattery() instead
@@ -217,8 +213,8 @@ void DrawScreen() {
   GFX_DrawLine(304, 110, 304, 130, lineWidth, color);
 
   // nav icon
-  DrawTextWithIcon("move", leftRightNavIcon, 20, 220);
+  DrawTextWithIcon("move", leftRightNavIcon, 20, 220, font);
 
   // command icon
-  DrawTextWithIcon("start", xButton, 180, 220);
+  DrawTextWithIcon("start", xButton, 180, 220, font);
 }

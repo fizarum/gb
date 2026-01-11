@@ -12,7 +12,6 @@
 // 8-bit version
 #define GFX_IS_BIT_SET8(source, position) (source & (0x80 >> position))
 
-static Font_t* activeFont = NULL;
 static Theme* activeTheme = NULL;
 static GFX_CanvasUpdated canvasCallback;
 static _u16 canvasWidth = 0;
@@ -79,9 +78,6 @@ void GFX_SetApplicationColorMode(const ColorMode mode) {
 
 void GFX_ResetApplicationColorMode() { applicationColorMode = systemColorMode; }
 
-void GFX_SetFont(Font_t* font) { activeFont = font; }
-Font_t* GFX_GetFont() { return activeFont; }
-
 void GFX_SetTheme(Theme* theme) { activeTheme = theme; }
 Theme* GFX_GetTheme() { return activeTheme; }
 
@@ -129,7 +125,7 @@ _u8 GFX_DrawSymbol(SymbolData_t* symbol, const _u16 left, const _u16 top,
       }
     }
   }
-  return GFX_FontGetWidth();
+  return Font_GetWidth(font);
 }
 
 /**
@@ -160,7 +156,7 @@ _u16 GFX_DrawString(const char* string, const _u16 left, const _u16 top,
   _u8 letterInUpperCase;
 
   // TODO: move it to argument
-  _u8 letterWidth = GFX_FontGetWidth();
+  _u8 letterWidth = Font_GetWidth(font);
 
   for (_u16 index = 0; index < length; index++) {
     letterInUpperCase = toupper(string[index]);
@@ -365,18 +361,6 @@ void GFX_FillScreen(const _u16 color) {
   for (_u32 index = 0; index < canvasSize; index++) {
     canvas[index] = colorToApply;
   }
-}
-
-_u8 GFX_FontGetWidth() {
-  if (activeFont == NULL) {
-    return 0;
-  }
-
-  //_activeFont->height is taken because for font smaller than 8x8
-  // height will contain actual size, when width is still 8 pt
-  // for example, for 5x5 font its 8x5 (width x height).
-  // Its known issue which will be fixed later
-  return activeFont->height * activeFont->scale + activeFont->spacing;
 }
 
 _u16 GFX_GetFontColor() { return activeTheme->primaryColor; }

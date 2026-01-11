@@ -105,15 +105,14 @@ static void OnSleepTimeoutChanged(OptionPicker_t* picker, void* option) {
   ESP_LOGI(specs.name, "[sleep timeout] option changed to: %d !", value);
 }
 
-static inline View_t* CreateSleepOptionsPicker() {
+static inline View_t* CreateSleepOptionsPicker(Font_t* font) {
   sleepOptions = ArrayCreate(4);
   ArrayAdd(sleepOptions, 1);
   ArrayAdd(sleepOptions, 5);
   ArrayAdd(sleepOptions, 10);
   ArrayAdd(sleepOptions, 30);
 
-  return OptionPicker_Create(sleepOptions, GFX_GetFont(), OnSleepTimeoutChanged,
-                             NULL);
+  return OptionPicker_Create(sleepOptions, font, OnSleepTimeoutChanged, NULL);
 }
 
 static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
@@ -130,7 +129,7 @@ static void OnBrightnessChanged(OptionPicker_t* picker, void* option) {
   SettingsData_SetBrightness(value);
 }
 
-static inline View_t* CreateBrightnessOptionsPicker() {
+static inline View_t* CreateBrightnessOptionsPicker(Font_t* font) {
   brightnessOptions = ArrayCreate(10);
   ArrayAdd(brightnessOptions, 1);
   ArrayAdd(brightnessOptions, 2);
@@ -143,8 +142,8 @@ static inline View_t* CreateBrightnessOptionsPicker() {
   ArrayAdd(brightnessOptions, 9);
   ArrayAdd(brightnessOptions, 10);
 
-  return OptionPicker_Create(brightnessOptions, GFX_GetFont(),
-                             OnBrightnessChanged, NULL);
+  return OptionPicker_Create(brightnessOptions, font, OnBrightnessChanged,
+                             NULL);
 }
 
 static void OnVolumeChanged(OptionPicker_t* picker, void* option) {
@@ -170,7 +169,7 @@ static bool OnVolumeItemMap(void* option, char* buff) {
   return true;
 }
 
-static inline View_t* CreateVolumeOptionsPicker() {
+static inline View_t* CreateVolumeOptionsPicker(Font_t* font) {
   volumeOptions = ArrayCreate(7);
   ArrayAdd(volumeOptions, 0);
   ArrayAdd(volumeOptions, 1);
@@ -180,7 +179,7 @@ static inline View_t* CreateVolumeOptionsPicker() {
   ArrayAdd(volumeOptions, 9);
   ArrayAdd(volumeOptions, 10);
 
-  return OptionPicker_Create(volumeOptions, GFX_GetFont(), OnVolumeChanged,
+  return OptionPicker_Create(volumeOptions, font, OnVolumeChanged,
                              OnVolumeItemMap);
 }
 
@@ -192,8 +191,8 @@ static void OnPowerSaveModeChanged(SwitchButton_t* button, bool on) {
            on ? "power save" : "normal");
 }
 
-static inline View_t* CreatePowerSaveSwitchButton() {
-  return SwitchButton_Create(false, GFX_GetFont(), OnPowerSaveModeChanged);
+static inline View_t* CreatePowerSaveSwitchButton(Font_t* font) {
+  return SwitchButton_Create(false, font, OnPowerSaveModeChanged);
 }
 
 // TODO: move to dynamic calculation
@@ -209,8 +208,10 @@ static void onAppStart() {
     return;
   }
 
+  Font_t* font = GFX_GetTheme()->fontNormal;
+
   // toolbar
-  View_t* toolbar = Toolbar_Create(specs.name, GFX_GetFont());
+  View_t* toolbar = Toolbar_Create(specs.name, font);
   Composer_AddView(rootId, toolbar);
 
   // main box
@@ -225,32 +226,32 @@ static void onAppStart() {
   _u16 settingsItem1 = Composer_AddVBox(settingsBoxId);
   Composer_AddView(settingsItem1, VSpacer_Create(padding));
   _u16 brItemBoxId = Composer_AddHBox(settingsItem1);
-  View_t* brLabel = Label_Create("Brightness:", GFX_GetFont());
-  brightnessPicker = CreateBrightnessOptionsPicker();
+  View_t* brLabel = Label_Create("Brightness:", font);
+  brightnessPicker = CreateBrightnessOptionsPicker(font);
   Composer_AddView(brItemBoxId, brLabel);
   Composer_AddView(brItemBoxId, brightnessPicker);
   Composer_AddView(brItemBoxId, VSpacer_Create(settingItemHeight));
 
   // 2. volume
   _u16 volumeBoxId = Composer_AddHBox(settingsBoxId);
-  View_t* vlLabel = Label_Create("volume:", GFX_GetFont());
-  volumePicker = CreateVolumeOptionsPicker();
+  View_t* vlLabel = Label_Create("volume:", font);
+  volumePicker = CreateVolumeOptionsPicker(font);
   Composer_AddView(volumeBoxId, vlLabel);
   Composer_AddView(volumeBoxId, volumePicker);
   Composer_AddView(volumeBoxId, VSpacer_Create(settingItemHeight));
 
   // 3. power save mode
   _u16 powerSaveBoxId = Composer_AddHBox(settingsBoxId);
-  View_t* psLabel = Label_Create("power save: ", GFX_GetFont());
-  powerSaveSwitch = CreatePowerSaveSwitchButton();
+  View_t* psLabel = Label_Create("power save: ", font);
+  powerSaveSwitch = CreatePowerSaveSwitchButton(font);
   Composer_AddView(powerSaveBoxId, psLabel);
   Composer_AddView(powerSaveBoxId, powerSaveSwitch);
   Composer_AddView(powerSaveBoxId, VSpacer_Create(settingItemHeight));
 
   // 4. "sleep in" option
   _u16 sleepOptionBoxId = Composer_AddHBox(settingsBoxId);
-  View_t* slLabel = Label_Create("sleep in min: ", GFX_GetFont());
-  sleepInOptionPicker = CreateSleepOptionsPicker();
+  View_t* slLabel = Label_Create("sleep in min: ", font);
+  sleepInOptionPicker = CreateSleepOptionsPicker(font);
   Composer_AddView(sleepOptionBoxId, slLabel);
   Composer_AddView(sleepOptionBoxId, sleepInOptionPicker);
   Composer_AddView(sleepOptionBoxId, VSpacer_Create(settingItemHeight));
