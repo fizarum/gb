@@ -31,7 +31,7 @@ void GFX_ResetApplicationColorMode();
 void GFX_SetTheme(Theme* theme);
 Theme* GFX_GetTheme();
 
-_u16 GFX_GetCanwasWidth();
+_u16 GFX_GetCanvasWidth();
 _u16 GFX_GetCanvasHeight();
 _u32 GFX_CanvasSize();
 

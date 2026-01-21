@@ -54,7 +54,7 @@ static _u32 sdUsedSizeInMB = 0;
 static void AddLabel(const _u16 rootBoxId, const char* text, Font_t* font);
 
 static void onAppStart(void) {
-  Composer_Init(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
+  Composer_Init(GFX_GetCanvasWidth(), GFX_GetCanvasHeight());
 
   Font_t* font = GFX_GetTheme()->fontNormal;
 

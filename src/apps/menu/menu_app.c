@@ -64,7 +64,7 @@ static void handleKey(const void* keyData) {
 }
 
 static void onAppRedraw(RedrawType_t redrawType) {
-  const _u16 displayHCenter = GFX_GetCanwasWidth() / 2;
+  const _u16 displayHCenter = GFX_GetCanvasWidth() / 2;
 
   const char* appName = AppGetName(selectedApp);
   Font_t* font = GFX_GetTheme()->fontNormal;

@@ -75,7 +75,7 @@ static void IRAM_ATTR powerButtonHandler(void* args) {
 }
 
 void app_main() {
-  vTaskDelay(_50);
+  vTaskDelay(_20);
 
   inputDataQueue = xQueueCreate(inputDataSize, sizeof(InputDeviceExtension));
 
@@ -250,7 +250,7 @@ static void LoadAndApplySettings() {
   AudioDeviceExtension* audioExtension =
       (AudioDeviceExtension*)DeviceManager_GetExtension(TypeAudio);
   if (audioExtension != NULL) {
-    _u8 volume = SettingsData_GetVolume() * 10;
+    _u8 volume = SettingsData_GetVolume();
     audioExtension->changeVolume(volume);
   }
 

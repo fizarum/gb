@@ -18,7 +18,7 @@
 #define AUDIO_DOUT 17
 #define AUDIO_BCLK 18
 
-static float minimalAudioLevel = 0.2;
+static const float minimalAudioLevel = 0.2;
 
 static bool changeVolume(const _u8 volume);
 
@@ -34,7 +34,7 @@ static DeviceSpecification specs = {
 };
 
 static AudioDeviceExtension extension = {
-    .volume = 1.0,
+    .volume = minimalAudioLevel,
     .changeVolume = &changeVolume,
 };
 
@@ -123,8 +123,7 @@ static bool onInit(void) {
 
 static bool onEnable(bool enable) {
   if (enable) {
-    // TODO: read volume value from settings
-    changeVolume(1);
+    changeVolume(extension.changeVolume);
     audioState = Enabled;
     xTaskCreate(&processAudio, "processAudio", 4096, NULL, 12,
                 &audioTaskHandler);
@@ -209,6 +208,7 @@ static bool changeVolume(const _u8 volume) {
     extension.volume = minimalAudioLevel * volume;
   }
 
-  ESP_LOGI(specs.name, "--> volume change: %.2f", extension.volume);
+  ESP_LOGI(specs.name, "--> volume change: %.2f arg: %d", extension.volume,
+           volume);
   return true;
 }
