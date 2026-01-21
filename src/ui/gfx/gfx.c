@@ -81,7 +81,7 @@ void GFX_ResetApplicationColorMode() { applicationColorMode = systemColorMode; }
 void GFX_SetTheme(Theme* theme) { activeTheme = theme; }
 Theme* GFX_GetTheme() { return activeTheme; }
 
-_u16 GFX_GetCanwasWidth() { return canvasWidth; }
+_u16 GFX_GetCanvasWidth() { return canvasWidth; }
 _u16 GFX_GetCanvasHeight() { return canvasHeight; }
 _u32 GFX_CanvasSize() { return canvasSize; }
 

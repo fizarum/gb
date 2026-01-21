@@ -17,11 +17,20 @@
 
 static StorageDeviceExtension* extension;
 
+static void handleKey(const void* keyData);
+static void onAppStart(void);
+static void onAppRedraw(RedrawType_t redrawType);
+static void onAppStop(void);
+
 static AppSpecification_t specs = {
     .name = "File Manager",
-    .onPause = &App_StubFunction,
-    .onResume = &App_StubFunction,
-    .onUpdate = &App_StubFunction,
+    .onPause = App_StubFunction,
+    .onResume = App_StubFunction,
+    .onUpdate = App_StubFunction,
+    .onStart = onAppStart,
+    .onRedraw = onAppRedraw,
+    .onStop = onAppStop,
+    .handleInput = handleKey,
 };
 
 const _u8 startVPadding = 40;
@@ -90,7 +99,7 @@ static void handleKey(const void* keyData) {
 
 static void onAppStart(void) {
   ESP_LOGI(specs.name, "on app start...");
-  Composer_Init(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
+  Composer_Init(GFX_GetCanvasWidth(), GFX_GetCanvasHeight());
 
   extension = (StorageDeviceExtension*)DeviceManager_GetExtension(TypeStorage);
 
@@ -141,7 +150,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
     }
 
     // redraw file item
-    GFX_DrawFilledRect(startHPadding, vPosOfText, GFX_GetCanwasWidth() - 1,
+    GFX_DrawFilledRect(startHPadding, vPosOfText, GFX_GetCanvasWidth() - 1,
                        vPosOfTextBox, GFX_GetTheme()->backgroundColor);
     if (fileItem->initialized == true) {
       GFX_DrawString(fileItem->name, startHPadding, vPosOfText,
@@ -161,7 +170,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
                          16);
 
   // draw scroll bar
-  DrawScrollBar(currentPage, pages, GFX_GetCanwasWidth() - 1,
+  DrawScrollBar(currentPage, pages, GFX_GetCanvasWidth() - 1,
                 GFX_GetCanvasHeight() - 1, GFX_GetFontColor(),
                 GFX_GetTheme()->backgroundColor);
   GFX_Redraw();
@@ -173,14 +182,7 @@ static void onAppStop(void) {
   CleanupCache();
 }
 
-AppSpecification_t* FileMangerAppSpecification() {
-  specs.handleInput = &handleKey;
-  specs.onStart = &onAppStart;
-  specs.onRedraw = &onAppRedraw;
-  specs.onStop = &onAppStop;
-
-  return &specs;
-}
+AppSpecification_t* FileMangerAppSpecification() { return &specs; }
 
 /**
  * @brief Prepare cache for shown file items

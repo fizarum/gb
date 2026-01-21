@@ -58,7 +58,7 @@ static void Toolbar_Draw(View_t* view, const _u16 left, const _u16 top,
 
 // private part
 static void Toolbar_RecalculateSize(Toolbar_t* toolbar) {
-  View_SetWidth(toolbar->view, GFX_GetCanwasWidth());
+  View_SetWidth(toolbar->view, GFX_GetCanvasWidth());
   View_SetHeight(toolbar->view, 30);
 }
 

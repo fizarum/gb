@@ -202,7 +202,7 @@ static const _u8 padding = 20;
 static void onAppStart() {
   SettingsData_Load();
 
-  Composer_Init(GFX_GetCanwasWidth(), GFX_GetCanvasHeight());
+  Composer_Init(GFX_GetCanvasWidth(), GFX_GetCanvasHeight());
   _u16 rootId = Composer_GetRootId();
   if (rootId == TREE_INDEX_NONE) {
     return;
