@@ -22,6 +22,10 @@
 #define mbSize (1024 * 1024)
 #define PADDING 20
 
+static void onAppStart(void);
+static void onAppRedraw(RedrawType_t redrawType);
+static void onAppStop();
+
 static char modelStr[16];
 static char revisionStr[16];
 static char coresStr[16];
@@ -36,10 +40,9 @@ static char osStr[24];
 
 static AppSpecification_t specs = {
     .name = "Info",
-    .onPause = &App_StubFunction,
-    .onResume = &App_StubFunction,
-    .onUpdate = &App_StubFunction,
-    .onStop = &App_StubFunction,
+    .onStart = onAppStart,
+    .onRedraw = onAppRedraw,
+    .onStop = onAppStop,
 };
 
 static esp_chip_info_t chipInfo;
@@ -133,8 +136,6 @@ static void onAppStart(void) {
   Composer_Recompose();
 }
 
-static void handleKey(const void* keyData) {}
-
 static void onAppRedraw(RedrawType_t redrawType) {
   if (redrawType == RedrawFull) {
     GFX_FillScreen(GFX_GetTheme()->backgroundColor);
@@ -145,14 +146,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
 
 static void onAppStop() { Composer_Clear(); }
 
-AppSpecification_t* InfoAppSpecification() {
-  specs.handleInput = &handleKey;
-  specs.onStart = &onAppStart;
-  specs.onRedraw = &onAppRedraw;
-  specs.onStop = &onAppStop;
-
-  return &specs;
-}
+AppSpecification_t* InfoAppSpecification() { return &specs; }
 
 static void AddLabel(const _u16 rootBoxId, const char* text, Font_t* font) {
   View_t* label = Label_Create(text, font);

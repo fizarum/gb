@@ -1,5 +1,28 @@
 #include "joystick_utils.h"
 
+#define isPressed(keymap, mask) ((keymap & mask) == mask)
+
+static inline bool IsButtonPressed(const InputDeviceExtension* data,
+                                   const _u16 keycode) {
+  return isPressed(data->keymap, keycode);
+}
+
+static inline bool IsButtonReleased(const InputDeviceExtension* data,
+                                    const _u16 keycode) {
+  return isPressed(data->keymap, keycode) == false &&
+         isPressed(data->previousKeymap, keycode) == true;
+}
+
+static inline bool IsButtonLongPressed(const InputDeviceExtension* data,
+                                       const _u16 keycode) {
+  return isPressed(data->keymap, keycode) == true &&
+         isPressed(data->previousKeymap, keycode) == true;
+}
+
+bool IsAnyButtonPressed(const InputDeviceExtension* data) {
+  return data->keymap > 0 || data->previousKeymap > 0;
+}
+
 bool IsButtonMenuPressed(const InputDeviceExtension* data) {
   return IsButtonPressed(data, btnMenu);
 }

@@ -22,13 +22,17 @@
 #include "esp_log.h"
 #include "settings_data.h"
 
+static void handleKey(const void* keyData);
+static void onAppStart();
+static void onAppRedraw(RedrawType_t redrawType);
 static void OnStop();
 
 static AppSpecification_t specs = {
     .name = "Settings",
-    .onPause = &App_StubFunction,
-    .onResume = &App_StubFunction,
-    .onUpdate = &App_StubFunction,
+    .onStart = &onAppStart,
+    .onStop = &OnStop,
+    .onRedraw = &onAppRedraw,
+    .handleInput = handleKey,
 };
 
 static View_t* listFocus;
@@ -273,14 +277,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
   GFX_Redraw();
 }
 
-AppSpecification_t* SettingsAppSpecification() {
-  specs.handleInput = &handleKey;
-  specs.onStart = &onAppStart;
-  specs.onRedraw = &onAppRedraw;
-  specs.onStop = &OnStop;
-
-  return &specs;
-};
+AppSpecification_t* SettingsAppSpecification() { return &specs; }
 
 static void OnStop() {
   Composer_Clear();

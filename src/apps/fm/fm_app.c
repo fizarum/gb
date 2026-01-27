@@ -24,9 +24,6 @@ static void onAppStop(void);
 
 static AppSpecification_t specs = {
     .name = "File Manager",
-    .onPause = App_StubFunction,
-    .onResume = App_StubFunction,
-    .onUpdate = App_StubFunction,
     .onStart = onAppStart,
     .onRedraw = onAppRedraw,
     .onStop = onAppStop,
