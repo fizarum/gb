@@ -9,7 +9,7 @@ extern "C" {
 #include <specifications/input_data.h>
 #include <types.h>
 
-// button masks
+// button masks - used in gpio expander
 static const _u16 rightTrigger = 1 << 0;
 static const _u16 btnX = 1 << 1;
 static const _u16 btnA = 1 << 2;
@@ -24,27 +24,7 @@ static const _u16 btnLeft = 1 << 13;
 static const _u16 btnUp = 1 << 14;
 static const _u16 leftTrigger = 1 << 15;
 
-typedef union KeysStatus_t {
-  struct KeyMap {
-    bool B : 1;
-    bool Y : 1;
-    bool A : 1;
-    bool X : 1;
-    bool rightTrigger : 1;
-    bool leftTrigger : 1;
-    bool Up : 1;
-    bool Left : 1;
-    bool Right : 1;
-    bool Down : 1;
-    bool Select : 1;
-    bool Start : 1;
-    bool Menu : 1;
-
-    _u8 unused : 3;
-  } keyMap;
-
-  _u16 value;
-} KeysStatus_t;
+bool IsAnyButtonPressed(const InputDeviceExtension* data);
 
 // menu
 bool IsButtonMenuPressed(const InputDeviceExtension* data);

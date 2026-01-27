@@ -12,11 +12,20 @@
 #include "freertos/task.h"
 #include "resources.h"
 
+static void onAppStart();
+static void onAppUpdate();
+static void handleKey(const void* keyData);
+static void onAppRedraw(RedrawType_t redrawType);
+static void onAppStop();
+
 static AppSpecification_t specs = {
     .name = "Demo GSDK",
-    .onPause = &App_StubFunction,
-    .onResume = &App_StubFunction,
-    .onUpdate = &App_StubFunction,
+    .onUpdate = onAppUpdate,
+    .handleInput = handleKey,
+    .onStart = onAppStart,
+    .onRedraw = onAppRedraw,
+    .onStop = onAppStop,
+    .onUpdate = onAppUpdate,
 };
 
 static TaskHandle_t updateTaskHandler = NULL;
@@ -105,15 +114,7 @@ static void onAppRedraw(RedrawType_t redrawType) {
   GFX_Redraw();
 }
 
-AppSpecification_t* DemoAppSpecification() {
-  specs.handleInput = &handleKey;
-  specs.onStart = &onAppStart;
-  specs.onRedraw = &onAppRedraw;
-  specs.onStop = &onAppStop;
-  specs.onUpdate = &onAppUpdate;
-
-  return &specs;
-}
+AppSpecification_t* DemoAppSpecification() { return &specs; }
 
 void _AssignSprites() {
   Scene* scene = Game_GetScene();

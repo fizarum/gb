@@ -13,6 +13,12 @@
 #include "esp_timer.h"
 #include "menu_resources.h"
 
+static void handleKey(const void* keyData);
+static void onAppStart();
+static void onAppResume();
+static void onAppRedraw(RedrawType_t redrawType);
+static void onBroadcastEvent(BroadcastEvent_t event);
+
 void SelectNextApp();
 void SelectPreviousApp();
 void DrawScreen();
@@ -30,9 +36,11 @@ _u16 percentage = 0;
 
 static AppSpecification_t specs = {
     .name = "Menu",
-    .onPause = &App_StubFunction,
-    .onStop = &App_StubFunction,
-    .onUpdate = &App_StubFunction,
+    .handleInput = handleKey,
+    .onStart = onAppStart,
+    .onResume = onAppResume,
+    .onRedraw = onAppRedraw,
+    .onBroadcastEvent = onBroadcastEvent,
 };
 
 static void onAppStart() {
@@ -115,7 +123,7 @@ static void onAppResume(void) {
   }
 }
 
-void onBroadcastEvent(BroadcastEvent_t event) {
+static void onBroadcastEvent(BroadcastEvent_t event) {
   ESP_LOGI(specs.name, "received broadcast event: [%d]\n", event.type);
   switch (event.type) {
     case ChargingOn:
@@ -139,12 +147,6 @@ void onBroadcastEvent(BroadcastEvent_t event) {
 }
 
 AppSpecification_t* MenuAppSpecification(AppsManager_t* appsManager) {
-  specs.handleInput = &handleKey;
-  specs.onStart = &onAppStart;
-  specs.onResume = &onAppResume;
-  specs.onRedraw = &onAppRedraw;
-  specs.onBroadcastEvent = &onBroadcastEvent;
-
   _appsManager = appsManager;
   return &specs;
 }

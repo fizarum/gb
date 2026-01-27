@@ -29,39 +29,6 @@ static const char* const osVersion = "0.0.1";
 #define FOCUS_SMALL_PADDING 2
 #define FOCUS_MIDDLE_PADDING 4
 
-static inline void App_DrawProgress(const _u16 left, const _u16 top,
-                                    const _u16 right, const _u16 bottom,
-                                    const _u8 progress) {
-  if (left >= right) {
-    return;
-  }
-
-  if (top + PROGRESS_BAR_MIN_HEIGH < bottom) {
-    return;
-  }
-
-  if (progress > 100) {
-    return;
-  }
-
-  _u16 hLength = right - left;
-  _u16 vLength = bottom - top;
-
-  _u16 pixelsPerPercent = (right - left) / 100;
-  _u16 width = pixelsPerPercent * progress;
-
-  if (progress < 100) {
-    // top line
-    GFX_DrawHLine(left, top, hLength, 1, GFX_GetFontColor());
-    // bottom line
-    GFX_DrawHLine(left, bottom, hLength, 1, GFX_GetFontColor());
-    // right vertical line
-    GFX_DrawVLine(right, top, vLength, 1, GFX_GetFontColor());
-  }
-  // progress
-  GFX_DrawFilledRect(left, top, left + width, bottom, GFX_GetFontColor());
-}
-
 static inline void App_DrawFocusIndicator(const _u16 left, const _u16 top,
                                           const _u8 focusHeight) {
   GFX_DrawFilledRect(left, 0, left + FOCUS_AREA_WIDTH,
@@ -97,9 +64,6 @@ static inline void DrawTextWithIcon(const char* text, const _u8* const icon,
   // by 2
   GFX_DrawString(text, x + 20, y + 3, font);
 }
-
-// stub for app's unused callbacks
-static void App_StubFunction(void) {};
 
 #ifdef __cplusplus
 }
